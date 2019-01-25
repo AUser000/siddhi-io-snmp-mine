@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SNMPConstants.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Siddhi io snmp extension</a> &gt; <a href="index.source.html" class="el_package">org.wso2.extension.siddhi.io.snmp.util</a> &gt; <span class="el_source">SNMPConstants.java</span></div><h1>SNMPConstants.java</h1><pre class="source lang-java linenums">package org.wso2.extension.siddhi.io.snmp.util;
+
+
+import org.snmp4j.PDU;
+import org.snmp4j.mp.SnmpConstants;
+
+/**
+ *
+ * SNMP constants
+ *
+ */
+public class SNMPConstants {
+    // dynamic true
+    public static final String HOST = &quot;host&quot;;
+    public static final String VERSION = &quot;version&quot;;
+    public static final String REQUEST_INTERVAL = &quot;request.interval&quot;;
+    public static final String COMMUNITY = &quot;community&quot;;
+    public static final String TYPE = &quot;type&quot;;
+    public static final String OIDS = &quot;oids&quot;;
+
+    // optional
+    public static final String AGENT_PORT = &quot;agent.port&quot;;
+    public static final String MANAGER_PORT = &quot;manager.port&quot;;
+    public static final String IS_TCP = &quot;istcp&quot;;
+    public static final String RETRIES = &quot;retries&quot;;
+    public static final String TIMEOUT = &quot;timeout&quot;;
+
+    // v3
+    public static final String USER_NAME = &quot;user.name&quot;;
+    public static final String SECURITY_MODE = &quot;security.mode&quot;;
+    public static final String USER_PASSWORD = &quot;user.password&quot;;
+    public static final String ENC_PROTOCOL = &quot;encryption.protocol&quot;;
+    public static final String AUT_PROTOCOL = &quot;authentication.protocol&quot;;
+
+    public static final String COMMA = &quot;,&quot;;
+
+    public static final int V1 = SnmpConstants.version1;
+    public static final int V2C = SnmpConstants.version2c;
+    public static final int V3 = SnmpConstants.version3;
+
+    public static final int GET = PDU.GET;
+    public static final int TRAP = PDU.TRAP;
+    public static final int SET = PDU.SET;
+
+    // default values
+    public static final String DEFAULT_MANAGER_PORT = &quot;162&quot;;
+    public static final String DEFAULT_AGENT_PORT = &quot;161&quot;;
+    public static final String DEFAULT_IS_TCP = &quot;false&quot;;
+    public static final String DEFAULT_RETRIES = &quot;5&quot;;
+    public static final String DEFAULT_TIMEOUT = &quot;700&quot;;
+    public static final String DEFAULT_USERNAME = USER_NAME;
+    public static final String DEFAULT_USER_PASSWORD = USER_PASSWORD;
+    public static final String DEFAULT_ENC_PROTOCOL = &quot;noEnc&quot;;
+    public static final String DEFAULT_AUT_PROTOCOL = &quot;noAuth&quot;;
+
+
+<span class="nc" id="L57">    private SNMPConstants(){}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

@@ -1,0 +1,2 @@
+org.wso2.extension.siddhi.io.snmp.sink.SNMPSink
+org.wso2.extension.siddhi.io.snmp.source.SNMPSource
