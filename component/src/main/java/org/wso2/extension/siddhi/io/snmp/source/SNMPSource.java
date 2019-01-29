@@ -2,8 +2,9 @@ package org.wso2.extension.siddhi.io.snmp.source;
 
 import org.apache.log4j.Logger;
 import org.snmp4j.PDU;
-import org.wso2.extension.siddhi.io.snmp.manager.SNMPManager;
+import org.wso2.extension.siddhi.io.snmp.manager.SNMPGetManager;
 import org.wso2.extension.siddhi.io.snmp.manager.SNMPManagerConfig;
+import org.wso2.extension.siddhi.io.snmp.manager.SNMPServer;
 import org.wso2.extension.siddhi.io.snmp.util.SNMPConstants;
 import org.wso2.extension.siddhi.io.snmp.util.SNMPUtils;
 import org.wso2.siddhi.annotation.Example;
@@ -175,7 +176,7 @@ public class SNMPSource extends Source {
     private int requestInterval;
     private String community;
     private SNMPManagerConfig managerConfig;
-    private SNMPManager manager;
+    private SNMPGetManager manager;
 
 
     /**
@@ -206,8 +207,12 @@ public class SNMPSource extends Source {
         this.requestInterval = Integer.parseInt(optionHolder.validateAndGetStaticValue(SNMPConstants.REQUEST_INTERVAL));
         this.community = optionHolder.validateAndGetStaticValue(SNMPConstants.COMMUNITY);
         managerConfig = new SNMPManagerConfig();
-        managerConfig.setOIDs(optionHolder.validateAndGetStaticValue(SNMPConstants.OIDS));
-        managerConfig.setRequestInterval(requestInterval);
+        managerConfig.setVariablebindings(
+                SNMPUtils.validateAndGetOidList(
+                        optionHolder.validateAndGetStaticValue(
+                                SNMPConstants.OIDS)));
+        manager = new SNMPGetManager();
+        manager.setSourceEventListener(sourceEventListener);
     }
 
     /**
@@ -234,11 +239,13 @@ public class SNMPSource extends Source {
         try {
             managerConfig.setTransportMappingUDP();
             managerConfig.setCommunityTarget(host, agentPort, community, 5, 1000, SNMPConstants.V2C);
-            manager = SNMPManager.getInstance();
             try {
                 manager.setManagerConfig(managerConfig);
-                manager.addSourceEventListener(sourceEventListener);
-                manager.startInAnotherThread();
+                Thread server = new Thread(new SNMPServer(requestInterval, manager));
+                server.start();
+
+                //manager.addSourceEventListener(sourceEventListener);
+                //manager.startInAnotherThread();
             } catch (IOException e) {
                 throw new ConnectionUnavailableException(e);
             }
@@ -253,7 +260,6 @@ public class SNMPSource extends Source {
      */
     @Override
     public void disconnect() {
-        manager.stop();
         log.info(" disconnect triggered ");
     }
 
@@ -262,7 +268,6 @@ public class SNMPSource extends Source {
      */
     @Override
     public void destroy() {
-        manager.stop();
         log.info(" destroy triggered");
     }
 
@@ -271,7 +276,7 @@ public class SNMPSource extends Source {
      */
     @Override
     public void pause() {
-        manager.pause();
+
     }
 
     /**
@@ -279,7 +284,7 @@ public class SNMPSource extends Source {
      */
     @Override
     public void resume() {
-        manager.resume();
+
     }
 
     /**

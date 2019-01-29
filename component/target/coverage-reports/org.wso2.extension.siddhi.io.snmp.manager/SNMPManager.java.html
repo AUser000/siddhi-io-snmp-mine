@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SNMPManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Siddhi io snmp extension</a> &gt; <a href="index.source.html" class="el_package">org.wso2.extension.siddhi.io.snmp.manager</a> &gt; <span class="el_source">SNMPManager.java</span></div><h1>SNMPManager.java</h1><pre class="source lang-java linenums">package org.wso2.extension.siddhi.io.snmp.manager;
 
 import org.apache.log4j.Logger;
-import org.snmp4j.PDU;
 import org.snmp4j.Snmp;
 import org.snmp4j.event.ResponseEvent;
 import org.snmp4j.mp.SnmpConstants;
@@ -9,12 +8,11 @@ import org.snmp4j.security.SecurityModels;
 import org.snmp4j.security.SecurityProtocols;
 import org.snmp4j.security.USM;
 import org.snmp4j.security.UsmUser;
+import org.snmp4j.smi.OID;
+import org.snmp4j.smi.OctetString;
 import org.snmp4j.smi.VariableBinding;
-import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -22,216 +20,73 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  *  Snmp Manager file
  */
-public class SNMPManager implements Manager {
-<span class="fc" id="L26">    Logger log = Logger.getLogger(SNMPManager.class);</span>
-    private Snmp snmp;
-<span class="fc" id="L28">    private boolean started = false;</span>
-<span class="fc" id="L29">    private static SNMPManager snmpManager = new SNMPManager();</span>
-<span class="fc" id="L30">    private SNMPManagerConfig managerConfig = null;</span>
-    private SourceEventListener sourceEventListener;
-<span class="fc" id="L32">    private Lock lock = new ReentrantLock();</span>
+public class SNMPManager {
 
-<span class="fc" id="L34">    private SNMPManager() {</span>
-<span class="fc" id="L35">    }</span>
+<span class="fc" id="L25">    Logger log = Logger.getLogger(SNMPManager.class);</span>
+    Snmp snmp;
 
-    public static SNMPManager getInstance() {
-<span class="fc" id="L38">        return snmpManager;</span>
+    public SNMPManagerConfig getManagerConfig() {
+<span class="nc" id="L29">        return managerConfig;</span>
     }
+
+<span class="fc" id="L32">    SNMPManagerConfig managerConfig = null;</span>
+<span class="fc" id="L33">    private Lock lock = new ReentrantLock();</span>
+
+<span class="fc" id="L35">    public SNMPManager() {</span>
+<span class="fc" id="L36">    }</span>
+
+
 
     public void setManagerConfig(SNMPManagerConfig managerConfig) throws IOException {
-<span class="fc" id="L42">        this.managerConfig = managerConfig;</span>
-<span class="fc" id="L43">        snmp = new Snmp(managerConfig.getTransportMapping());</span>
+<span class="fc" id="L41">        this.managerConfig = managerConfig;</span>
+<span class="fc" id="L42">        snmp = new Snmp(managerConfig.getTransportMapping());</span>
 
-<span class="pc bpc" id="L45" title="3 of 4 branches missed.">        if (managerConfig.getVersion() == SnmpConstants.version3</span>
+<span class="pc bpc" id="L44" title="3 of 4 branches missed.">        if (managerConfig.getVersion() == SnmpConstants.version3</span>
                 &amp;&amp; managerConfig.isTSM == false) {
 
-<span class="nc" id="L48">            USM usm = new USM(SecurityProtocols.getInstance(),</span>
-<span class="nc" id="L49">                    managerConfig.getLocalEngineID(),</span>
+<span class="nc" id="L47">            USM usm = new USM(SecurityProtocols.getInstance(),</span>
+<span class="nc" id="L48">                    managerConfig.getLocalEngineID(),</span>
                     0);
 
-<span class="nc" id="L52">            SecurityModels.getInstance().addSecurityModel(usm);</span>
+<span class="nc" id="L51">            SecurityModels.getInstance().addSecurityModel(usm);</span>
 
-<span class="nc" id="L54">            snmp.getUSM().addUser(managerConfig.getUserName()</span>
-<span class="nc" id="L55">                    , new UsmUser(managerConfig.getUserName(),</span>
-<span class="nc" id="L56">                            managerConfig.getAuthProtocol(),</span>
-<span class="nc" id="L57">                            managerConfig.getAuthProtocolPass(),</span>
-<span class="nc" id="L58">                            managerConfig.getPrivProtocol(),</span>
-<span class="nc" id="L59">                            managerConfig.getPrivProtocolPass()));</span>
+<span class="nc" id="L53">            snmp.getUSM().addUser(managerConfig.getUserName()</span>
+<span class="nc" id="L54">                    , new UsmUser(managerConfig.getUserName(),</span>
+<span class="nc" id="L55">                            managerConfig.getAuthProtocol(),</span>
+<span class="nc" id="L56">                            managerConfig.getAuthProtocolPass(),</span>
+<span class="nc" id="L57">                            managerConfig.getPrivProtocol(),</span>
+<span class="nc" id="L58">                            managerConfig.getPrivProtocolPass()));</span>
 
         }
-<span class="fc" id="L62">        snmp.listen();</span>
-<span class="fc" id="L63">    }</span>
+<span class="fc" id="L61">        snmp.listen();</span>
+<span class="fc" id="L62">    }</span>
 
-    @Override
-    public void start() {
-<span class="nc bnc" id="L67" title="All 2 branches missed.">        if (!started) {</span>
-<span class="nc" id="L68">            started = true;</span>
-<span class="nc bnc" id="L69" title="All 2 branches missed.">            while (started) {</span>
-                try {
-<span class="nc" id="L71">                    Thread.sleep(managerConfig.getRequestInterval());</span>
-<span class="nc" id="L72">                } catch (InterruptedException e) {</span>
-<span class="nc" id="L73">                    log.info(e);</span>
-<span class="nc" id="L74">                }</span>
-                //log.info(&quot;running&quot;);
-<span class="nc" id="L76">                ResponseEvent event = null;</span>
-                try {
-<span class="nc" id="L78">                    event = request();</span>
-<span class="nc" id="L79">                } catch (IOException e) {</span>
-<span class="nc" id="L80">                    log.info(e);</span>
-<span class="nc" id="L81">                }</span>
-<span class="nc" id="L82">                validateAndLog(event);</span>
-<span class="nc" id="L83">            }</span>
-        }
-<span class="nc" id="L85">    }</span>
+    public ResponseEvent send(Map&lt;String, String&gt; map, int type) throws IOException {
+<span class="fc bfc" id="L65" title="All 2 branches covered.">        for (Map.Entry&lt;String, String&gt; entry: map.entrySet()) {</span>
+<span class="fc" id="L66">            this.managerConfig.getPdu().add(new VariableBinding(new OID(entry.getKey()),</span>
+<span class="fc" id="L67">                    new OctetString(entry.getValue())));</span>
+<span class="fc" id="L68">        }</span>
+<span class="fc" id="L69">        managerConfig.getPdu().setType(type);</span>
+<span class="fc" id="L70">        ResponseEvent event = snmp.set(managerConfig.getPdu(), managerConfig.getCommunityTarget());</span>
+<span class="fc" id="L71">        return event;</span>
 
-    public void startInAnotherThread() {
-        class Server implements Runnable {
-            SourceEventListener sourceEventListener;
-<span class="fc" id="L90">            boolean started = false;</span>
-
-<span class="fc" id="L92">            public Server(SourceEventListener sourceEventListener, boolean started) {</span>
-<span class="fc" id="L93">                this.sourceEventListener = sourceEventListener;</span>
-<span class="fc" id="L94">            }</span>
-
-            @Override
-            public void run() {
-<span class="fc" id="L98">                started = true;</span>
-<span class="pc bpc" id="L99" title="1 of 2 branches missed.">                while (started) {</span>
-                    ResponseEvent event;
-                    try {
-<span class="fc" id="L102">                        event = snmp.send(managerConfig.getPdu(), managerConfig.getCommunityTarget(), null);</span>
-<span class="pc bpc" id="L103" title="1 of 2 branches missed.">                        if (event != null) {</span>
-<span class="pc bpc" id="L104" title="1 of 2 branches missed.">                            if (event.getResponse() != null) {</span>
-<span class="fc" id="L105">                                List&lt;VariableBinding&gt; vbs = (List&lt;VariableBinding&gt;) event</span>
-<span class="fc" id="L106">                                        .getResponse().getVariableBindings();</span>
-<span class="fc" id="L107">                                Map&lt;String, String&gt; map = new HashMap&lt;String, String&gt;();</span>
-<span class="fc bfc" id="L108" title="All 2 branches covered.">                                for (VariableBinding vb : vbs) {</span>
-<span class="fc" id="L109">                                    map.put(vb.getOid().toDottedString(), vb.getVariable().toString());</span>
-<span class="fc" id="L110">                                }</span>
-<span class="fc" id="L111">                                this.sourceEventListener.onEvent(map, null);</span>
-                                //log.info(&quot;\n&quot;+ map.toString()+ &quot;\n&quot;);
-<span class="fc" id="L113">                            } else {</span>
-<span class="nc" id="L114">                                log.info(&quot;response pdu is null&quot;);</span>
-                            }
-                        } else {
-<span class="nc" id="L117">                            log.info(&quot;event is null&quot;);</span>
-                        }
-                        try {
-<span class="fc" id="L120">                            Thread.sleep(managerConfig.getRequestInterval());</span>
-<span class="nc" id="L121">                        } catch (InterruptedException e) {</span>
-<span class="nc" id="L122">                            log.info(e);</span>
-<span class="fc" id="L123">                        }</span>
-
-<span class="nc" id="L125">                    } catch (IOException e) {</span>
-<span class="nc" id="L126">                        log.info(e);</span>
-<span class="pc" id="L127">                    }</span>
-                }
-<span class="nc" id="L129">            }</span>
-        }
-<span class="fc" id="L131">        Thread t = new Thread(new Server(sourceEventListener, started));</span>
-<span class="fc" id="L132">        t.start();</span>
-<span class="fc" id="L133">    }</span>
-
-
-    @Override
-    public void stop() {
-<span class="pc bpc" id="L138" title="1 of 2 branches missed.">        if (started) {</span>
-<span class="nc" id="L139">            started = false;</span>
-<span class="nc" id="L140">            managerConfig = null;</span>
-        }
-<span class="fc" id="L142">    }</span>
-
-    @Override
-    public void resume() {
-<span class="nc bnc" id="L146" title="All 2 branches missed.">        if (!started) {</span>
-<span class="nc" id="L147">            started = true;</span>
-<span class="nc" id="L148">            start();</span>
-        }
-<span class="nc" id="L150">    }</span>
-
-    @Override
-    public void pause() {
-<span class="nc bnc" id="L154" title="All 2 branches missed.">        if (started) {</span>
-<span class="nc" id="L155">            started = false;</span>
-        }
-<span class="nc" id="L157">    }</span>
-
-
-    public void addSourceEventListener(SourceEventListener sourceEventListener) {
-<span class="fc" id="L161">        this.sourceEventListener = sourceEventListener;</span>
-<span class="fc" id="L162">    }</span>
-
-    private ResponseEvent request() throws IOException {
-        //log.info(&quot;sending request&quot;);
-<span class="nc bnc" id="L166" title="All 2 branches missed.">        if (managerConfig.getPdu() == null) {</span>
-<span class="nc" id="L167">            log.info(&quot;pdu null&quot;);</span>
-        }
-<span class="nc" id="L169">        ResponseEvent event = snmp.send(managerConfig.getPdu(), managerConfig.getCommunityTarget(), null);</span>
-<span class="nc bnc" id="L170" title="All 2 branches missed.">        if (event == null) {</span>
-<span class="nc" id="L171">            log.info(&quot;event is null&quot;);</span>
-        }
-<span class="nc" id="L173">        return event;</span>
     }
 
-    private void validateAndLog(ResponseEvent event) {
-<span class="nc bnc" id="L177" title="All 2 branches missed.">        if (event != null) {</span>
-            //log.info(&quot;event received &quot;);
-<span class="nc bnc" id="L179" title="All 2 branches missed.">            if (event.getResponse() != null) {</span>
-<span class="nc" id="L180">                List&lt;VariableBinding&gt; vbs = (List&lt;VariableBinding&gt;) event.getResponse().getVariableBindings();</span>
-<span class="nc" id="L181">                Map&lt;String, String&gt; map = new HashMap&lt;String, String&gt;();</span>
-<span class="nc bnc" id="L182" title="All 2 branches missed.">                for (VariableBinding vb : vbs) {</span>
-                    //log.info(vb.toString());
-<span class="nc" id="L184">                    map.put(vb.getOid().toDottedString(), vb.getVariable().toString());</span>
-                    //log.info(&quot;got the vb &quot; + vb.getOid().toDottedString() + &quot; = &quot; + vb.getVariable().toString());
-<span class="nc" id="L186">                }</span>
-                //log.info(map.toString());
-<span class="nc" id="L188">                this.sourceEventListener.onEvent(map, null);</span>
-<span class="nc" id="L189">            } else {</span>
-<span class="nc" id="L190">                log.info(&quot;response pdu is null&quot;);</span>
-            }
-        } else {
-<span class="nc" id="L193">            log.info(&quot;event is null&quot;);</span>
-        }
-<span class="nc" id="L195">    }</span>
+    public ResponseEvent send() throws IOException {
+<span class="fc" id="L76">        ResponseEvent event = snmp.get(managerConfig.getPdu(), managerConfig.getCommunityTarget());</span>
+<span class="fc" id="L77">        return event;</span>
+    }
+
+
 
     public void close() {
         try {
-<span class="fc" id="L199">            snmp.close();</span>
-<span class="nc" id="L200">        } catch (IOException e) {</span>
-<span class="nc" id="L201">            log.info(e);</span>
-<span class="fc" id="L202">        }</span>
-<span class="fc" id="L203">    }</span>
+<span class="fc" id="L84">            snmp.close();</span>
+<span class="fc" id="L85">            managerConfig.close();</span>
+<span class="nc" id="L86">        } catch (IOException e) {</span>
+<span class="nc" id="L87">            log.info(&quot; hell &quot;);</span>
+<span class="fc" id="L88">        }</span>
+<span class="fc" id="L89">    }</span>
 
-    public void sendAndValidate(Map&lt;String, String&gt; map) {
-        try {
-<span class="fc bfc" id="L207" title="All 2 branches covered.">            for (Map.Entry&lt;String, String&gt; entry: map.entrySet()) {</span>
-<span class="fc" id="L208">                log.info(&quot;oid : &quot; + entry.getKey());</span>
-<span class="fc" id="L209">                log.info(&quot;vb  : &quot; + entry.getValue());</span>
-                //Variable vb = new OctetString(entry.getValue());
-                //pdu.add(new VariableBinding(new OID(entry.getKey())));
-<span class="fc" id="L212">            }</span>
-<span class="fc" id="L213">            log.info(managerConfig.getPdu().toString());</span>
-
-<span class="fc" id="L215">            managerConfig.getPdu().setType(PDU.SET);</span>
-<span class="fc" id="L216">            ResponseEvent event = snmp.send(managerConfig.getPdu(), managerConfig.getCommunityTarget());</span>
-<span class="pc bpc" id="L217" title="1 of 2 branches missed.">            if (event != null) {</span>
-<span class="fc" id="L218">                log.info(&quot;event is n not null&quot;);</span>
-<span class="pc bpc" id="L219" title="1 of 2 branches missed.">                if (event.getResponse() != null) {</span>
-<span class="fc" id="L220">                    log.info(&quot;response is not null&quot;);</span>
-<span class="fc" id="L221">                    log.info(event.getResponse().toString());</span>
-                }
-            } else {
-<span class="nc" id="L224">                throw new RuntimeException(&quot;go to hell&quot;);</span>
-            }
-<span class="pc bpc" id="L226" title="1 of 2 branches missed.">            if (event.getResponse() != null) {</span>
-<span class="fc" id="L227">                List&lt;VariableBinding&gt; vbs = (List&lt;VariableBinding&gt;) event.getResponse().getVariableBindings();</span>
-<span class="fc" id="L228">                log.info(vbs.toString());</span>
-<span class="fc" id="L229">            } else {</span>
-<span class="nc" id="L230">                log.info(&quot;response pdu is null&quot;);</span>
-            }
-<span class="nc" id="L232">        } catch (IOException e) {</span>
-<span class="nc" id="L233">            log.info(e);</span>
-<span class="fc" id="L234">        }</span>
-<span class="fc" id="L235">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

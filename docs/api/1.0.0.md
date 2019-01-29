@@ -8,7 +8,7 @@
 
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 ```
-@sink(type="snmp", host="<STRING>", version="<STRING>", community="<STRING>", oids="<STRING>", agent.port="<STRING>", @map(...)))
+@sink(type="snmp", host="<STRING>", version="<STRING>", community="<STRING>", agent.port="<STRING>", istcp="<BOOL>", retries="<INT>", timeout="<INT>", @map(...)))
 ```
 
 <span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
@@ -46,18 +46,34 @@
         <td style="vertical-align: top">No</td>
     </tr>
     <tr>
-        <td style="vertical-align: top">oids</td>
-        <td style="vertical-align: top; word-wrap: break-word"> list of the OIDs separated by comma. </td>
-        <td style="vertical-align: top"></td>
-        <td style="vertical-align: top">STRING</td>
-        <td style="vertical-align: top">No</td>
-        <td style="vertical-align: top">No</td>
-    </tr>
-    <tr>
         <td style="vertical-align: top">agent.port</td>
         <td style="vertical-align: top; word-wrap: break-word"> Port of the agent. </td>
         <td style="vertical-align: top">161</td>
         <td style="vertical-align: top">STRING</td>
+        <td style="vertical-align: top">Yes</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">istcp</td>
+        <td style="vertical-align: top; word-wrap: break-word"> Underline connection protocol. </td>
+        <td style="vertical-align: top">false</td>
+        <td style="vertical-align: top">BOOL</td>
+        <td style="vertical-align: top">Yes</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">retries</td>
+        <td style="vertical-align: top; word-wrap: break-word"> Underline connection protocol. </td>
+        <td style="vertical-align: top">5</td>
+        <td style="vertical-align: top">INT</td>
+        <td style="vertical-align: top">Yes</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">timeout</td>
+        <td style="vertical-align: top; word-wrap: break-word"> Underline connection protocol. </td>
+        <td style="vertical-align: top">1000</td>
+        <td style="vertical-align: top">INT</td>
         <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>
     </tr>
@@ -72,7 +88,6 @@ host = '127.0.0.1'
 version = 'v2c'
 community = 'public')
 agent.port = '161' 
-oids = '1.2.3' 
 define stream outputStream(value string, value string);
 ```
 <p style="word-wrap: break-word"> please fill this </p>
@@ -181,7 +196,7 @@ define stream outputStream(value string, value string);
     <tr>
         <td style="vertical-align: top">timeout</td>
         <td style="vertical-align: top; word-wrap: break-word"> Timeout for response of the request default value is 1500 of milliseconds. </td>
-        <td style="vertical-align: top">700</td>
+        <td style="vertical-align: top">1000</td>
         <td style="vertical-align: top">INT</td>
         <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>

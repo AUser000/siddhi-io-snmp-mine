@@ -2,23 +2,29 @@
 
 
 import org.apache.log4j.Logger;
+import org.snmp4j.smi.OID;
+import org.snmp4j.smi.VariableBinding;
+
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  *  SNMP Utils //
  *
  */
-<span class="nc" id="L10">public class SNMPUtils {</span>
-<span class="fc" id="L11">    private static final Logger log = Logger.getLogger(SNMPUtils.class);</span>
+<span class="nc" id="L16">public class SNMPUtils {</span>
+<span class="fc" id="L17">    private static final Logger log = Logger.getLogger(SNMPUtils.class);</span>
 
     public static int validateVersion(String versionString) {
-<span class="pc bpc" id="L14" title="1 of 2 branches missed.">        if (versionString.equals(&quot;v1&quot;)) {</span>
-<span class="nc" id="L15">            return SNMPConstants.V1;</span>
-<span class="pc bpc" id="L16" title="1 of 2 branches missed.">        } else if (versionString.equals(&quot;v2c&quot;)) {</span>
-<span class="fc" id="L17">            return SNMPConstants.V2C;</span>
-<span class="nc bnc" id="L18" title="All 2 branches missed.">        } else if (versionString.equals(&quot;v3&quot;)) {</span>
-<span class="nc" id="L19">            return SNMPConstants.V3;</span>
+<span class="pc bpc" id="L20" title="1 of 2 branches missed.">        if (versionString.equals(&quot;v1&quot;)) {</span>
+<span class="nc" id="L21">            return SNMPConstants.V1;</span>
+<span class="pc bpc" id="L22" title="1 of 2 branches missed.">        } else if (versionString.equals(&quot;v2c&quot;)) {</span>
+<span class="fc" id="L23">            return SNMPConstants.V2C;</span>
+<span class="nc bnc" id="L24" title="All 2 branches missed.">        } else if (versionString.equals(&quot;v3&quot;)) {</span>
+<span class="nc" id="L25">            return SNMPConstants.V3;</span>
         }
-<span class="nc" id="L21">        return SNMPConstants.V2C;</span>
+<span class="nc" id="L27">        return SNMPConstants.V2C;</span>
     }
 
 //    public static int validateType(String typeString) {
@@ -32,17 +38,20 @@ import org.apache.log4j.Logger;
 //        return SNMPConstants.GET;
 //    }
 
-//    public static List&lt;String&gt; getOIDs(String oidListString) {
-//        if (oidListString != null || !oidListString.equals(&quot;&quot;)) {
-//            log.info(&quot;getting oids wait to print&quot;);
-//            oidListString = oidListString.replace(&quot; &quot;, &quot;&quot;);
-//            List&lt;String&gt; list = Arrays.asList(oidListString.split(SNMPConstants.COMMA));
-//            for (String oid: list) {
-//                log.info(oid);
-//            }
-//            return list;
-//        }
-//        return null; // null pointer exception
-//    }
+    public static List&lt;VariableBinding&gt; validateAndGetOidList(String oidListString) { // TODO Fix this
+<span class="fc" id="L42">        List&lt;VariableBinding&gt; list = new LinkedList&lt;&gt;();</span>
+<span class="pc bpc" id="L43" title="3 of 4 branches missed.">        if (!oidListString.isEmpty() || !oidListString.equals(&quot;&quot;)) {</span>
+<span class="pc bpc" id="L44" title="1 of 2 branches missed.">            if (!oidListString.equals(&quot;&quot;)) {</span>
+<span class="fc" id="L45">                List&lt;String&gt; oids = Arrays.asList(oidListString.replace(&quot; &quot;, &quot;&quot;).split(&quot;,&quot;));</span>
+<span class="fc bfc" id="L46" title="All 2 branches covered.">                for (String oid : oids) {</span>
+<span class="fc" id="L47">                    list.add(new VariableBinding(new OID(oid)));</span>
+<span class="fc" id="L48">                }</span>
+<span class="fc" id="L49">            } else {</span>
+<span class="nc" id="L50">                log.info(SNMPUtils.class.getName() + &quot; oid genaration faild !&quot;);</span>
+            }
+
+        }
+<span class="fc" id="L54">        return list; // null pointer exception</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

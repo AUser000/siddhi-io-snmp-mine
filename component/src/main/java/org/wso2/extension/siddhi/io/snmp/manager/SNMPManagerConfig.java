@@ -17,10 +17,7 @@ import org.snmp4j.transport.DefaultTcpTransportMapping;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Manager config
@@ -30,11 +27,10 @@ public class SNMPManagerConfig {
 
     TransportMapping transportMapping;
     boolean isTCP = false;
-    PDU pdu;
+    PDU pdu = new PDU();
     List<String> oids;
     CommunityTarget communityTarget;
     UserTarget userTarget;
-    private int requestInterval = 5000;
     private int version;
 
     // version 3 properties
@@ -46,6 +42,7 @@ public class SNMPManagerConfig {
     private int secLvl;
     private OctetString localEngineID;
 
+    // version 3 getters and setters //
     boolean isTSM = false;
 
     public OctetString getLocalEngineID() {
@@ -54,15 +51,6 @@ public class SNMPManagerConfig {
 
     public void setLocalEngineID(OctetString getLocalEngineID) {
         this.localEngineID = getLocalEngineID;
-    }
-
-
-    public int getVersion() {
-        return version;
-    }
-
-    public void setVersion(int version) {
-        this.version = version;
     }
 
     public int getSecLvl() {
@@ -126,33 +114,9 @@ public class SNMPManagerConfig {
         this.privProtocolPass = privProtocolPass;
         this.secLvl = secLvl;
     }
+    // version 3 getters and setters over //
 
-    public void setRequestInterval(int requestInterval) {
-        this.requestInterval = requestInterval;
-    }
-
-    public int getRequestInterval() {
-        return this.requestInterval;
-    }
-
-    public void setTransportMappingUDP() throws IOException {
-        this.transportMapping = new DefaultUdpTransportMapping();
-        isTCP = false;
-    }
-
-    public boolean isTcp() {
-        return isTCP;
-    }
-
-    public void setTransportMappingTCP() throws IOException {
-        this.transportMapping = new DefaultTcpTransportMapping();
-        isTCP = true;
-    }
-
-    public TransportMapping getTransportMapping() {
-        return transportMapping;
-    }
-
+    // version 3 Target
     public UserTarget getUserTarget() {
         return userTarget;
     }
@@ -176,6 +140,33 @@ public class SNMPManagerConfig {
         userTarget.setTimeout(timeout);
         userTarget.setVersion(SnmpConstants.version3);
         return userTarget;
+    }
+    // version 3 Target over
+
+    public int getVersion() {
+        return version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
+    }
+
+    public void setTransportMappingUDP() throws IOException {
+        this.transportMapping = new DefaultUdpTransportMapping();
+        isTCP = false;
+    }
+
+    public boolean isTcp() {
+        return isTCP;
+    }
+
+    public void setTransportMappingTCP() throws IOException {
+        this.transportMapping = new DefaultTcpTransportMapping();
+        isTCP = true;
+    }
+
+    public TransportMapping getTransportMapping() {
+        return transportMapping;
     }
 
     public void setCommunityTarget(String ip,
@@ -211,37 +202,17 @@ public class SNMPManagerConfig {
         return this.communityTarget;
     }
 
-    public void setOIDs(String oidlistString) {
-        if(oidlistString == null) {
+    public void setVariablebindings(List<VariableBinding> vbs) {
+        if (vbs == null) {
             pdu = new PDU();
             return;
         }
         if (version != SnmpConstants.version3) {
             pdu = new PDU();
-            oids = new ArrayList<>();
-            if (!oidlistString.equals("")) {
-                oids = Arrays.asList(oidlistString.replace(" ", "").split(","));
-                if (oids.size() != 0) {
-                    for (String oid : oids) {
-                        pdu.add(new VariableBinding(new OID(oid)));
-                    }
-                }
-            } else {
-                log.info("oids r null");
-            }
+            pdu.addAll(vbs);
         } else {
             pdu = new ScopedPDU();
-            oids = new ArrayList<>();
-            if (!oidlistString.equals("")) {
-                oids = Arrays.asList(oidlistString.replace(" ", "").split(","));
-                if (oids.size() != 0) {
-                    for (String oid : oids) {
-                        pdu.add(new VariableBinding(new OID(oid)));
-                    }
-                }
-            } else {
-                log.info("oids r null");
-            }
+            pdu.addAll(vbs);
         }
     }
 

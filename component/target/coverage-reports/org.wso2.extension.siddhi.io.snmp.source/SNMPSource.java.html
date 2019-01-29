@@ -2,8 +2,9 @@
 
 import org.apache.log4j.Logger;
 import org.snmp4j.PDU;
-import org.wso2.extension.siddhi.io.snmp.manager.SNMPManager;
+import org.wso2.extension.siddhi.io.snmp.manager.SNMPGetManager;
 import org.wso2.extension.siddhi.io.snmp.manager.SNMPManagerConfig;
+import org.wso2.extension.siddhi.io.snmp.manager.SNMPServer;
 import org.wso2.extension.siddhi.io.snmp.util.SNMPConstants;
 import org.wso2.extension.siddhi.io.snmp.util.SNMPUtils;
 import org.wso2.siddhi.annotation.Example;
@@ -162,8 +163,8 @@ import java.util.Map;
 )
 
 // for more information refer https://wso2.github.io/siddhi/documentation/siddhi-4.0/#sources
-<span class="fc" id="L165">public class SNMPSource extends Source {</span>
-<span class="fc" id="L166">    private static final Logger log = Logger.getLogger(SNMPSource.class);</span>
+<span class="fc" id="L166">public class SNMPSource extends Source {</span>
+<span class="fc" id="L167">    private static final Logger log = Logger.getLogger(SNMPSource.class);</span>
     private OptionHolder optionHolder;
     private SourceEventListener sourceEventListener;
     private String siddhiAppName;
@@ -175,7 +176,7 @@ import java.util.Map;
     private int requestInterval;
     private String community;
     private SNMPManagerConfig managerConfig;
-    private SNMPManager manager;
+    private SNMPGetManager manager;
 
 
     /**
@@ -192,23 +193,27 @@ import java.util.Map;
     public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,
                      String[] requestedTransportPropertyNames, ConfigReader configReader,
                      SiddhiAppContext siddhiAppContext) {
-<span class="fc" id="L195">        this.sourceEventListener = sourceEventListener;</span>
-<span class="fc" id="L196">        this.optionHolder = optionHolder;</span>
-<span class="fc" id="L197">        this.siddhiAppName = siddhiAppContext.getName();</span>
-<span class="fc" id="L198">        initSnmpProperties();</span>
-<span class="fc" id="L199">    }</span>
+<span class="fc" id="L196">        this.sourceEventListener = sourceEventListener;</span>
+<span class="fc" id="L197">        this.optionHolder = optionHolder;</span>
+<span class="fc" id="L198">        this.siddhiAppName = siddhiAppContext.getName();</span>
+<span class="fc" id="L199">        initSnmpProperties();</span>
+<span class="fc" id="L200">    }</span>
 
     private void initSnmpProperties() {
-<span class="fc" id="L202">        this.host = optionHolder.validateAndGetStaticValue(SNMPConstants.HOST);</span>
-<span class="fc" id="L203">        this.agentPort = optionHolder.validateAndGetStaticValue(SNMPConstants.AGENT_PORT);</span>
-<span class="fc" id="L204">        this.version = SNMPUtils.validateVersion(optionHolder.validateAndGetStaticValue(SNMPConstants.VERSION));</span>
-<span class="fc" id="L205">        this.type = PDU.GET; // get type from user</span>
-<span class="fc" id="L206">        this.requestInterval = Integer.parseInt(optionHolder.validateAndGetStaticValue(SNMPConstants.REQUEST_INTERVAL));</span>
-<span class="fc" id="L207">        this.community = optionHolder.validateAndGetStaticValue(SNMPConstants.COMMUNITY);</span>
-<span class="fc" id="L208">        managerConfig = new SNMPManagerConfig();</span>
-<span class="fc" id="L209">        managerConfig.setOIDs(optionHolder.validateAndGetStaticValue(SNMPConstants.OIDS));</span>
-<span class="fc" id="L210">        managerConfig.setRequestInterval(requestInterval);</span>
-<span class="fc" id="L211">    }</span>
+<span class="fc" id="L203">        this.host = optionHolder.validateAndGetStaticValue(SNMPConstants.HOST);</span>
+<span class="fc" id="L204">        this.agentPort = optionHolder.validateAndGetStaticValue(SNMPConstants.AGENT_PORT);</span>
+<span class="fc" id="L205">        this.version = SNMPUtils.validateVersion(optionHolder.validateAndGetStaticValue(SNMPConstants.VERSION));</span>
+<span class="fc" id="L206">        this.type = PDU.GET; // get type from user</span>
+<span class="fc" id="L207">        this.requestInterval = Integer.parseInt(optionHolder.validateAndGetStaticValue(SNMPConstants.REQUEST_INTERVAL));</span>
+<span class="fc" id="L208">        this.community = optionHolder.validateAndGetStaticValue(SNMPConstants.COMMUNITY);</span>
+<span class="fc" id="L209">        managerConfig = new SNMPManagerConfig();</span>
+<span class="fc" id="L210">        managerConfig.setVariablebindings(</span>
+<span class="fc" id="L211">                SNMPUtils.validateAndGetOidList(</span>
+<span class="fc" id="L212">                        optionHolder.validateAndGetStaticValue(</span>
+                                SNMPConstants.OIDS)));
+<span class="fc" id="L214">        manager = new SNMPGetManager();</span>
+<span class="fc" id="L215">        manager.setSourceEventListener(sourceEventListener);</span>
+<span class="fc" id="L216">    }</span>
 
     /**
      * Returns the list of classes which this source can output.
@@ -218,7 +223,7 @@ import java.util.Map;
      */
     @Override
     public Class[] getOutputEventClasses() {
-<span class="fc" id="L221">        return new Class[0];</span>
+<span class="fc" id="L226">        return new Class[0];</span>
     }
 
     /**
@@ -232,55 +237,55 @@ import java.util.Map;
     public void connect(ConnectionCallback connectionCallback) throws ConnectionUnavailableException {
 
         try {
-<span class="fc" id="L235">            managerConfig.setTransportMappingUDP();</span>
-<span class="fc" id="L236">            managerConfig.setCommunityTarget(host, agentPort, community, 5, 1000, SNMPConstants.V2C);</span>
-<span class="fc" id="L237">            manager = SNMPManager.getInstance();</span>
+<span class="fc" id="L240">            managerConfig.setTransportMappingUDP();</span>
+<span class="fc" id="L241">            managerConfig.setCommunityTarget(host, agentPort, community, 5, 1000, SNMPConstants.V2C);</span>
             try {
-<span class="fc" id="L239">                manager.setManagerConfig(managerConfig);</span>
-<span class="fc" id="L240">                manager.addSourceEventListener(sourceEventListener);</span>
-<span class="fc" id="L241">                manager.startInAnotherThread();</span>
-<span class="nc" id="L242">            } catch (IOException e) {</span>
-<span class="nc" id="L243">                throw new ConnectionUnavailableException(e);</span>
-<span class="fc" id="L244">            }</span>
-<span class="nc" id="L245">        } catch (IOException e) {</span>
-<span class="nc" id="L246">            throw new ConnectionUnavailableException(e);</span>
-<span class="fc" id="L247">        }</span>
+<span class="fc" id="L243">                manager.setManagerConfig(managerConfig);</span>
+<span class="fc" id="L244">                Thread server = new Thread(new SNMPServer(requestInterval, manager));</span>
+<span class="fc" id="L245">                server.start();</span>
 
-<span class="fc" id="L249">    }</span>
+                //manager.addSourceEventListener(sourceEventListener);
+                //manager.startInAnotherThread();
+<span class="nc" id="L249">            } catch (IOException e) {</span>
+<span class="nc" id="L250">                throw new ConnectionUnavailableException(e);</span>
+<span class="fc" id="L251">            }</span>
+<span class="nc" id="L252">        } catch (IOException e) {</span>
+<span class="nc" id="L253">            throw new ConnectionUnavailableException(e);</span>
+<span class="fc" id="L254">        }</span>
+
+<span class="fc" id="L256">    }</span>
 
     /**
      * This method can be called when it is needed to disconnect from the end point.
      */
     @Override
     public void disconnect() {
-<span class="fc" id="L256">        manager.stop();</span>
-<span class="fc" id="L257">        log.info(&quot; disconnect triggered &quot;);</span>
-<span class="fc" id="L258">    }</span>
+<span class="fc" id="L263">        log.info(&quot; disconnect triggered &quot;);</span>
+<span class="fc" id="L264">    }</span>
 
     /**
      * Called at the end to clean all the resources consumed by the {@link Source}
      */
     @Override
     public void destroy() {
-<span class="fc" id="L265">        manager.stop();</span>
-<span class="fc" id="L266">        log.info(&quot; destroy triggered&quot;);</span>
-<span class="fc" id="L267">    }</span>
+<span class="fc" id="L271">        log.info(&quot; destroy triggered&quot;);</span>
+<span class="fc" id="L272">    }</span>
 
     /**
      * Called to pause event consumption
      */
     @Override
     public void pause() {
-<span class="nc" id="L274">        manager.pause();</span>
-<span class="nc" id="L275">    }</span>
+
+<span class="nc" id="L280">    }</span>
 
     /**
      * Called to resume event consumption
      */
     @Override
     public void resume() {
-<span class="nc" id="L282">        manager.resume();</span>
-<span class="nc" id="L283">    }</span>
+
+<span class="nc" id="L288">    }</span>
 
     /**
      * Used to collect the serializable state of the processing element, that need to be
@@ -290,7 +295,7 @@ import java.util.Map;
      */
     @Override
     public Map&lt;String, Object&gt; currentState() {
-<span class="nc" id="L293">        return null;</span>
+<span class="nc" id="L298">        return null;</span>
     }
 
     /**
@@ -303,7 +308,7 @@ import java.util.Map;
      @Override
      public void restoreState(Map&lt;String, Object&gt; map) {
 
-<span class="nc" id="L306">     }</span>
+<span class="nc" id="L311">     }</span>
 }
 
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

@@ -58,13 +58,13 @@ public class TestCaseOfSNMPSink {
                 "define stream testStream(value string, value2 string); \n";
 
 
-        SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp+ si+siddhi);
+        SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp + si + siddhi);
         InputHandler inputStream = executionPlanRuntime.getInputHandler("outputStream");
         executionPlanRuntime.start();
 
-        inputStream.send(new Object[]{"AJAY", "Hello"});
-        inputStream.send(new Object[]{"AJAY", "Hello"});
-        inputStream.send(new Object[]{"AJAY", "Hello"});
+        inputStream.send(new Object[]{"banana", "Hello"});
+        inputStream.send(new Object[]{"banana", "Hello"});
+        inputStream.send(new Object[]{"banana", "Hello"});
         Thread.sleep(3000);
 
         log.info("sleep is over");

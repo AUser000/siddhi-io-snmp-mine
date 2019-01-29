@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="TestSuite" time="13.053" tests="2" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="TestSuite" time="12.813" tests="2" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
     <property name="sun.boot.library.path" value="/usr/lib/jvm/java-8-oracle/jre/lib/amd64"/>
@@ -59,6 +59,6 @@
     <property name="sun.desktop" value="gnome"/>
     <property name="sun.cpu.isalist" value=""/>
   </properties>
-  <testcase name="snmpBasicSource" classname="org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSink" time="4.124"/>
-  <testcase name="snmpBasicSource" classname="org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource" time="8.054"/>
+  <testcase name="snmpBasicSource" classname="org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSink" time="4.043"/>
+  <testcase name="snmpBasicSource" classname="org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource" time="8.024"/>
 </testsuite>

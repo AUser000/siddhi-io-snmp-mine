@@ -1,8 +1,8 @@
 package org.wso2.extension.siddhi.io.snmp.sink;
 
 import org.apache.log4j.Logger;
-import org.wso2.extension.siddhi.io.snmp.manager.SNMPManager;
 import org.wso2.extension.siddhi.io.snmp.manager.SNMPManagerConfig;
+import org.wso2.extension.siddhi.io.snmp.manager.SNMPSetManager;
 import org.wso2.extension.siddhi.io.snmp.util.SNMPConstants;
 import org.wso2.extension.siddhi.io.snmp.util.SNMPUtils;
 import org.wso2.siddhi.annotation.Example;
@@ -111,7 +111,7 @@ public class SNMPSink extends Sink {
     private int retries;
     private String community;
     private SNMPManagerConfig managerConfig;
-    private SNMPManager manager;
+    private SNMPSetManager manager;
     /**
      * Returns the list of classes which this sink can consume.
      * Based on the type of the sink, it may be limited to being able to publish specific type of classes.
@@ -164,7 +164,7 @@ public class SNMPSink extends Sink {
                 .validateAndGetStaticValue(SNMPConstants.RETRIES, SNMPConstants.DEFAULT_RETRIES));
 
         managerConfig = new SNMPManagerConfig();
-        managerConfig.setOIDs(null);
+        manager = new SNMPSetManager();
 
     }
 
@@ -178,23 +178,20 @@ public class SNMPSink extends Sink {
     @Override
     public void publish(Object payload, DynamicOptions dynamicOptions) throws ConnectionUnavailableException {
         Map data = (Map) payload;
-        log.info(payload.toString());
-        log.info(data.toString());
-        log.info("\n publish method started! \n");
 
         try {
             managerConfig.setCommunityTarget(host, agentPort, community, retries, timeout, version);
             managerConfig.setTransportMappingUDP();
-        } catch (IOException e) {
-            log.info(e);
-        }
-        manager = SNMPManager.getInstance();
-        try {
             manager.setManagerConfig(managerConfig);
         } catch (IOException e) {
-            log.info(e);
+            throw new ConnectionUnavailableException(" Error in Connecting to agent : " + e);
         }
-        manager.sendAndValidate(data); //============== //TODO
+
+        try {
+            manager.validateResponseAndNotify(manager.send(data));
+        } catch (IOException e) {
+            throw new ConnectionUnavailableException(" e " + e.toString());
+        }
         manager.close();
     }
 

@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1548382408199
+Bnd-LastModified: 1548516177552
 Build-Jdk: 1.8.0_191
 Built-By: dhanushka
 Bundle-Contributors: WSO2 Inc
@@ -33,17 +33,16 @@ Import-Package: javax.crypto;resolution:=optional,javax.crypto.interface
  s;resolution:=optional,javax.crypto.spec;resolution:=optional,javax.net
  .ssl;resolution:=optional,javax.security.auth.x500;resolution:=optional
  ,org.apache.log4j;resolution:=optional;version="[1.2,2)",org.apache.log
- 4j.spi;resolution:=optional;version="[1.2,2)",org.wso2.extension.siddhi
- .io.snmp.util;resolution:=optional,org.wso2.siddhi.annotation;resolutio
- n:=optional;version="[4.3,5)",org.wso2.siddhi.annotation.util;resolutio
- n:=optional;version="[4.3,5)",org.wso2.siddhi.core.config;resolution:=o
- ptional;version="[4.3,5)",org.wso2.siddhi.core.exception;resolution:=op
- tional;version="[4.3,5)",org.wso2.siddhi.core.stream.input.source;resol
- ution:=optional;version="[4.3,5)",org.wso2.siddhi.core.stream.output.si
- nk;resolution:=optional;version="[4.3,5)",org.wso2.siddhi.core.util.con
- fig;resolution:=optional;version="[4.3,5)",org.wso2.siddhi.core.util.tr
- ansport;resolution:=optional;version="[4.3,5)",org.wso2.siddhi.query.ap
- i.definition;resolution:=optional;version="[4.3,5)"
+ 4j.spi;resolution:=optional;version="[1.2,2)",org.wso2.siddhi.annotatio
+ n;resolution:=optional;version="[4.3,5)",org.wso2.siddhi.annotation.uti
+ l;resolution:=optional;version="[4.3,5)",org.wso2.siddhi.core.config;re
+ solution:=optional;version="[4.3,5)",org.wso2.siddhi.core.exception;res
+ olution:=optional;version="[4.3,5)",org.wso2.siddhi.core.stream.input.s
+ ource;resolution:=optional;version="[4.3,5)",org.wso2.siddhi.core.strea
+ m.output.sink;resolution:=optional;version="[4.3,5)",org.wso2.siddhi.co
+ re.util.config;resolution:=optional;version="[4.3,5)",org.wso2.siddhi.c
+ ore.util.transport;resolution:=optional;version="[4.3,5)",org.wso2.sidd
+ hi.query.api.definition;resolution:=optional;version="[4.3,5)"
 Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"
-SCM-Revision: 2019-01-25T02:12:56Z
+SCM-Revision: f188425ef883e75a287608acc1f8941bedab62ac
 Tool: Bnd-3.0.0.201509101326

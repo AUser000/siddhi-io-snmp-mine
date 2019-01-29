@@ -2,6 +2,12 @@ package org.wso2.extension.siddhi.io.snmp.util;
 
 
 import org.apache.log4j.Logger;
+import org.snmp4j.smi.OID;
+import org.snmp4j.smi.VariableBinding;
+
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  *  SNMP Utils //
@@ -32,16 +38,19 @@ public class SNMPUtils {
 //        return SNMPConstants.GET;
 //    }
 
-//    public static List<String> getOIDs(String oidListString) {
-//        if (oidListString != null || !oidListString.equals("")) {
-//            log.info("getting oids wait to print");
-//            oidListString = oidListString.replace(" ", "");
-//            List<String> list = Arrays.asList(oidListString.split(SNMPConstants.COMMA));
-//            for (String oid: list) {
-//                log.info(oid);
-//            }
-//            return list;
-//        }
-//        return null; // null pointer exception
-//    }
+    public static List<VariableBinding> validateAndGetOidList(String oidListString) { // TODO Fix this
+        List<VariableBinding> list = new LinkedList<>();
+        if (!oidListString.isEmpty() || !oidListString.equals("")) {
+            if (!oidListString.equals("")) {
+                List<String> oids = Arrays.asList(oidListString.replace(" ", "").split(","));
+                for (String oid : oids) {
+                    list.add(new VariableBinding(new OID(oid)));
+                }
+            } else {
+                log.info(SNMPUtils.class.getName() + " oid genaration faild !");
+            }
+
+        }
+        return list; // null pointer exception
+    }
 }
