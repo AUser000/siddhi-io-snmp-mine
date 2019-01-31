@@ -28,9 +28,10 @@ public class SNMPConstants {
     // v3
     public static final String USER_NAME = "user.name";
     public static final String SECURITY_MODE = "security.mode";
-    public static final String USER_PASSWORD = "user.password";
-    public static final String ENC_PROTOCOL = "encryption.protocol";
-    public static final String AUT_PROTOCOL = "authentication.protocol";
+    public static final String PRIV_PROTOCOL = "priv.protocol";
+    public static final String PRIV_PASSWORD = "priv.password";
+    public static final String AUTH_PROTOCOL = "auth.protocol";
+    public static final String AUTH_PASSWORD = "auth.password";
 
     public static final String COMMA = ",";
 
@@ -48,10 +49,14 @@ public class SNMPConstants {
     public static final String DEFAULT_IS_TCP = "false";
     public static final String DEFAULT_RETRIES = "5";
     public static final String DEFAULT_TIMEOUT = "1000";
-    public static final String DEFAULT_USERNAME = USER_NAME;
-    public static final String DEFAULT_USER_PASSWORD = USER_PASSWORD;
-    public static final String DEFAULT_ENC_PROTOCOL = "noEnc";
-    public static final String DEFAULT_AUT_PROTOCOL = "noAuth";
+
+    public static final String DEFAULT_USERNAME = "noUser";
+    public static final String DEFAULT_SECURITY_MODE = "noMode";
+    public static final String DEFAULT_AUTH_PROTOCOL = "noEnc";
+    public static final String DEFAULT_PRIV_PASSWORD = "privpass";
+    public static final String DEFAULT_PRIV_PROTOCOL = "nopriv";
+    public static final String DEFAULT_AUT_PASSWORD = "authpass";
+    public static final String DEFAULT_COMMUNITY = "public";
 
 
     private SNMPConstants(){}

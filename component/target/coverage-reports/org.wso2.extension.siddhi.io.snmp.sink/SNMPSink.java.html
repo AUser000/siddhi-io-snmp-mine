@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SNMPSink.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Siddhi io snmp extension</a> &gt; <a href="index.source.html" class="el_package">org.wso2.extension.siddhi.io.snmp.sink</a> &gt; <span class="el_source">SNMPSink.java</span></div><h1>SNMPSink.java</h1><pre class="source lang-java linenums">package org.wso2.extension.siddhi.io.snmp.sink;
 
 import org.apache.log4j.Logger;
+import org.snmp4j.mp.SnmpConstants;
+import org.snmp4j.security.AuthMD5;
+import org.snmp4j.security.PrivDES;
+import org.snmp4j.security.SecurityLevel;
+import org.snmp4j.smi.OctetString;
 import org.wso2.extension.siddhi.io.snmp.manager.SNMPManagerConfig;
 import org.wso2.extension.siddhi.io.snmp.manager.SNMPSetManager;
 import org.wso2.extension.siddhi.io.snmp.util.SNMPConstants;
@@ -99,8 +104,8 @@ import java.util.Map;
 
 // for more information refer https://wso2.github.io/siddhi/documentation/siddhi-4.0/#sinks
 
-<span class="fc" id="L102">public class SNMPSink extends Sink {</span>
-<span class="fc" id="L103">    private static final Logger log = Logger.getLogger(SNMPSink.class);</span>
+<span class="fc" id="L107">public class SNMPSink extends Sink {</span>
+<span class="fc" id="L108">    private static final Logger log = Logger.getLogger(SNMPSink.class);</span>
     private OptionHolder optionHolder;
     private String siddhiAppName;
 
@@ -121,7 +126,7 @@ import java.util.Map;
      */
     @Override
     public Class[] getSupportedInputEventClasses() {
-<span class="fc" id="L124">            return new Class[] { Map.class };</span>
+<span class="fc" id="L129">            return new Class[] { Map.class };</span>
     }
 
     /**
@@ -132,7 +137,7 @@ import java.util.Map;
      */
     @Override
     public String[] getSupportedDynamicOptions() {
-<span class="fc" id="L135">            return new String[0];</span>
+<span class="fc" id="L140">            return new String[0];</span>
     }
 
     /**
@@ -148,25 +153,34 @@ import java.util.Map;
     @Override
     protected void init(StreamDefinition streamDefinition, OptionHolder optionHolder, ConfigReader configReader,
             SiddhiAppContext siddhiAppContext) {
-<span class="fc" id="L151">        this.optionHolder = optionHolder;</span>
-<span class="fc" id="L152">        this.siddhiAppName = siddhiAppContext.getName();</span>
-<span class="fc" id="L153">        initSnmpProperties();</span>
-<span class="fc" id="L154">    }</span>
+<span class="fc" id="L156">        this.optionHolder = optionHolder;</span>
+<span class="fc" id="L157">        this.siddhiAppName = siddhiAppContext.getName();</span>
+<span class="fc" id="L158">        initSnmpProperties();</span>
+<span class="fc" id="L159">    }</span>
 
     private void initSnmpProperties() {
-<span class="fc" id="L157">        this.host = optionHolder.validateAndGetStaticValue(SNMPConstants.HOST);</span>
-<span class="fc" id="L158">        this.agentPort = optionHolder.validateAndGetStaticValue(SNMPConstants.AGENT_PORT);</span>
-<span class="fc" id="L159">        this.version = SNMPUtils.validateVersion(optionHolder.validateAndGetStaticValue(SNMPConstants.VERSION));</span>
-<span class="fc" id="L160">        this.community = optionHolder.validateAndGetStaticValue(SNMPConstants.COMMUNITY);</span>
-<span class="fc" id="L161">        this.timeout = Integer.parseInt(optionHolder</span>
-<span class="fc" id="L162">                .validateAndGetStaticValue(SNMPConstants.TIMEOUT, SNMPConstants.DEFAULT_TIMEOUT));</span>
-<span class="fc" id="L163">        this.retries = Integer.parseInt(optionHolder</span>
-<span class="fc" id="L164">                .validateAndGetStaticValue(SNMPConstants.RETRIES, SNMPConstants.DEFAULT_RETRIES));</span>
+<span class="fc" id="L162">        this.host = optionHolder.validateAndGetStaticValue(SNMPConstants.HOST);</span>
+<span class="fc" id="L163">        this.agentPort = optionHolder.validateAndGetStaticValue(SNMPConstants.AGENT_PORT);</span>
+<span class="fc" id="L164">        this.version = SNMPUtils.validateVersion(optionHolder.validateAndGetStaticValue(SNMPConstants.VERSION));</span>
+<span class="fc" id="L165">        this.community = optionHolder.validateAndGetStaticValue(SNMPConstants.COMMUNITY);</span>
+<span class="fc" id="L166">        this.timeout = Integer.parseInt(optionHolder</span>
+<span class="fc" id="L167">                .validateAndGetStaticValue(SNMPConstants.TIMEOUT, SNMPConstants.DEFAULT_TIMEOUT));</span>
+<span class="fc" id="L168">        this.retries = Integer.parseInt(optionHolder</span>
+<span class="fc" id="L169">                .validateAndGetStaticValue(SNMPConstants.RETRIES, SNMPConstants.DEFAULT_RETRIES));</span>
 
-<span class="fc" id="L166">        managerConfig = new SNMPManagerConfig();</span>
-<span class="fc" id="L167">        manager = new SNMPSetManager();</span>
+<span class="fc" id="L171">        managerConfig = new SNMPManagerConfig();</span>
+<span class="fc" id="L172">        managerConfig = new SNMPManagerConfig();</span>
+<span class="fc" id="L173">        managerConfig.setVersion(version);</span>
 
-<span class="fc" id="L169">    }</span>
+<span class="fc" id="L175">        managerConfig.setUserMatrix(new OctetString(&quot;agent5&quot;),</span>
+                AuthMD5.ID,
+                new OctetString(&quot;authpass&quot;),
+                PrivDES.ID,
+                new OctetString(&quot;privpass&quot;),
+                SecurityLevel.AUTH_PRIV);
+<span class="fc" id="L181">        manager = new SNMPSetManager();</span>
+
+<span class="fc" id="L183">    }</span>
 
     /**
      * This method will be called when events need to be published via this sink
@@ -177,23 +191,32 @@ import java.util.Map;
      */
     @Override
     public void publish(Object payload, DynamicOptions dynamicOptions) throws ConnectionUnavailableException {
-<span class="fc" id="L180">        Map data = (Map) payload;</span>
+<span class="fc" id="L194">        Map data = (Map) payload;</span>
 
         try {
-<span class="fc" id="L183">            managerConfig.setCommunityTarget(host, agentPort, community, retries, timeout, version);</span>
-<span class="fc" id="L184">            managerConfig.setTransportMappingUDP();</span>
-<span class="fc" id="L185">            manager.setManagerConfig(managerConfig);</span>
-<span class="nc" id="L186">        } catch (IOException e) {</span>
-<span class="nc" id="L187">            throw new ConnectionUnavailableException(&quot; Error in Connecting to agent : &quot; + e);</span>
-<span class="fc" id="L188">        }</span>
+<span class="pc bpc" id="L197" title="1 of 2 branches missed.">            if (version == SnmpConstants.version3) {</span>
+<span class="fc" id="L198">                managerConfig.setUserTarget(host,</span>
+                        agentPort,
+                        retries,
+                        timeout,
+                        SnmpConstants.version3,
+<span class="fc" id="L203">                        managerConfig.getSecLvl());</span>
+            } else {
+<span class="nc" id="L205">                managerConfig.setCommunityTarget(host, agentPort, community, retries, timeout, version);</span>
+            }
+<span class="fc" id="L207">            managerConfig.setTransportMappingUDP();</span>
+<span class="fc" id="L208">            manager.setManagerConfig(managerConfig);</span>
+<span class="nc" id="L209">        } catch (IOException e) {</span>
+<span class="nc" id="L210">            throw new ConnectionUnavailableException(&quot; Error in Connecting to agent : &quot; + e);</span>
+<span class="fc" id="L211">        }</span>
 
         try {
-<span class="fc" id="L191">            manager.validateResponseAndNotify(manager.send(data));</span>
-<span class="nc" id="L192">        } catch (IOException e) {</span>
-<span class="nc" id="L193">            throw new ConnectionUnavailableException(&quot; e &quot; + e.toString());</span>
-<span class="fc" id="L194">        }</span>
-<span class="fc" id="L195">        manager.close();</span>
-<span class="fc" id="L196">    }</span>
+<span class="fc" id="L214">            manager.validateResponseAndNotify(manager.send(data));</span>
+<span class="nc" id="L215">        } catch (IOException e) {</span>
+<span class="nc" id="L216">            throw new ConnectionUnavailableException(&quot; e &quot; + e.toString());</span>
+<span class="fc" id="L217">        }</span>
+<span class="fc" id="L218">        manager.close();</span>
+<span class="fc" id="L219">    }</span>
 
     /**
      * This method will be called before the processing method.
@@ -203,9 +226,9 @@ import java.util.Map;
      */
     @Override
     public void connect() throws ConnectionUnavailableException {
-<span class="fc" id="L206">        log.info(&quot; \n Connect method trged! \n &quot;);</span>
+<span class="fc" id="L229">        log.info(&quot; \n Connect method trged! \n &quot;);</span>
 
-<span class="fc" id="L208">    }</span>
+<span class="fc" id="L231">    }</span>
 
     /**
      * Called after all publishing is done, or when {@link ConnectionUnavailableException} is thrown
@@ -213,9 +236,9 @@ import java.util.Map;
      */
     @Override
     public void disconnect() {
-<span class="fc" id="L216">        log.info(&quot; \n Disconnect method trged! \n &quot;);</span>
-<span class="fc" id="L217">        manager.close();</span>
-<span class="fc" id="L218">    }</span>
+<span class="fc" id="L239">        log.info(&quot; \n Disconnect method trged! \n &quot;);</span>
+<span class="fc" id="L240">        manager.close();</span>
+<span class="fc" id="L241">    }</span>
 
     /**
      * The method can be called when removing an event receiver.
@@ -224,7 +247,7 @@ import java.util.Map;
     @Override
     public void destroy() {
 
-<span class="fc" id="L227">    }</span>
+<span class="fc" id="L250">    }</span>
 
     /**
      * Used to collect the serializable state of the processing element, that need to be
@@ -234,7 +257,7 @@ import java.util.Map;
      */
     @Override
     public Map&lt;String, Object&gt; currentState() {
-<span class="nc" id="L237">            return null;</span>
+<span class="nc" id="L260">            return null;</span>
     }
 
     /**
@@ -247,7 +270,7 @@ import java.util.Map;
     @Override
     public void restoreState(Map&lt;String, Object&gt; map) {
 
-<span class="nc" id="L250">    }</span>
+<span class="nc" id="L273">    }</span>
 }
 
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

@@ -1,30 +1,43 @@
 package org.wso2.extension.siddhi.io.snmp.manager;
 
+import org.apache.log4j.Logger;
+
 import java.io.IOException;
+
+import static jdk.nashorn.internal.runtime.regexp.joni.Config.log;
 
 /**
  * Java Doc Comment
  * */
-public class SNMPServer implements Runnable, Server {
-    private SNMPGetManager snmpGetManager;
-    private int requestInterval = 5000;
-    private boolean started = false;
+public class SNMPServer extends Thread implements Server {
+    Logger log = Logger.getLogger(SNMPServer.class);
+    private static SNMPGetManager snmpGetManager;
+    private static int requestInterval = 5000;
+    private boolean started = true;
+    private static SNMPServer server = new SNMPServer();
 
-    public void setRequestInterval(int requestInterval) {
-        this.requestInterval = requestInterval;
+    private SNMPServer() {}
+
+    public static SNMPServer getInstance(int interval, SNMPGetManager manager) {
+        requestInterval = interval;
+        snmpGetManager = manager;
+        return server;
     }
 
-    public SNMPServer(int requestInterval, SNMPGetManager snmpGetManager) {
-        this.requestInterval = requestInterval;
-        this.snmpGetManager = snmpGetManager;
+    public static SNMPServer getInstance() {
+        return server;
+    }
+
+    public static void setRequestInterval(int ri) {
+        requestInterval = ri;
     }
 
     public int getRequestInterval() {
         return this.requestInterval;
     }
 
-    public void setSnmpGetManager(SNMPGetManager snmpGetManager) {
-        this.snmpGetManager = snmpGetManager;
+    public static void setSnmpGetManager(SNMPGetManager manager) {
+        snmpGetManager = manager;
     }
 
     public SNMPManager getSnmpManager() {
@@ -34,29 +47,29 @@ public class SNMPServer implements Runnable, Server {
 
     @Override
     public void run() {
-        started = true;
         startServer();
     }
 
     @Override
-    public void startServer() {
+    public synchronized void startServer() {
         //snmpGetManager.getManagerConfig().getPdu();
-        while (started) {
+        while (started != false) {
             try {
                 snmpGetManager.validateResponseAndNotify(snmpGetManager.send());
             } catch (IOException e) {
 
             }
             try {
-                Thread.sleep(500);
+                Thread.sleep(requestInterval);
             } catch (InterruptedException e) {
 
             }
         }
+        log.info("im getting out");
     }
 
     @Override
-    public void stopServer() {
+    public synchronized void stopServer() {
         started = false;
     }
 

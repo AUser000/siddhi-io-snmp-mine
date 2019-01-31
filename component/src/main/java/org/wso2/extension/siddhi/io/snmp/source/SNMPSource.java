@@ -2,9 +2,16 @@ package org.wso2.extension.siddhi.io.snmp.source;
 
 import org.apache.log4j.Logger;
 import org.snmp4j.PDU;
+import org.snmp4j.mp.SnmpConstants;
+import org.snmp4j.security.AuthMD5;
+import org.snmp4j.security.PrivDES;
+import org.snmp4j.security.SecurityLevel;
+import org.snmp4j.smi.OID;
+import org.snmp4j.smi.OctetString;
 import org.wso2.extension.siddhi.io.snmp.manager.SNMPGetManager;
 import org.wso2.extension.siddhi.io.snmp.manager.SNMPManagerConfig;
 import org.wso2.extension.siddhi.io.snmp.manager.SNMPServer;
+import org.wso2.extension.siddhi.io.snmp.manager.Server;
 import org.wso2.extension.siddhi.io.snmp.util.SNMPConstants;
 import org.wso2.extension.siddhi.io.snmp.util.SNMPUtils;
 import org.wso2.siddhi.annotation.Example;
@@ -83,30 +90,22 @@ import java.util.Map;
                 @Parameter(name = SNMPConstants.VERSION,
                         description = " Version of the snmp protocol. " ,
                         type = DataType.STRING),
-                @Parameter(name = SNMPConstants.TYPE,
-                        description = " Type of the request. ",
-                        type = DataType.STRING),
                 @Parameter(name = SNMPConstants.REQUEST_INTERVAL,
                         description = " Request interval of the get requests. ",
                         type = DataType.INT),
                 @Parameter(name = SNMPConstants.OIDS,
                         description = " list of the OIDs separated by comma. ",
-                        dynamic = false,    // TODO -> this should consider after technical lead decision
                         type = DataType.STRING),
                 @Parameter(name = SNMPConstants.COMMUNITY,
+                        optional = true, // TODO did as optional
                         description = " Community string of the network. ",
-                        dynamic = false,    // TODO -> dynamic thing
+                        defaultValue = SNMPConstants.DEFAULT_COMMUNITY,
                         type = DataType.STRING),
                 @Parameter(name = SNMPConstants.AGENT_PORT,
                         description = " Port of the agent. ",
                         optional = true,
                         type = DataType.STRING,
                         defaultValue = SNMPConstants.DEFAULT_AGENT_PORT),
-                @Parameter(name = SNMPConstants.MANAGER_PORT,
-                        description = " Port of the manager. ",
-                        optional = true,
-                        type = DataType.STRING,
-                        defaultValue = SNMPConstants.DEFAULT_MANAGER_PORT),
                 @Parameter(name = SNMPConstants.IS_TCP,
                         description = " Underline protocol default id UDP ",
                         optional  = true,
@@ -114,36 +113,45 @@ import java.util.Map;
                         defaultValue = SNMPConstants.DEFAULT_IS_TCP),
                 @Parameter(name = SNMPConstants.RETRIES,
                         description = " Number of retries of if request fails. ",
-                        dynamic = false,     // TODO -> dynamic thing
                         optional = true,
                         type = DataType.INT,
                         defaultValue = SNMPConstants.DEFAULT_RETRIES),
                 @Parameter(name  = SNMPConstants.TIMEOUT,
                         description = " Timeout for response of the request default value is 1500 of milliseconds. ",
-                        dynamic = false,     // TODO -> dynamic thing
                         optional = true,
                         type = DataType.INT,
                         defaultValue = SNMPConstants.DEFAULT_TIMEOUT),
+                // this parameters for v3
                 @Parameter(name = SNMPConstants.USER_NAME,
                         description = " Username if user use snmp version 3.     ",
-                        dynamic = false,     // TODO -> dynamic thing
+                        optional = true,
                         type = DataType.STRING,
                         defaultValue = SNMPConstants.DEFAULT_USERNAME),
-                @Parameter(name = SNMPConstants.USER_PASSWORD,
-                        description = " User password if user use snmp vertion 3. ",
-                        dynamic = false,     //TODO -> dynamic thing
+                @Parameter(name = SNMPConstants.SECURITY_MODE,
+                        description = " Security mode. ",
+                        optional = true,
                         type = DataType.STRING,
-                        defaultValue = SNMPConstants.DEFAULT_USER_PASSWORD),
-                @Parameter(name = SNMPConstants.ENC_PROTOCOL,
+                        defaultValue = SNMPConstants.DEFAULT_SECURITY_MODE),
+                @Parameter(name = SNMPConstants.PRIV_PROTOCOL,
                         description = " Encryption protocol if use ",
-                        dynamic = false,     //TODO -> dynamic thing
+                        optional = true,
                         type = DataType.STRING,
-                        defaultValue = SNMPConstants.DEFAULT_ENC_PROTOCOL),
-                @Parameter(name = SNMPConstants.AUT_PROTOCOL,
+                        defaultValue = SNMPConstants.DEFAULT_PRIV_PROTOCOL),
+                @Parameter(name = SNMPConstants.PRIV_PASSWORD,
+                        description = " Encryption protocol password ",
+                        optional = true,
+                        type = DataType.STRING,
+                        defaultValue = SNMPConstants.DEFAULT_PRIV_PASSWORD),
+                @Parameter(name = SNMPConstants.AUTH_PROTOCOL,
                         description = " Auth protocol is use. ",
-                        dynamic = false,
+                        optional = true,
                         type = DataType.STRING,
-                        defaultValue = SNMPConstants.DEFAULT_AUT_PROTOCOL),
+                        defaultValue = SNMPConstants.DEFAULT_AUTH_PROTOCOL),
+                @Parameter(name = SNMPConstants.AUTH_PASSWORD,
+                        description = " Auth protocol is use. ",
+                        optional = true,
+                        type = DataType.STRING,
+                        defaultValue = SNMPConstants.DEFAULT_AUT_PASSWORD)
 
         },
         examples = {
@@ -152,7 +160,6 @@ import java.util.Map;
                                     "@map(type=’keyvalue’),\n" +
                                     "host =’127.0.0.1’,\n" +
                                     "version = ‘v2c’,\n" +
-                                    "type = ‘snmp.get’,\n" +
                                     "request.interval = ‘20’,\n" +
                                     "oids=’1.2.3.32.323, 9878.88’,\n" +
                                     "community = ‘public’) \n" +
@@ -170,13 +177,11 @@ public class SNMPSource extends Source {
     private String siddhiAppName;
 
     private String host;
-    private String agentPort;
-    private int version;
-    private int type;
+    private String port;
     private int requestInterval;
-    private String community;
     private SNMPManagerConfig managerConfig;
     private SNMPGetManager manager;
+    Thread server;
 
 
     /**
@@ -197,22 +202,39 @@ public class SNMPSource extends Source {
         this.optionHolder = optionHolder;
         this.siddhiAppName = siddhiAppContext.getName();
         initSnmpProperties();
+        manager = new SNMPGetManager();
+        manager.setSourceEventListener(sourceEventListener);
     }
 
     private void initSnmpProperties() {
         this.host = optionHolder.validateAndGetStaticValue(SNMPConstants.HOST);
-        this.agentPort = optionHolder.validateAndGetStaticValue(SNMPConstants.AGENT_PORT);
-        this.version = SNMPUtils.validateVersion(optionHolder.validateAndGetStaticValue(SNMPConstants.VERSION));
-        this.type = PDU.GET; // get type from user
+        this.port = optionHolder.validateAndGetStaticValue(SNMPConstants.AGENT_PORT);
         this.requestInterval = Integer.parseInt(optionHolder.validateAndGetStaticValue(SNMPConstants.REQUEST_INTERVAL));
-        this.community = optionHolder.validateAndGetStaticValue(SNMPConstants.COMMUNITY);
+        String community = optionHolder.validateAndGetStaticValue(SNMPConstants.COMMUNITY);
+        int timeout = Integer.parseInt(optionHolder.validateAndGetStaticValue(SNMPConstants.TIMEOUT, SNMPConstants.DEFAULT_TIMEOUT));
+
         managerConfig = new SNMPManagerConfig();
-        managerConfig.setVariablebindings(
-                SNMPUtils.validateAndGetOidList(
-                        optionHolder.validateAndGetStaticValue(
-                                SNMPConstants.OIDS)));
-        manager = new SNMPGetManager();
-        manager.setSourceEventListener(sourceEventListener);
+        managerConfig.setVersion(SNMPUtils.validateVersion(optionHolder.validateAndGetStaticValue(SNMPConstants.VERSION)));
+        managerConfig.setVariablebindings(SNMPUtils.
+                validateAndGetOidList(optionHolder.
+                        validateAndGetStaticValue(SNMPConstants.OIDS)));
+
+        if (managerConfig.getVersion() == SnmpConstants.version3) {
+            String userName = optionHolder.validateAndGetStaticValue(SNMPConstants.USER_NAME, SNMPConstants.DEFAULT_USERNAME);
+            String authpass = optionHolder.validateAndGetStaticValue(SNMPConstants.AUTH_PASSWORD, SNMPConstants.DEFAULT_AUT_PASSWORD);
+            String privpass = optionHolder.validateAndGetStaticValue(SNMPConstants.PRIV_PASSWORD, SNMPConstants.DEFAULT_PRIV_PASSWORD);
+            OID priv = SNMPUtils.validateAndGetPriv(optionHolder.validateAndGetStaticValue(SNMPConstants.PRIV_PROTOCOL, SNMPConstants.DEFAULT_PRIV_PROTOCOL));
+            OID auth = SNMPUtils.validateAndGetAuth(optionHolder.validateAndGetStaticValue(SNMPConstants.AUTH_PROTOCOL, SNMPConstants.DEFAULT_AUTH_PROTOCOL));
+            managerConfig.setUserMatrix(new OctetString(userName),
+                    auth,
+                    new OctetString(authpass),
+                    priv,
+                    new OctetString(privpass),
+                    SecurityLevel.AUTH_PRIV);
+            managerConfig.setUserTarget(host, port, 5, timeout, managerConfig.getSecLvl());
+        } else {
+            managerConfig.setCommunityTarget(host, port, community, 5, timeout);
+        }
     }
 
     /**
@@ -237,22 +259,13 @@ public class SNMPSource extends Source {
     public void connect(ConnectionCallback connectionCallback) throws ConnectionUnavailableException {
 
         try {
-            managerConfig.setTransportMappingUDP();
-            managerConfig.setCommunityTarget(host, agentPort, community, 5, 1000, SNMPConstants.V2C);
-            try {
-                manager.setManagerConfig(managerConfig);
-                Thread server = new Thread(new SNMPServer(requestInterval, manager));
-                server.start();
-
-                //manager.addSourceEventListener(sourceEventListener);
-                //manager.startInAnotherThread();
-            } catch (IOException e) {
-                throw new ConnectionUnavailableException(e);
-            }
+            manager.setTransportMappingUDP();
+            manager.setManagerConfig(managerConfig);
+            server = new Thread(SNMPServer.getInstance(requestInterval, manager));
+            server.start();
         } catch (IOException e) {
             throw new ConnectionUnavailableException(e);
         }
-
     }
 
     /**

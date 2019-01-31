@@ -3,11 +3,11 @@
 import org.apache.log4j.Logger;
 import org.snmp4j.Snmp;
 import org.snmp4j.event.ResponseEvent;
+import org.snmp4j.mp.MPv3;
 import org.snmp4j.mp.SnmpConstants;
 import org.snmp4j.security.SecurityModels;
 import org.snmp4j.security.SecurityProtocols;
 import org.snmp4j.security.USM;
-import org.snmp4j.security.UsmUser;
 import org.snmp4j.smi.OID;
 import org.snmp4j.smi.OctetString;
 import org.snmp4j.smi.VariableBinding;
@@ -41,52 +41,66 @@ public class SNMPManager {
 <span class="fc" id="L41">        this.managerConfig = managerConfig;</span>
 <span class="fc" id="L42">        snmp = new Snmp(managerConfig.getTransportMapping());</span>
 
-<span class="pc bpc" id="L44" title="3 of 4 branches missed.">        if (managerConfig.getVersion() == SnmpConstants.version3</span>
+<span class="pc bpc" id="L44" title="1 of 4 branches missed.">        if (managerConfig.getVersion() == SnmpConstants.version3</span>
                 &amp;&amp; managerConfig.isTSM == false) {
 
-<span class="nc" id="L47">            USM usm = new USM(SecurityProtocols.getInstance(),</span>
-<span class="nc" id="L48">                    managerConfig.getLocalEngineID(),</span>
+<span class="fc" id="L47">            USM usm = new USM(SecurityProtocols.getInstance(),</span>
+<span class="fc" id="L48">                    managerConfig.getLocalEngineID(),</span>
                     0);
 
-<span class="nc" id="L51">            SecurityModels.getInstance().addSecurityModel(usm);</span>
+<span class="fc" id="L51">            SecurityModels.getInstance().addSecurityModel(usm);</span>
 
-<span class="nc" id="L53">            snmp.getUSM().addUser(managerConfig.getUserName()</span>
-<span class="nc" id="L54">                    , new UsmUser(managerConfig.getUserName(),</span>
-<span class="nc" id="L55">                            managerConfig.getAuthProtocol(),</span>
-<span class="nc" id="L56">                            managerConfig.getAuthProtocolPass(),</span>
-<span class="nc" id="L57">                            managerConfig.getPrivProtocol(),</span>
-<span class="nc" id="L58">                            managerConfig.getPrivProtocolPass()));</span>
+<span class="fc" id="L53">            snmp.getUSM().addUser(managerConfig.getUserName()</span>
+<span class="fc" id="L54">                    , managerConfig.getUser());</span>
 
         }
-<span class="fc" id="L61">        snmp.listen();</span>
-<span class="fc" id="L62">    }</span>
+<span class="fc" id="L57">        snmp.listen();</span>
+<span class="fc" id="L58">    }</span>
 
     public ResponseEvent send(Map&lt;String, String&gt; map, int type) throws IOException {
-<span class="fc bfc" id="L65" title="All 2 branches covered.">        for (Map.Entry&lt;String, String&gt; entry: map.entrySet()) {</span>
-<span class="fc" id="L66">            this.managerConfig.getPdu().add(new VariableBinding(new OID(entry.getKey()),</span>
-<span class="fc" id="L67">                    new OctetString(entry.getValue())));</span>
-<span class="fc" id="L68">        }</span>
-<span class="fc" id="L69">        managerConfig.getPdu().setType(type);</span>
-<span class="fc" id="L70">        ResponseEvent event = snmp.set(managerConfig.getPdu(), managerConfig.getCommunityTarget());</span>
-<span class="fc" id="L71">        return event;</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">        for (Map.Entry&lt;String, String&gt; entry: map.entrySet()) {</span>
+<span class="fc" id="L62">            this.managerConfig.getPdu().add(new VariableBinding(new OID(entry.getKey()),</span>
+<span class="fc" id="L63">                    new OctetString(entry.getValue())));</span>
+<span class="fc" id="L64">        }</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">        if (managerConfig.getVersion() == SnmpConstants.version3) {</span>
+<span class="fc" id="L66">            USM usm = new USM(SecurityProtocols.getInstance()</span>
+<span class="fc" id="L67">                    .addDefaultProtocols(),</span>
+<span class="fc" id="L68">                    new OctetString(MPv3.createLocalEngineID()).substring(0, 9), 0);</span>
 
+<span class="fc" id="L70">            SecurityModels.getInstance().addSecurityModel(usm);</span>
+<span class="fc" id="L71">            snmp.getUSM().addUser(managerConfig.getUserName(),</span>
+<span class="fc" id="L72">                    managerConfig.getUser());</span>
+<span class="fc" id="L73">            return snmp.set(managerConfig.getPdu(), managerConfig.getUserTarget());</span>
+        }
+<span class="nc" id="L75">        return snmp.set(managerConfig.getPdu(), managerConfig.getCommunityTarget());</span>
     }
 
     public ResponseEvent send() throws IOException {
-<span class="fc" id="L76">        ResponseEvent event = snmp.get(managerConfig.getPdu(), managerConfig.getCommunityTarget());</span>
-<span class="fc" id="L77">        return event;</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">        if (managerConfig.getVersion() == SnmpConstants.version3) {</span>
+            //log.info(&quot;v3 pdu sending&quot;);
+<span class="fc" id="L81">            USM usm = new USM(SecurityProtocols.getInstance()</span>
+<span class="fc" id="L82">                    .addDefaultProtocols(),</span>
+<span class="fc" id="L83">                    new OctetString(MPv3.createLocalEngineID()).substring(0, 9), 0);</span>
+
+<span class="fc" id="L85">            SecurityModels.getInstance().addSecurityModel(usm);</span>
+<span class="fc" id="L86">            snmp.getUSM().addUser(</span>
+<span class="fc" id="L87">                    managerConfig.getUserName(),</span>
+<span class="fc" id="L88">                    managerConfig.getUser());</span>
+<span class="fc" id="L89">            return snmp.send(managerConfig.getPdu(), managerConfig.getUserTarget());</span>
+        }
+<span class="fc" id="L91">        return snmp.get(managerConfig.getPdu(), managerConfig.getCommunityTarget());</span>
     }
 
 
 
     public void close() {
         try {
-<span class="fc" id="L84">            snmp.close();</span>
-<span class="fc" id="L85">            managerConfig.close();</span>
-<span class="nc" id="L86">        } catch (IOException e) {</span>
-<span class="nc" id="L87">            log.info(&quot; hell &quot;);</span>
-<span class="fc" id="L88">        }</span>
-<span class="fc" id="L89">    }</span>
+<span class="fc" id="L98">            snmp.close();</span>
+<span class="fc" id="L99">            managerConfig.close();</span>
+<span class="nc" id="L100">        } catch (IOException e) {</span>
+<span class="nc" id="L101">            log.info(&quot; hell &quot;);</span>
+<span class="fc" id="L102">        }</span>
+<span class="fc" id="L103">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

@@ -2,15 +2,18 @@ package org.wso2.extension.siddhi.io.snmp.manager;
 
 import org.apache.log4j.Logger;
 import org.snmp4j.Snmp;
+import org.snmp4j.TransportMapping;
 import org.snmp4j.event.ResponseEvent;
+import org.snmp4j.mp.MPv3;
 import org.snmp4j.mp.SnmpConstants;
 import org.snmp4j.security.SecurityModels;
 import org.snmp4j.security.SecurityProtocols;
 import org.snmp4j.security.USM;
-import org.snmp4j.security.UsmUser;
 import org.snmp4j.smi.OID;
 import org.snmp4j.smi.OctetString;
 import org.snmp4j.smi.VariableBinding;
+import org.snmp4j.transport.DefaultTcpTransportMapping;
+import org.snmp4j.transport.DefaultUdpTransportMapping;
 
 import java.io.IOException;
 import java.util.Map;
@@ -24,6 +27,8 @@ public class SNMPManager {
 
     Logger log = Logger.getLogger(SNMPManager.class);
     Snmp snmp;
+    TransportMapping transportMapping;
+    boolean isTCP;
 
     public SNMPManagerConfig getManagerConfig() {
         return managerConfig;
@@ -35,11 +40,19 @@ public class SNMPManager {
     public SNMPManager() {
     }
 
+    public void setTransportMappingUDP() throws IOException {
+        this.transportMapping = new DefaultUdpTransportMapping();
+        isTCP = false;
+    }
+
+    public void setTransportMappingTCP() throws IOException {
+        this.transportMapping = new DefaultTcpTransportMapping();
+    }
 
 
     public void setManagerConfig(SNMPManagerConfig managerConfig) throws IOException {
         this.managerConfig = managerConfig;
-        snmp = new Snmp(managerConfig.getTransportMapping());
+        snmp = new Snmp(this.transportMapping);
 
         if (managerConfig.getVersion() == SnmpConstants.version3
                 && managerConfig.isTSM == false) {
@@ -51,11 +64,7 @@ public class SNMPManager {
             SecurityModels.getInstance().addSecurityModel(usm);
 
             snmp.getUSM().addUser(managerConfig.getUserName()
-                    , new UsmUser(managerConfig.getUserName(),
-                            managerConfig.getAuthProtocol(),
-                            managerConfig.getAuthProtocolPass(),
-                            managerConfig.getPrivProtocol(),
-                            managerConfig.getPrivProtocolPass()));
+                    , managerConfig.getUser());
 
         }
         snmp.listen();
@@ -66,15 +75,33 @@ public class SNMPManager {
             this.managerConfig.getPdu().add(new VariableBinding(new OID(entry.getKey()),
                     new OctetString(entry.getValue())));
         }
-        managerConfig.getPdu().setType(type);
-        ResponseEvent event = snmp.set(managerConfig.getPdu(), managerConfig.getCommunityTarget());
-        return event;
+        if (managerConfig.getVersion() == SnmpConstants.version3) {
+            USM usm = new USM(SecurityProtocols.getInstance()
+                    .addDefaultProtocols(),
+                    new OctetString(MPv3.createLocalEngineID()).substring(0, 9), 0);
 
+            SecurityModels.getInstance().addSecurityModel(usm);
+            snmp.getUSM().addUser(managerConfig.getUserName(),
+                    managerConfig.getUser());
+            return snmp.set(managerConfig.getPdu(), managerConfig.getUserTarget());
+        }
+        return snmp.set(managerConfig.getPdu(), managerConfig.getCommunityTarget());
     }
 
     public ResponseEvent send() throws IOException {
-        ResponseEvent event = snmp.get(managerConfig.getPdu(), managerConfig.getCommunityTarget());
-        return event;
+        if (managerConfig.getVersion() == SnmpConstants.version3) {
+            //log.info("v3 pdu sending");
+            USM usm = new USM(SecurityProtocols.getInstance()
+                    .addDefaultProtocols(),
+                    new OctetString(MPv3.createLocalEngineID()).substring(0, 9), 0);
+
+            SecurityModels.getInstance().addSecurityModel(usm);
+            snmp.getUSM().addUser(
+                    managerConfig.getUserName(),
+                    managerConfig.getUser());
+            return snmp.send(managerConfig.getPdu(), managerConfig.getUserTarget());
+        }
+        return snmp.get(managerConfig.getPdu(), managerConfig.getCommunityTarget());
     }
 
 

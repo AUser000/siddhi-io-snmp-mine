@@ -1,6 +1,11 @@
 package org.wso2.extension.siddhi.io.snmp.sink;
 
 import org.apache.log4j.Logger;
+import org.snmp4j.mp.SnmpConstants;
+import org.snmp4j.security.AuthMD5;
+import org.snmp4j.security.PrivDES;
+import org.snmp4j.security.SecurityLevel;
+import org.snmp4j.smi.OctetString;
 import org.wso2.extension.siddhi.io.snmp.manager.SNMPManagerConfig;
 import org.wso2.extension.siddhi.io.snmp.manager.SNMPSetManager;
 import org.wso2.extension.siddhi.io.snmp.util.SNMPConstants;
@@ -164,6 +169,15 @@ public class SNMPSink extends Sink {
                 .validateAndGetStaticValue(SNMPConstants.RETRIES, SNMPConstants.DEFAULT_RETRIES));
 
         managerConfig = new SNMPManagerConfig();
+        managerConfig = new SNMPManagerConfig();
+        managerConfig.setVersion(version);
+
+        managerConfig.setUserMatrix(new OctetString("agent5"),
+                AuthMD5.ID,
+                new OctetString("authpass"),
+                PrivDES.ID,
+                new OctetString("privpass"),
+                SecurityLevel.AUTH_PRIV);
         manager = new SNMPSetManager();
 
     }
@@ -180,8 +194,16 @@ public class SNMPSink extends Sink {
         Map data = (Map) payload;
 
         try {
-            managerConfig.setCommunityTarget(host, agentPort, community, retries, timeout, version);
-            managerConfig.setTransportMappingUDP();
+            if (version == SnmpConstants.version3) {
+                managerConfig.setUserTarget(host,
+                        agentPort,
+                        retries,
+                        timeout,
+                        managerConfig.getSecLvl());
+            } else {
+                managerConfig.setCommunityTarget(host, agentPort, community, retries, timeout);
+            }
+            manager.setTransportMappingUDP();
             manager.setManagerConfig(managerConfig);
         } catch (IOException e) {
             throw new ConnectionUnavailableException(" Error in Connecting to agent : " + e);
