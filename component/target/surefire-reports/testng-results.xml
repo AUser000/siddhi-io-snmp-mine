@@ -1,46 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testng-results skipped="0" failed="0" ignored="0" total="3" passed="3">
+<testng-results skipped="0" failed="0" ignored="0" total="5" passed="5">
   <reporter-output>
   </reporter-output>
-  <suite name="Siddhi-Io-snmp-Test-Suite" duration-ms="20478" started-at="2019-01-30T07:42:06Z" finished-at="2019-01-30T07:42:26Z">
+  <suite name="Siddhi-Io-snmp-Test-Suite" duration-ms="25289" started-at="2019-02-06T05:52:37Z" finished-at="2019-02-06T05:53:02Z">
     <groups>
     </groups>
-    <test name="Siddhi-io-snmp-tests" duration-ms="20478" started-at="2019-01-30T07:42:06Z" finished-at="2019-01-30T07:42:26Z">
+    <test name="Siddhi-io-snmp-tests" duration-ms="25289" started-at="2019-02-06T05:52:37Z" finished-at="2019-02-06T05:53:02Z">
       <class name="org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSink">
-        <test-method status="PASS" signature="initializeDockerContainer()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSink@4d6ee47]" name="initializeDockerContainer" is-config="true" duration-ms="15" started-at="2019-01-30T13:12:06Z" finished-at="2019-01-30T13:12:06Z">
+        <test-method status="PASS" signature="snmpVersion2Sink()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSink@2eaef76d]" name="snmpVersion2Sink" duration-ms="4766" started-at="2019-02-06T11:22:37Z" finished-at="2019-02-06T11:22:42Z">
           <reporter-output>
           </reporter-output>
-        </test-method> <!-- initializeDockerContainer -->
-        <test-method status="PASS" signature="setUp()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSink@4d6ee47]" name="setUp" is-config="true" duration-ms="0" started-at="2019-01-30T13:12:06Z" finished-at="2019-01-30T13:12:06Z">
+        </test-method> <!-- snmpVersion2Sink -->
+        <test-method status="PASS" signature="snmpVersion3Sink()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSink@2eaef76d]" name="snmpVersion3Sink" duration-ms="3886" started-at="2019-02-06T11:22:42Z" finished-at="2019-02-06T11:22:46Z">
           <reporter-output>
           </reporter-output>
-        </test-method> <!-- setUp -->
-        <test-method status="PASS" signature="snmpBasicSource()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSink@4d6ee47]" name="snmpBasicSource" duration-ms="4392" started-at="2019-01-30T13:12:06Z" finished-at="2019-01-30T13:12:10Z">
-          <reporter-output>
-          </reporter-output>
-        </test-method> <!-- snmpBasicSource -->
+        </test-method> <!-- snmpVersion3Sink -->
       </class> <!-- org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSink -->
       <class name="org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource">
-        <test-method status="PASS" signature="initializeDockerContainer()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource@a33b4e3]" name="initializeDockerContainer" is-config="true" duration-ms="1" started-at="2019-01-30T13:12:10Z" finished-at="2019-01-30T13:12:10Z">
+        <test-method status="PASS" signature="snmpVersion1Source()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource@36b310aa]" name="snmpVersion1Source" duration-ms="5537" started-at="2019-02-06T11:22:46Z" finished-at="2019-02-06T11:22:51Z">
           <reporter-output>
           </reporter-output>
-        </test-method> <!-- initializeDockerContainer -->
-        <test-method status="PASS" signature="setUp()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource@a33b4e3]" name="setUp" is-config="true" duration-ms="0" started-at="2019-01-30T13:12:10Z" finished-at="2019-01-30T13:12:10Z">
+        </test-method> <!-- snmpVersion1Source -->
+        <test-method status="PASS" signature="snmpVersion2Source()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource@36b310aa]" name="snmpVersion2Source" duration-ms="5525" started-at="2019-02-06T11:22:51Z" finished-at="2019-02-06T11:22:57Z">
           <reporter-output>
           </reporter-output>
-        </test-method> <!-- setUp -->
-        <test-method status="PASS" signature="snmpBasicSource()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource@a33b4e3]" name="snmpBasicSource" duration-ms="8019" started-at="2019-01-30T13:12:10Z" finished-at="2019-01-30T13:12:18Z">
+        </test-method> <!-- snmpVersion2Source -->
+        <test-method status="PASS" signature="snmpVersion3TestWithAllValues()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource@36b310aa]" name="snmpVersion3TestWithAllValues" duration-ms="5525" started-at="2019-02-06T11:22:57Z" finished-at="2019-02-06T11:23:02Z">
           <reporter-output>
           </reporter-output>
-        </test-method> <!-- snmpBasicSource -->
-        <test-method status="PASS" signature="setUp()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource@a33b4e3]" name="setUp" is-config="true" duration-ms="1" started-at="2019-01-30T13:12:18Z" finished-at="2019-01-30T13:12:18Z">
-          <reporter-output>
-          </reporter-output>
-        </test-method> <!-- setUp -->
-        <test-method status="PASS" signature="snmpVersion3Test()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource@a33b4e3]" name="snmpVersion3Test" duration-ms="8016" started-at="2019-01-30T13:12:18Z" finished-at="2019-01-30T13:12:26Z">
-          <reporter-output>
-          </reporter-output>
-        </test-method> <!-- snmpVersion3Test -->
+        </test-method> <!-- snmpVersion3TestWithAllValues -->
       </class> <!-- org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource -->
     </test> <!-- Siddhi-io-snmp-tests -->
   </suite> <!-- Siddhi-Io-snmp-Test-Suite -->

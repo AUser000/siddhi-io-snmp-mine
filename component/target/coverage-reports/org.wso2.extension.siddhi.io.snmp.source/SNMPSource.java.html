@@ -1,15 +1,29 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SNMPSource.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Siddhi io snmp extension</a> &gt; <a href="index.source.html" class="el_package">org.wso2.extension.siddhi.io.snmp.source</a> &gt; <span class="el_source">SNMPSource.java</span></div><h1>SNMPSource.java</h1><pre class="source lang-java linenums">package org.wso2.extension.siddhi.io.snmp.source;
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SNMPSource.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Siddhi io snmp extension</a> &gt; <a href="index.source.html" class="el_package">org.wso2.extension.siddhi.io.snmp.source</a> &gt; <span class="el_source">SNMPSource.java</span></div><h1>SNMPSource.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the &quot;License&quot;); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.wso2.extension.siddhi.io.snmp.source;
 
 import org.apache.log4j.Logger;
-import org.snmp4j.PDU;
-import org.snmp4j.mp.SnmpConstants;
-import org.snmp4j.security.AuthMD5;
-import org.snmp4j.security.PrivDES;
 import org.snmp4j.security.SecurityLevel;
+import org.snmp4j.smi.OID;
 import org.snmp4j.smi.OctetString;
 import org.wso2.extension.siddhi.io.snmp.manager.SNMPGetManager;
+import org.wso2.extension.siddhi.io.snmp.manager.SNMPListener;
 import org.wso2.extension.siddhi.io.snmp.manager.SNMPManagerConfig;
-import org.wso2.extension.siddhi.io.snmp.manager.SNMPServer;
 import org.wso2.extension.siddhi.io.snmp.util.SNMPConstants;
 import org.wso2.extension.siddhi.io.snmp.util.SNMPUtils;
 import org.wso2.siddhi.annotation.Example;
@@ -88,30 +102,22 @@ import java.util.Map;
                 @Parameter(name = SNMPConstants.VERSION,
                         description = &quot; Version of the snmp protocol. &quot; ,
                         type = DataType.STRING),
-                @Parameter(name = SNMPConstants.TYPE,
-                        description = &quot; Type of the request. &quot;,
-                        type = DataType.STRING),
                 @Parameter(name = SNMPConstants.REQUEST_INTERVAL,
                         description = &quot; Request interval of the get requests. &quot;,
                         type = DataType.INT),
                 @Parameter(name = SNMPConstants.OIDS,
                         description = &quot; list of the OIDs separated by comma. &quot;,
-                        dynamic = false,    // TODO -&gt; this should consider after technical lead decision
                         type = DataType.STRING),
                 @Parameter(name = SNMPConstants.COMMUNITY,
+                        optional = true, // TODO did as optional
                         description = &quot; Community string of the network. &quot;,
-                        dynamic = false,    // TODO -&gt; dynamic thing
+                        defaultValue = SNMPConstants.DEFAULT_COMMUNITY,
                         type = DataType.STRING),
                 @Parameter(name = SNMPConstants.AGENT_PORT,
                         description = &quot; Port of the agent. &quot;,
                         optional = true,
                         type = DataType.STRING,
                         defaultValue = SNMPConstants.DEFAULT_AGENT_PORT),
-                @Parameter(name = SNMPConstants.MANAGER_PORT,
-                        description = &quot; Port of the manager. &quot;,
-                        optional = true,
-                        type = DataType.STRING,
-                        defaultValue = SNMPConstants.DEFAULT_MANAGER_PORT),
                 @Parameter(name = SNMPConstants.IS_TCP,
                         description = &quot; Underline protocol default id UDP &quot;,
                         optional  = true,
@@ -127,23 +133,37 @@ import java.util.Map;
                         optional = true,
                         type = DataType.INT,
                         defaultValue = SNMPConstants.DEFAULT_TIMEOUT),
+                // this parameters for v3
                 @Parameter(name = SNMPConstants.USER_NAME,
-                        description = &quot; Username if user use snmp version 3.     &quot;,
+                        description = &quot; Username if user use snmp version 3.&quot;,
+                        optional = true,
                         type = DataType.STRING,
                         defaultValue = SNMPConstants.DEFAULT_USERNAME),
-                @Parameter(name = SNMPConstants.USER_PASSWORD,
-                        description = &quot; User password if user use snmp vertion 3. &quot;,
+                @Parameter(name = SNMPConstants.SECURITY_MODE,
+                        description = &quot; Security mode. &quot;,
+                        optional = true,
                         type = DataType.STRING,
-                        defaultValue = SNMPConstants.DEFAULT_USER_PASSWORD),
-                @Parameter(name = SNMPConstants.ENC_PROTOCOL,
+                        defaultValue = SNMPConstants.DEFAULT_SECURITY_MODE),
+                @Parameter(name = SNMPConstants.PRIV_PROTOCOL,
                         description = &quot; Encryption protocol if use &quot;,
+                        optional = true,
                         type = DataType.STRING,
-                        defaultValue = SNMPConstants.DEFAULT_ENC_PROTOCOL),
-                @Parameter(name = SNMPConstants.AUT_PROTOCOL,
+                        defaultValue = SNMPConstants.DEFAULT_PRIV_PROTOCOL),
+                @Parameter(name = SNMPConstants.PRIV_PASSWORD,
+                        description = &quot; Encryption protocol password &quot;,
+                        optional = true,
+                        type = DataType.STRING,
+                        defaultValue = SNMPConstants.DEFAULT_PRIV_PASSWORD),
+                @Parameter(name = SNMPConstants.AUTH_PROTOCOL,
                         description = &quot; Auth protocol is use. &quot;,
-                        dynamic = false,
+                        optional = true,
                         type = DataType.STRING,
-                        defaultValue = SNMPConstants.DEFAULT_AUT_PROTOCOL),
+                        defaultValue = SNMPConstants.DEFAULT_AUTH_PROTOCOL),
+                @Parameter(name = SNMPConstants.AUTH_PASSWORD,
+                        description = &quot; Auth protocol is use. &quot;,
+                        optional = true,
+                        type = DataType.STRING,
+                        defaultValue = SNMPConstants.DEFAULT_AUT_PASSWORD)
 
         },
         examples = {
@@ -152,7 +172,6 @@ import java.util.Map;
                                     &quot;@map(type=’keyvalue’),\n&quot; +
                                     &quot;host =’127.0.0.1’,\n&quot; +
                                     &quot;version = ‘v2c’,\n&quot; +
-                                    &quot;type = ‘snmp.get’,\n&quot; +
                                     &quot;request.interval = ‘20’,\n&quot; +
                                     &quot;oids=’1.2.3.32.323, 9878.88’,\n&quot; +
                                     &quot;community = ‘public’) \n&quot; +
@@ -163,21 +182,20 @@ import java.util.Map;
 )
 
 // for more information refer https://wso2.github.io/siddhi/documentation/siddhi-4.0/#sources
-<span class="fc" id="L166">public class SNMPSource extends Source {</span>
-<span class="fc" id="L167">    private static final Logger log = Logger.getLogger(SNMPSource.class);</span>
+<span class="fc" id="L185">public class SNMPSource extends Source {</span>
+<span class="fc" id="L186">    private static final Logger log = Logger.getLogger(SNMPSource.class);</span>
     private OptionHolder optionHolder;
     private SourceEventListener sourceEventListener;
     private String siddhiAppName;
 
+<span class="fc" id="L191">    private boolean isTcp = false;</span>
     private String host;
-    private String agentPort;
-    private int version;
-    private int type;
+    private String port;
     private int requestInterval;
-    private String community;
     private SNMPManagerConfig managerConfig;
-    //private ManagerConfigNew managerConfig;
     private SNMPGetManager manager;
+    SNMPListener snmpListener;
+    Thread thread;
 
 
     /**
@@ -194,35 +212,55 @@ import java.util.Map;
     public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,
                      String[] requestedTransportPropertyNames, ConfigReader configReader,
                      SiddhiAppContext siddhiAppContext) {
-<span class="fc" id="L197">        this.sourceEventListener = sourceEventListener;</span>
-<span class="fc" id="L198">        this.optionHolder = optionHolder;</span>
-<span class="fc" id="L199">        this.siddhiAppName = siddhiAppContext.getName();</span>
-<span class="fc" id="L200">        initSnmpProperties();</span>
-<span class="fc" id="L201">    }</span>
+<span class="fc" id="L215">        this.sourceEventListener = sourceEventListener;</span>
+<span class="fc" id="L216">        this.optionHolder = optionHolder;</span>
+<span class="fc" id="L217">        this.siddhiAppName = siddhiAppContext.getName();</span>
+<span class="fc" id="L218">        initSnmpProperties();</span>
+<span class="fc" id="L219">        manager = new SNMPGetManager();</span>
+<span class="fc" id="L220">        manager.setSourceEventListener(sourceEventListener);</span>
+<span class="fc" id="L221">    }</span>
 
     private void initSnmpProperties() {
-<span class="fc" id="L204">        this.host = optionHolder.validateAndGetStaticValue(SNMPConstants.HOST);</span>
-<span class="fc" id="L205">        this.agentPort = optionHolder.validateAndGetStaticValue(SNMPConstants.AGENT_PORT);</span>
-<span class="fc" id="L206">        this.version = SNMPUtils.validateVersion(optionHolder.validateAndGetStaticValue(SNMPConstants.VERSION));</span>
-<span class="fc" id="L207">        this.type = PDU.GET; // get type from user</span>
-<span class="fc" id="L208">        this.requestInterval = Integer.parseInt(optionHolder.validateAndGetStaticValue(SNMPConstants.REQUEST_INTERVAL));</span>
-<span class="fc" id="L209">        this.community = optionHolder.validateAndGetStaticValue(SNMPConstants.COMMUNITY);</span>
-<span class="fc" id="L210">        managerConfig = new SNMPManagerConfig();</span>
-<span class="fc" id="L211">        managerConfig.setVersion(version);</span>
+<span class="fc" id="L224">        this.host = optionHolder.validateAndGetStaticValue(SNMPConstants.HOST);</span>
+<span class="fc" id="L225">        this.port = optionHolder.validateAndGetStaticValue(SNMPConstants.AGENT_PORT);</span>
+<span class="fc" id="L226">        this.requestInterval = Integer.parseInt(</span>
+<span class="fc" id="L227">                optionHolder.validateAndGetStaticValue(SNMPConstants.REQUEST_INTERVAL));</span>
+<span class="fc" id="L228">        int timeout = Integer.parseInt(</span>
+<span class="fc" id="L229">                optionHolder.validateAndGetStaticValue(SNMPConstants.TIMEOUT, SNMPConstants.DEFAULT_TIMEOUT));</span>
 
-<span class="fc" id="L213">        managerConfig.setUserMatrix(new OctetString(&quot;agent5&quot;),</span>
-                AuthMD5.ID,
-                new OctetString(&quot;authpass&quot;),
-                PrivDES.ID,
-                new OctetString(&quot;privpass&quot;),
-                SecurityLevel.AUTH_PRIV);
+<span class="fc" id="L231">        managerConfig = new SNMPManagerConfig();</span>
+<span class="fc" id="L232">        managerConfig.setVersion(</span>
+<span class="fc" id="L233">                SNMPUtils.validateVersion(</span>
+<span class="fc" id="L234">                        optionHolder.validateAndGetStaticValue(</span>
+                                SNMPConstants.VERSION)));
+<span class="fc" id="L236">        managerConfig.setVariablebindings(SNMPUtils.</span>
+<span class="fc" id="L237">                validateAndGetOidList(optionHolder.</span>
+<span class="fc" id="L238">                        validateAndGetStaticValue(SNMPConstants.OIDS)));</span>
 
-<span class="fc" id="L220">        managerConfig.setVariablebindings(SNMPUtils.</span>
-<span class="fc" id="L221">                validateAndGetOidList(optionHolder.</span>
-<span class="fc" id="L222">                        validateAndGetStaticValue(SNMPConstants.OIDS)));</span>
-<span class="fc" id="L223">        manager = new SNMPGetManager();</span>
-<span class="fc" id="L224">        manager.setSourceEventListener(sourceEventListener);</span>
-<span class="fc" id="L225">    }</span>
+<span class="fc bfc" id="L240" title="All 2 branches covered.">        if (managerConfig.getVersion() == SNMPConstants.V3) {</span>
+<span class="fc" id="L241">            String userName = optionHolder.validateAndGetStaticValue(SNMPConstants.USER_NAME,</span>
+                                                                    SNMPConstants.DEFAULT_USERNAME);
+<span class="fc" id="L243">            String authpass = optionHolder.validateAndGetStaticValue(SNMPConstants.AUTH_PASSWORD,</span>
+                                                                    SNMPConstants.DEFAULT_AUT_PASSWORD);
+<span class="fc" id="L245">            String privpass = optionHolder.validateAndGetStaticValue(SNMPConstants.PRIV_PASSWORD,</span>
+                                                                    SNMPConstants.DEFAULT_PRIV_PASSWORD);
+<span class="fc" id="L247">            OID priv = SNMPUtils.validateAndGetPriv(optionHolder.validateAndGetStaticValue(SNMPConstants.PRIV_PROTOCOL,</span>
+                                                                    SNMPConstants.DEFAULT_PRIV_PROTOCOL));
+<span class="fc" id="L249">            OID auth = SNMPUtils.validateAndGetAuth(optionHolder.validateAndGetStaticValue(SNMPConstants.AUTH_PROTOCOL,</span>
+                                                                    SNMPConstants.DEFAULT_AUTH_PROTOCOL));
+<span class="fc" id="L251">            managerConfig.setUserMatrix(new OctetString(userName),</span>
+                    auth,
+                    new OctetString(authpass),
+                    priv,
+                    new OctetString(privpass),
+                    SecurityLevel.AUTH_PRIV);
+<span class="fc" id="L257">            managerConfig.setUserTarget(host, port, 5, timeout, managerConfig.getSecLvl());</span>
+<span class="fc" id="L258">        } else {</span>
+<span class="fc" id="L259">            String community = optionHolder.validateAndGetStaticValue(SNMPConstants.COMMUNITY,</span>
+                                                                    SNMPConstants.DEFAULT_COMMUNITY);
+<span class="fc" id="L261">            managerConfig.setCommunityTarget(host, port, community, 5, timeout);</span>
+        }
+<span class="fc" id="L263">    }</span>
 
     /**
      * Returns the list of classes which this source can output.
@@ -232,7 +270,7 @@ import java.util.Map;
      */
     @Override
     public Class[] getOutputEventClasses() {
-<span class="fc" id="L235">        return new Class[0];</span>
+<span class="fc" id="L273">        return new Class[0];</span>
     }
 
     /**
@@ -246,49 +284,51 @@ import java.util.Map;
     public void connect(ConnectionCallback connectionCallback) throws ConnectionUnavailableException {
 
         try {
-<span class="fc" id="L249">            managerConfig.setTransportMappingUDP();</span>
-<span class="fc bfc" id="L250" title="All 2 branches covered.">            if (managerConfig.getVersion() == SnmpConstants.version3) {</span>
-<span class="fc" id="L251">                managerConfig.setUserTarget(host, agentPort, 5, 1000, version, managerConfig.getSecLvl());</span>
-<span class="fc" id="L252">                log.info(&quot;setting up UserTarget&quot;);</span>
+<span class="pc bpc" id="L287" title="1 of 2 branches missed.">            if (isTcp) {</span>
+<span class="nc" id="L288">                manager.setTransportMappingTCP();</span>
             } else {
-<span class="fc" id="L254">                managerConfig.setCommunityTarget(host, agentPort, community, 5, 1000, version);</span>
+<span class="fc" id="L290">                manager.setTransportMappingUDP();</span>
             }
-            try {
-<span class="fc" id="L257">                manager.setManagerConfig(managerConfig);</span>
-<span class="fc" id="L258">                Thread server = new Thread(SNMPServer.getInstance(requestInterval, manager));</span>
-<span class="fc" id="L259">                server.start();</span>
-<span class="nc" id="L260">            } catch (IOException e) {</span>
-<span class="nc" id="L261">                throw new ConnectionUnavailableException(e);</span>
-<span class="fc" id="L262">            }</span>
-<span class="nc" id="L263">        } catch (IOException e) {</span>
-<span class="nc" id="L264">            throw new ConnectionUnavailableException(e);</span>
-<span class="fc" id="L265">        }</span>
+<span class="fc" id="L292">            manager.setManagerConfig(managerConfig);</span>
 
-<span class="fc" id="L267">    }</span>
+<span class="fc" id="L294">            snmpListener = new SNMPListener(manager, requestInterval);</span>
+<span class="fc" id="L295">            thread = new Thread(snmpListener);</span>
+<span class="fc" id="L296">            thread.start();</span>
+<span class="nc" id="L297">        } catch (IOException e) {</span>
+<span class="nc" id="L298">            throw new ConnectionUnavailableException(e);</span>
+<span class="fc" id="L299">        }</span>
+<span class="fc" id="L300">    }</span>
 
     /**
      * This method can be called when it is needed to disconnect from the end point.
      */
     @Override
     public void disconnect() {
-<span class="fc" id="L274">        log.info(&quot; disconnect triggered &quot;);</span>
-<span class="fc" id="L275">    }</span>
+<span class="pc bpc" id="L307" title="1 of 2 branches missed.">        if (snmpListener != null) {</span>
+<span class="fc" id="L308">            snmpListener.cancel(false);</span>
+        }
+<span class="pc bpc" id="L310" title="1 of 2 branches missed.">        if (thread != null) {</span>
+<span class="fc" id="L311">            thread.interrupt();</span>
+        } else {
+            //log.info(&quot;&quot;);
+        }
+<span class="fc" id="L315">    }</span>
 
     /**
      * Called at the end to clean all the resources consumed by the {@link Source}
      */
     @Override
     public void destroy() {
-<span class="fc" id="L282">        log.info(&quot; destroy triggered&quot;);</span>
-<span class="fc" id="L283">    }</span>
+        //log.info(&quot;[SNMPSource.class] destroy triggered&quot;);
+<span class="fc" id="L323">    }</span>
 
     /**
      * Called to pause event consumption
      */
     @Override
     public void pause() {
-
-<span class="nc" id="L291">    }</span>
+        //disconnect();
+<span class="nc" id="L331">    }</span>
 
     /**
      * Called to resume event consumption
@@ -296,7 +336,7 @@ import java.util.Map;
     @Override
     public void resume() {
 
-<span class="nc" id="L299">    }</span>
+<span class="nc" id="L339">    }</span>
 
     /**
      * Used to collect the serializable state of the processing element, that need to be
@@ -306,7 +346,7 @@ import java.util.Map;
      */
     @Override
     public Map&lt;String, Object&gt; currentState() {
-<span class="nc" id="L309">        return null;</span>
+<span class="nc" id="L349">        return null;</span>
     }
 
     /**
@@ -319,7 +359,7 @@ import java.util.Map;
      @Override
      public void restoreState(Map&lt;String, Object&gt; map) {
 
-<span class="nc" id="L322">     }</span>
+<span class="nc" id="L362">     }</span>
 }
 
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

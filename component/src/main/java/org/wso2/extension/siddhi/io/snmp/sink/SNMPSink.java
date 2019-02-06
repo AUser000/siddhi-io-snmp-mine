@@ -1,10 +1,26 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.extension.siddhi.io.snmp.sink;
 
 import org.apache.log4j.Logger;
 import org.snmp4j.mp.SnmpConstants;
-import org.snmp4j.security.AuthMD5;
-import org.snmp4j.security.PrivDES;
 import org.snmp4j.security.SecurityLevel;
+import org.snmp4j.smi.OID;
 import org.snmp4j.smi.OctetString;
 import org.wso2.extension.siddhi.io.snmp.manager.SNMPManagerConfig;
 import org.wso2.extension.siddhi.io.snmp.manager.SNMPSetManager;
@@ -66,7 +82,9 @@ import java.util.Map;
                         type = DataType.STRING),
                 @Parameter(name = SNMPConstants.COMMUNITY,
                         description = " Community string of the network. ",
-                        type = DataType.STRING),
+                        optional = true,
+                        type = DataType.STRING,
+                        defaultValue = SNMPConstants.DEFAULT_COMMUNITY),
                 @Parameter(name = SNMPConstants.AGENT_PORT,
                         description = " Port of the agent. ",
                         optional = true,
@@ -109,12 +127,7 @@ public class SNMPSink extends Sink {
     private OptionHolder optionHolder;
     private String siddhiAppName;
 
-    private String host;
-    private String agentPort;
-    private int version;
-    private int timeout;
-    private int retries;
-    private String community;
+    private boolean isTcp = false;
     private SNMPManagerConfig managerConfig;
     private SNMPSetManager manager;
     /**
@@ -159,27 +172,47 @@ public class SNMPSink extends Sink {
     }
 
     private void initSnmpProperties() {
-        this.host = optionHolder.validateAndGetStaticValue(SNMPConstants.HOST);
-        this.agentPort = optionHolder.validateAndGetStaticValue(SNMPConstants.AGENT_PORT);
-        this.version = SNMPUtils.validateVersion(optionHolder.validateAndGetStaticValue(SNMPConstants.VERSION));
-        this.community = optionHolder.validateAndGetStaticValue(SNMPConstants.COMMUNITY);
-        this.timeout = Integer.parseInt(optionHolder
-                .validateAndGetStaticValue(SNMPConstants.TIMEOUT, SNMPConstants.DEFAULT_TIMEOUT));
-        this.retries = Integer.parseInt(optionHolder
-                .validateAndGetStaticValue(SNMPConstants.RETRIES, SNMPConstants.DEFAULT_RETRIES));
-
-        managerConfig = new SNMPManagerConfig();
+        isTcp = Boolean.parseBoolean(optionHolder.validateAndGetStaticValue(SNMPConstants.IS_TCP,
+                                                                    SNMPConstants.DEFAULT_IS_TCP));
+        String host = optionHolder.validateAndGetStaticValue(SNMPConstants.HOST);
+        String agentPort = optionHolder.validateAndGetStaticValue(SNMPConstants.AGENT_PORT);
+        int version = SNMPUtils.validateVersion(optionHolder.validateAndGetStaticValue(SNMPConstants.VERSION));
+        String community = optionHolder.validateAndGetStaticValue(SNMPConstants.COMMUNITY,
+                                                                    SNMPConstants.DEFAULT_COMMUNITY);
+        int timeout = Integer.parseInt(optionHolder.validateAndGetStaticValue(SNMPConstants.TIMEOUT,
+                                                                    SNMPConstants.DEFAULT_TIMEOUT));
+        int retries = Integer.parseInt(optionHolder.validateAndGetStaticValue(SNMPConstants.RETRIES,
+                                                                    SNMPConstants.DEFAULT_RETRIES));
         managerConfig = new SNMPManagerConfig();
         managerConfig.setVersion(version);
 
-        managerConfig.setUserMatrix(new OctetString("agent5"),
-                AuthMD5.ID,
-                new OctetString("authpass"),
-                PrivDES.ID,
-                new OctetString("privpass"),
-                SecurityLevel.AUTH_PRIV);
-        manager = new SNMPSetManager();
+        if (version == SnmpConstants.version3) {
+            String userName = optionHolder.validateAndGetStaticValue(SNMPConstants.USER_NAME,
+                                                                        SNMPConstants.DEFAULT_USERNAME);
+            String authpass = optionHolder.validateAndGetStaticValue(SNMPConstants.AUTH_PASSWORD,
+                                                                        SNMPConstants.DEFAULT_AUT_PASSWORD);
+            String privpass = optionHolder.validateAndGetStaticValue(SNMPConstants.PRIV_PASSWORD,
+                                                                        SNMPConstants.DEFAULT_PRIV_PASSWORD);
+            OID auth = SNMPUtils.validateAndGetAuth(optionHolder.validateAndGetStaticValue(SNMPConstants.AUTH_PROTOCOL,
+                                                                        SNMPConstants.DEFAULT_AUTH_PROTOCOL));
+            OID priv = SNMPUtils.validateAndGetPriv(optionHolder.validateAndGetStaticValue(SNMPConstants.PRIV_PROTOCOL,
+                                                                        SNMPConstants.DEFAULT_PRIV_PROTOCOL));
+            managerConfig.setUserMatrix(new OctetString(userName),
+                    auth,
+                    new OctetString(authpass),
+                    priv,
+                    new OctetString(privpass),
+                    SecurityLevel.AUTH_PRIV);
 
+            managerConfig.setUserTarget(host,
+                    agentPort,
+                    retries,
+                    timeout,
+                    managerConfig.getSecLvl());
+        } else {
+            managerConfig.setCommunityTarget(host, agentPort, community, retries, timeout);
+        }
+        manager = new SNMPSetManager();
     }
 
     /**
@@ -194,16 +227,11 @@ public class SNMPSink extends Sink {
         Map data = (Map) payload;
 
         try {
-            if (version == SnmpConstants.version3) {
-                managerConfig.setUserTarget(host,
-                        agentPort,
-                        retries,
-                        timeout,
-                        managerConfig.getSecLvl());
+            if (isTcp) {
+                manager.setTransportMappingTCP();
             } else {
-                managerConfig.setCommunityTarget(host, agentPort, community, retries, timeout);
+                manager.setTransportMappingUDP();
             }
-            manager.setTransportMappingUDP();
             manager.setManagerConfig(managerConfig);
         } catch (IOException e) {
             throw new ConnectionUnavailableException(" Error in Connecting to agent : " + e);
@@ -225,8 +253,7 @@ public class SNMPSink extends Sink {
      */
     @Override
     public void connect() throws ConnectionUnavailableException {
-        log.info(" \n Connect method trged! \n ");
-
+        //log.info("[SNMPSink]           Connect method trged");
     }
 
     /**
@@ -235,7 +262,7 @@ public class SNMPSink extends Sink {
      */
     @Override
     public void disconnect() {
-        log.info(" \n Disconnect method trged! \n ");
+        //log.info("[SNMPSink]           Disconnect method trged");
         manager.close();
     }
 

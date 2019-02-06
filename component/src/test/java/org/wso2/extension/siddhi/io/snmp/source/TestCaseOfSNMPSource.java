@@ -1,9 +1,10 @@
 package org.wso2.extension.siddhi.io.snmp.source;
 
 import org.apache.log4j.Logger;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.wso2.extension.siddhi.io.snmp.agent.MyAgentV1;
+import org.wso2.extension.siddhi.io.snmp.agent.MyAgentV2;
+import org.wso2.extension.siddhi.io.snmp.agent.MyAgentV3;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -12,42 +13,36 @@ import org.wso2.siddhi.core.util.EventPrinter;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class TestCaseOfSNMPSource {
-    private Logger log  = Logger.getLogger(TestCaseOfSNMPSource.class);
-
-    private AtomicInteger eventCounter = new AtomicInteger(0);
-
-    @BeforeMethod
-    private void setUp() {
-        eventCounter.set(0);
-    }
-
-    @BeforeClass
-    private void initializeDockerContainer() throws InterruptedException {
-        eventCounter.set(0);
-    }
+    private static final Logger LOG  = Logger.getLogger(TestCaseOfSNMPSource.class);
+    String port = "2001";
+    String ip = "127.0.0.1";
 
     @Test
     public void snmpVersion1Source() throws InterruptedException, TimeoutException, IOException {
+        LOG.info("-----------------------------------------------");
+        LOG.info("       SNMP Version 1 Source Test Case     ");
+        LOG.info("-----------------------------------------------");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        // agent staring part
-        // agent start() bind with a port
-        // agent wait()
+        LOG.info("[TestCaseOfSNMPSource.class] snmp agent starting ");
+        MyAgentV1 agent = new MyAgentV1(ip + "/" + port);
+        LOG.info("[TestCaseOfSNMPSource.class] Siddhi starting ");
+        agent.start();
+        Thread.sleep(500);
 
 
         String siddhiApp = "@App:name('test') \n" +
                 "@source(type='snmp', \n" +
                 "@map(type='keyvalue', " +
-                "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.4.0') ),\n" +
-                "host ='127.0.0.1',\n" +
+                "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
+                "host ='" + ip + "',\n" +
                 "version = 'v1',\n" +
-                "agent.port = '161',\n" +
+                "agent.port = '" + port + "',\n" +
                 "request.interval = '500',\n" +
-                "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.4.0',\n" +
+                "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
                 "community = 'public') \n" +
 
                 " define stream inputStream(value1 string, value2 string);\n";
@@ -63,12 +58,11 @@ public class TestCaseOfSNMPSource {
             }
         });
 
-        // agent stop()
-        // agent close()
-
         executionPlanRuntime.start();
-        Thread.sleep(8000);
-        log.info("sleep is over");
+        Thread.sleep(5000);
+        LOG.info("[TestCaseOfSNMPSource.class] agent shutting down");
+        agent.stop();
+        LOG.info("[TestCaseOfSNMPSource.class] Siddhi shutting down");
         siddhiManager.shutdown();
     }
 
@@ -77,26 +71,28 @@ public class TestCaseOfSNMPSource {
      */
     @Test
     public void snmpVersion2Source() throws InterruptedException, TimeoutException, IOException {
+        LOG.info("-----------------------------------------------");
+        LOG.info("       SNMP Version 2 Source Test Case     ");
+        LOG.info("-----------------------------------------------");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        // agent staring part
-        // agent start() bind with a port
-        // agent wait()
+        MyAgentV2 agent = new MyAgentV2(ip + "/" + port);
+        agent.start();
+        Thread.sleep(500);
+
 
 
         String siddhiApp = "@App:name('test') \n" +
                 "@source(type='snmp', \n" +
                 "@map(type='keyvalue', " +
-                "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.4.0') ),\n" +
-                "host ='127.0.0.1',\n" +
+                "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
+                "host ='" + ip + "',\n" +
                 "version = 'v2c',\n" +
-                "type = 'snmp.get',\n" +
-                "agent.port = '161',\n" +
+                "agent.port = '" + port + "',\n" +
                 "request.interval = '500',\n" +
-                "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.4.0',\n" +
+                "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
                 "community = 'public') \n" +
-
                 " define stream inputStream(value1 string, value2 string);\n";
 
         SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
@@ -110,19 +106,26 @@ public class TestCaseOfSNMPSource {
             }
         });
 
-        // agent stop()
-        // agent close()
-
+        LOG.info("[TestCaseOfSNMPSource.class] Siddhi manager starting");
         executionPlanRuntime.start();
-        Thread.sleep(8000);
-        log.info("sleep is over");
+        Thread.sleep(5000);
+        LOG.info("[TestCaseOfSNMPSource.class] agent shutting down");
+        agent.stop();
+        LOG.info("[TestCaseOfSNMPSource.class] Siddhi shutting down");
         siddhiManager.shutdown();
     }
 
     @Test
     public void snmpVersion3TestWithAllValues() throws InterruptedException, TimeoutException, IOException {
+        LOG.info("-----------------------------------------------");
+        LOG.info("       SNMP Version 3 Source Test Case     ");
+        LOG.info("-----------------------------------------------");
 
-        // agent staring part
+        LOG.info("[TestCaseOfSNMPSource.class] Agent starting");
+        MyAgentV3 agent = new MyAgentV3(ip, port);
+        agent.start();
+        Thread.sleep(500);
+
         // agent start() bind with a port
         // agent wait()
 
@@ -131,18 +134,16 @@ public class TestCaseOfSNMPSource {
                 "@source(type='snmp', \n" +
                 "@map(type='keyvalue', " +
                 "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
-                "host ='127.0.0.1',\n" +
+                "host ='" + ip + "',\n" +
                 "version = 'v3',\n" +
                 "timeout = '100',\n" +
-                "request.interval = '100',\n" +
-                "agent.port = '161',\n" +
-                "community = 'public',\n" +
+                "request.interval = '500',\n" +
+                "agent.port = '" + port + "',\n" +
                 "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
-                "priv.password = 'privpass',\n" +
                 "auth.protocol = 'AUTHMD5',\n" +
                 "priv.protocol = 'PRIVDES',\n" +
-                "auth.password = 'authpass',\n" +
                 "priv.password = 'privpass',\n" +
+                "auth.password = 'authpass',\n" +
                 "user.name = 'agent5') \n" +
                 " define stream inputStream(value1 string, value2 string);\n";
 
@@ -152,17 +153,18 @@ public class TestCaseOfSNMPSource {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    log.info(event.toString());
+                    //log.info(event.toString());
                 }
             }
         });
+
+        LOG.info("[TestCaseOfSNMPSource.class] Siddhi manager starting");
         executionPlanRuntime.start();
-        Thread.sleep(1500);
+        Thread.sleep(5000);
 
-        // agent stop()
-        // agent close()
-
-        log.info("sleep is over");
+        LOG.info("[TestCaseOfSNMPSource.class] Agent shutting down");
+        agent.stop();
+        LOG.info("[TestCaseOfSNMPSource.class] Siddhi manager shutting down");
         siddhiManager.shutdown();
     }
 }

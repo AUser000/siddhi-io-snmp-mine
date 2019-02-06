@@ -40,9 +40,9 @@
     <tr>
         <td style="vertical-align: top">community</td>
         <td style="vertical-align: top; word-wrap: break-word"> Community string of the network. </td>
-        <td style="vertical-align: top"></td>
+        <td style="vertical-align: top">public</td>
         <td style="vertical-align: top">STRING</td>
-        <td style="vertical-align: top">No</td>
+        <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>
     </tr>
     <tr>
@@ -100,7 +100,7 @@ define stream outputStream(value string, value string);
 
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 ```
-@source(type="snmp", host="<STRING>", version="<STRING>", type="<STRING>", request.interval="<INT>", oids="<STRING>", community="<STRING>", agent.port="<STRING>", manager.port="<STRING>", istcp="<BOOL>", retries="<INT>", timeout="<INT>", user.name="<STRING>", user.password="<STRING>", encryption.protocol="<STRING>", authentication.protocol="<STRING>", @map(...)))
+@source(type="snmp", host="<STRING>", version="<STRING>", request.interval="<INT>", oids="<STRING>", community="<STRING>", agent.port="<STRING>", istcp="<BOOL>", retries="<INT>", timeout="<INT>", user.name="<STRING>", security.mode="<STRING>", priv.protocol="<STRING>", priv.password="<STRING>", auth.protocol="<STRING>", auth.password="<STRING>", @map(...)))
 ```
 
 <span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
@@ -130,14 +130,6 @@ define stream outputStream(value string, value string);
         <td style="vertical-align: top">No</td>
     </tr>
     <tr>
-        <td style="vertical-align: top">type</td>
-        <td style="vertical-align: top; word-wrap: break-word"> Type of the request. </td>
-        <td style="vertical-align: top"></td>
-        <td style="vertical-align: top">STRING</td>
-        <td style="vertical-align: top">No</td>
-        <td style="vertical-align: top">No</td>
-    </tr>
-    <tr>
         <td style="vertical-align: top">request.interval</td>
         <td style="vertical-align: top; word-wrap: break-word"> Request interval of the get requests. </td>
         <td style="vertical-align: top"></td>
@@ -156,23 +148,15 @@ define stream outputStream(value string, value string);
     <tr>
         <td style="vertical-align: top">community</td>
         <td style="vertical-align: top; word-wrap: break-word"> Community string of the network. </td>
-        <td style="vertical-align: top"></td>
+        <td style="vertical-align: top">public</td>
         <td style="vertical-align: top">STRING</td>
-        <td style="vertical-align: top">No</td>
+        <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>
     </tr>
     <tr>
         <td style="vertical-align: top">agent.port</td>
         <td style="vertical-align: top; word-wrap: break-word"> Port of the agent. </td>
         <td style="vertical-align: top">161</td>
-        <td style="vertical-align: top">STRING</td>
-        <td style="vertical-align: top">Yes</td>
-        <td style="vertical-align: top">No</td>
-    </tr>
-    <tr>
-        <td style="vertical-align: top">manager.port</td>
-        <td style="vertical-align: top; word-wrap: break-word"> Port of the manager. </td>
-        <td style="vertical-align: top">162</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>
@@ -203,34 +187,50 @@ define stream outputStream(value string, value string);
     </tr>
     <tr>
         <td style="vertical-align: top">user.name</td>
-        <td style="vertical-align: top; word-wrap: break-word"> Username if user use snmp version 3.     </td>
-        <td style="vertical-align: top">user.name</td>
+        <td style="vertical-align: top; word-wrap: break-word"> Username if user use snmp version 3.</td>
+        <td style="vertical-align: top">noUser</td>
         <td style="vertical-align: top">STRING</td>
-        <td style="vertical-align: top">No</td>
+        <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>
     </tr>
     <tr>
-        <td style="vertical-align: top">user.password</td>
-        <td style="vertical-align: top; word-wrap: break-word"> User password if user use snmp vertion 3. </td>
-        <td style="vertical-align: top">user.password</td>
+        <td style="vertical-align: top">security.mode</td>
+        <td style="vertical-align: top; word-wrap: break-word"> Security mode. </td>
+        <td style="vertical-align: top">noMode</td>
         <td style="vertical-align: top">STRING</td>
-        <td style="vertical-align: top">No</td>
+        <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>
     </tr>
     <tr>
-        <td style="vertical-align: top">encryption.protocol</td>
+        <td style="vertical-align: top">priv.protocol</td>
         <td style="vertical-align: top; word-wrap: break-word"> Encryption protocol if use </td>
+        <td style="vertical-align: top">nopriv</td>
+        <td style="vertical-align: top">STRING</td>
+        <td style="vertical-align: top">Yes</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">priv.password</td>
+        <td style="vertical-align: top; word-wrap: break-word"> Encryption protocol password </td>
+        <td style="vertical-align: top">privpass</td>
+        <td style="vertical-align: top">STRING</td>
+        <td style="vertical-align: top">Yes</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">auth.protocol</td>
+        <td style="vertical-align: top; word-wrap: break-word"> Auth protocol is use. </td>
         <td style="vertical-align: top">noEnc</td>
         <td style="vertical-align: top">STRING</td>
-        <td style="vertical-align: top">No</td>
+        <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>
     </tr>
     <tr>
-        <td style="vertical-align: top">authentication.protocol</td>
+        <td style="vertical-align: top">auth.password</td>
         <td style="vertical-align: top; word-wrap: break-word"> Auth protocol is use. </td>
-        <td style="vertical-align: top">noAuth</td>
+        <td style="vertical-align: top">authpass</td>
         <td style="vertical-align: top">STRING</td>
-        <td style="vertical-align: top">No</td>
+        <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>
     </tr>
 </table>
@@ -242,7 +242,6 @@ define stream outputStream(value string, value string);
 @map(type=’keyvalue’),
 host =’127.0.0.1’,
 version = ‘v2c’,
-type = ‘snmp.get’,
 request.interval = ‘20’,
 oids=’1.2.3.32.323, 9878.88’,
 community = ‘public’) 

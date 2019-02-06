@@ -1,17 +1,29 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.extension.siddhi.io.snmp.source;
 
 import org.apache.log4j.Logger;
-import org.snmp4j.PDU;
-import org.snmp4j.mp.SnmpConstants;
-import org.snmp4j.security.AuthMD5;
-import org.snmp4j.security.PrivDES;
 import org.snmp4j.security.SecurityLevel;
 import org.snmp4j.smi.OID;
 import org.snmp4j.smi.OctetString;
 import org.wso2.extension.siddhi.io.snmp.manager.SNMPGetManager;
+import org.wso2.extension.siddhi.io.snmp.manager.SNMPListener;
 import org.wso2.extension.siddhi.io.snmp.manager.SNMPManagerConfig;
-import org.wso2.extension.siddhi.io.snmp.manager.SNMPServer;
-import org.wso2.extension.siddhi.io.snmp.manager.Server;
 import org.wso2.extension.siddhi.io.snmp.util.SNMPConstants;
 import org.wso2.extension.siddhi.io.snmp.util.SNMPUtils;
 import org.wso2.siddhi.annotation.Example;
@@ -123,7 +135,7 @@ import java.util.Map;
                         defaultValue = SNMPConstants.DEFAULT_TIMEOUT),
                 // this parameters for v3
                 @Parameter(name = SNMPConstants.USER_NAME,
-                        description = " Username if user use snmp version 3.     ",
+                        description = " Username if user use snmp version 3.",
                         optional = true,
                         type = DataType.STRING,
                         defaultValue = SNMPConstants.DEFAULT_USERNAME),
@@ -176,12 +188,14 @@ public class SNMPSource extends Source {
     private SourceEventListener sourceEventListener;
     private String siddhiAppName;
 
+    private boolean isTcp = false;
     private String host;
     private String port;
     private int requestInterval;
     private SNMPManagerConfig managerConfig;
     private SNMPGetManager manager;
-    Thread server;
+    SNMPListener snmpListener;
+    Thread thread;
 
 
     /**
@@ -209,22 +223,31 @@ public class SNMPSource extends Source {
     private void initSnmpProperties() {
         this.host = optionHolder.validateAndGetStaticValue(SNMPConstants.HOST);
         this.port = optionHolder.validateAndGetStaticValue(SNMPConstants.AGENT_PORT);
-        this.requestInterval = Integer.parseInt(optionHolder.validateAndGetStaticValue(SNMPConstants.REQUEST_INTERVAL));
-        String community = optionHolder.validateAndGetStaticValue(SNMPConstants.COMMUNITY);
-        int timeout = Integer.parseInt(optionHolder.validateAndGetStaticValue(SNMPConstants.TIMEOUT, SNMPConstants.DEFAULT_TIMEOUT));
+        this.requestInterval = Integer.parseInt(
+                optionHolder.validateAndGetStaticValue(SNMPConstants.REQUEST_INTERVAL));
+        int timeout = Integer.parseInt(
+                optionHolder.validateAndGetStaticValue(SNMPConstants.TIMEOUT, SNMPConstants.DEFAULT_TIMEOUT));
 
         managerConfig = new SNMPManagerConfig();
-        managerConfig.setVersion(SNMPUtils.validateVersion(optionHolder.validateAndGetStaticValue(SNMPConstants.VERSION)));
+        managerConfig.setVersion(
+                SNMPUtils.validateVersion(
+                        optionHolder.validateAndGetStaticValue(
+                                SNMPConstants.VERSION)));
         managerConfig.setVariablebindings(SNMPUtils.
                 validateAndGetOidList(optionHolder.
                         validateAndGetStaticValue(SNMPConstants.OIDS)));
 
-        if (managerConfig.getVersion() == SnmpConstants.version3) {
-            String userName = optionHolder.validateAndGetStaticValue(SNMPConstants.USER_NAME, SNMPConstants.DEFAULT_USERNAME);
-            String authpass = optionHolder.validateAndGetStaticValue(SNMPConstants.AUTH_PASSWORD, SNMPConstants.DEFAULT_AUT_PASSWORD);
-            String privpass = optionHolder.validateAndGetStaticValue(SNMPConstants.PRIV_PASSWORD, SNMPConstants.DEFAULT_PRIV_PASSWORD);
-            OID priv = SNMPUtils.validateAndGetPriv(optionHolder.validateAndGetStaticValue(SNMPConstants.PRIV_PROTOCOL, SNMPConstants.DEFAULT_PRIV_PROTOCOL));
-            OID auth = SNMPUtils.validateAndGetAuth(optionHolder.validateAndGetStaticValue(SNMPConstants.AUTH_PROTOCOL, SNMPConstants.DEFAULT_AUTH_PROTOCOL));
+        if (managerConfig.getVersion() == SNMPConstants.V3) {
+            String userName = optionHolder.validateAndGetStaticValue(SNMPConstants.USER_NAME,
+                                                                    SNMPConstants.DEFAULT_USERNAME);
+            String authpass = optionHolder.validateAndGetStaticValue(SNMPConstants.AUTH_PASSWORD,
+                                                                    SNMPConstants.DEFAULT_AUT_PASSWORD);
+            String privpass = optionHolder.validateAndGetStaticValue(SNMPConstants.PRIV_PASSWORD,
+                                                                    SNMPConstants.DEFAULT_PRIV_PASSWORD);
+            OID priv = SNMPUtils.validateAndGetPriv(optionHolder.validateAndGetStaticValue(SNMPConstants.PRIV_PROTOCOL,
+                                                                    SNMPConstants.DEFAULT_PRIV_PROTOCOL));
+            OID auth = SNMPUtils.validateAndGetAuth(optionHolder.validateAndGetStaticValue(SNMPConstants.AUTH_PROTOCOL,
+                                                                    SNMPConstants.DEFAULT_AUTH_PROTOCOL));
             managerConfig.setUserMatrix(new OctetString(userName),
                     auth,
                     new OctetString(authpass),
@@ -233,6 +256,8 @@ public class SNMPSource extends Source {
                     SecurityLevel.AUTH_PRIV);
             managerConfig.setUserTarget(host, port, 5, timeout, managerConfig.getSecLvl());
         } else {
+            String community = optionHolder.validateAndGetStaticValue(SNMPConstants.COMMUNITY,
+                                                                    SNMPConstants.DEFAULT_COMMUNITY);
             managerConfig.setCommunityTarget(host, port, community, 5, timeout);
         }
     }
@@ -259,10 +284,16 @@ public class SNMPSource extends Source {
     public void connect(ConnectionCallback connectionCallback) throws ConnectionUnavailableException {
 
         try {
-            manager.setTransportMappingUDP();
+            if (isTcp) {
+                manager.setTransportMappingTCP();
+            } else {
+                manager.setTransportMappingUDP();
+            }
             manager.setManagerConfig(managerConfig);
-            server = new Thread(SNMPServer.getInstance(requestInterval, manager));
-            server.start();
+
+            snmpListener = new SNMPListener(manager, requestInterval);
+            thread = new Thread(snmpListener);
+            thread.start();
         } catch (IOException e) {
             throw new ConnectionUnavailableException(e);
         }
@@ -273,7 +304,14 @@ public class SNMPSource extends Source {
      */
     @Override
     public void disconnect() {
-        log.info(" disconnect triggered ");
+        if (snmpListener != null) {
+            snmpListener.cancel(false);
+        }
+        if (thread != null) {
+            thread.interrupt();
+        } else {
+            //log.info("");
+        }
     }
 
     /**
@@ -281,7 +319,7 @@ public class SNMPSource extends Source {
      */
     @Override
     public void destroy() {
-        log.info(" destroy triggered");
+        //log.info("[SNMPSource.class] destroy triggered");
     }
 
     /**
@@ -289,7 +327,7 @@ public class SNMPSource extends Source {
      */
     @Override
     public void pause() {
-
+        //disconnect();
     }
 
     /**
