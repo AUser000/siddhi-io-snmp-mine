@@ -17,8 +17,15 @@
  */
 package org.wso2.extension.siddhi.io.snmp.manager;
 
-import org.snmp4j.PDU;
 import org.snmp4j.event.ResponseEvent;
+import org.snmp4j.mp.MPv3;
+import org.snmp4j.mp.SnmpConstants;
+import org.snmp4j.security.SecurityModels;
+import org.snmp4j.security.SecurityProtocols;
+import org.snmp4j.security.USM;
+import org.snmp4j.smi.OID;
+import org.snmp4j.smi.OctetString;
+import org.snmp4j.smi.VariableBinding;
 
 import java.io.IOException;
 import java.util.Map;
@@ -28,10 +35,6 @@ import java.util.Map;
  *
  */
 public class SNMPSetManager extends SNMPManager {
-
-    public ResponseEvent send(Map<String, String> map) throws IOException {
-        return send(map, PDU.SET);
-    }
 
     public void validateResponseAndNotify(ResponseEvent event) {
         if (event != null) {
@@ -43,5 +46,22 @@ public class SNMPSetManager extends SNMPManager {
         } else {
             log.info(SNMPGetManager.class.getName() + "event is null");
         }
+    }
+
+    // for sending set request messages
+    public ResponseEvent send(Map<String, String> map) throws IOException {
+        for (Map.Entry<String, String> entry: map.entrySet()) {
+            this.managerConfig.getPdu().add(new VariableBinding(new OID(entry.getKey()),
+                    new OctetString(entry.getValue())));
+        }
+        if (managerConfig.getVersion() == SnmpConstants.version3) {
+            USM usm = new USM(SecurityProtocols.getInstance().addDefaultProtocols(),
+                    new OctetString(MPv3.createLocalEngineID()).substring(0, 9), 0);
+            SecurityModels.getInstance().addSecurityModel(usm);
+            snmp.getUSM().addUser(managerConfig.getUserName(), managerConfig.getUser());
+
+            return snmp.set(managerConfig.getPdu(), managerConfig.getUserTarget());
+        }
+        return snmp.set(managerConfig.getPdu(), managerConfig.getCommunityTarget());
     }
 }

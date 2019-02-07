@@ -35,6 +35,7 @@ public class TestCaseOfSNMPSource {
 
 
         String siddhiApp = "@App:name('test') \n" +
+
                 "@source(type='snmp', \n" +
                 "@map(type='keyvalue', " +
                 "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
@@ -44,7 +45,6 @@ public class TestCaseOfSNMPSource {
                 "request.interval = '500',\n" +
                 "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
                 "community = 'public') \n" +
-
                 " define stream inputStream(value1 string, value2 string);\n";
 
         SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);

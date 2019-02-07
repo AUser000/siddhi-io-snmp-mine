@@ -93,8 +93,8 @@ import java.util.Map;
 @Extension(
         name = "snmp",
         namespace = "source",
-        description = " SNMP Source allows user to get massages from the agent as a manager."
-                + " It has ability to make get request and get it's responce and get trap massages. ",
+        description = " SNMP Source allows user to make get request and get the response" +
+                "of the request, once in request interval. ",
         parameters = {
                 @Parameter(name = SNMPConstants.HOST,
                         description = " Address or ip of the target. " ,
@@ -109,7 +109,7 @@ import java.util.Map;
                         description = " list of the OIDs separated by comma. ",
                         type = DataType.STRING),
                 @Parameter(name = SNMPConstants.COMMUNITY,
-                        optional = true, // TODO did as optional
+                        optional = true,
                         description = " Community string of the network. ",
                         defaultValue = SNMPConstants.DEFAULT_COMMUNITY,
                         type = DataType.STRING),
@@ -168,16 +168,52 @@ import java.util.Map;
         },
         examples = {
                 @Example(
-                        syntax = " @Source(type=’snmp’, \n" +
-                                    "@map(type=’keyvalue’),\n" +
-                                    "host =’127.0.0.1’,\n" +
-                                    "version = ‘v2c’,\n" +
-                                    "request.interval = ‘20’,\n" +
-                                    "oids=’1.2.3.32.323, 9878.88’,\n" +
-                                    "community = ‘public’) \n" +
-                                    "define stream inputStream(oid string, value string);\n",
-                        description = " please fill this "
-                )
+                        description = "This example shows how to make get request for snmp version 1 ",
+
+                        syntax = "@source(type='snmp', \n" +
+                        "@map(type='keyvalue', " +
+                        "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
+                        "host ='127.0.0.1',\n" +
+                        "version = 'v1',\n" +
+                        "agent.port = '161',\n" +
+                        "request.interval = '60000',\n" +
+                        "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
+                        "community = 'public') \n" +
+                        " define stream inputStream(value1 string, value2 string);\n"
+                ),
+                @Example(
+                        description = "This example shows how to make get request for snmp version 2c ",
+
+                        syntax = "@source(type='snmp', \n" +
+                                "@map(type='keyvalue', " +
+                                "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
+                                "host ='127.0.0.1',\n" +
+                                "version = 'v2c',\n" +
+                                "agent.port = '161',\n" +
+                                "request.interval = '60000',\n" +
+                                "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
+                                "community = 'public') \n" +
+                                " define stream inputStream(value1 string, value2 string);\n"
+                ),
+                @Example(
+                        description = "This example shows how to make get request for snmp version 3 ",
+
+                        syntax = "@source(type='snmp', \n" +
+                                "@map(type='keyvalue', " +
+                                "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
+                                "host ='127.0.0.1',\n" +
+                                "version = 'v3',\n" +
+                                "timeout = '1500',\n" +
+                                "request.interval = '60000',\n" +
+                                "agent.port = '161',\n" +
+                                "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
+                                "auth.protocol = 'AUTHMD5',\n" +
+                                "priv.protocol = 'PRIVDES',\n" +
+                                "priv.password = 'privpass',\n" +
+                                "auth.password = 'authpass',\n" +
+                                "user.name = 'agent5') \n" +
+                                " define stream inputStream(value1 string, value2 string);\n"
+                ),
         }
 )
 
@@ -186,7 +222,6 @@ public class SNMPSource extends Source {
     private static final Logger log = Logger.getLogger(SNMPSource.class);
     private OptionHolder optionHolder;
     private SourceEventListener sourceEventListener;
-    private String siddhiAppName;
 
     private boolean isTcp = false;
     private String host;
@@ -194,8 +229,8 @@ public class SNMPSource extends Source {
     private int requestInterval;
     private SNMPManagerConfig managerConfig;
     private SNMPGetManager manager;
-    SNMPListener snmpListener;
-    Thread thread;
+    private SNMPListener snmpListener;
+    private Thread thread;
 
 
     /**
@@ -214,7 +249,7 @@ public class SNMPSource extends Source {
                      SiddhiAppContext siddhiAppContext) {
         this.sourceEventListener = sourceEventListener;
         this.optionHolder = optionHolder;
-        this.siddhiAppName = siddhiAppContext.getName();
+        //this.siddhiAppName = siddhiAppContext.getName();
         initSnmpProperties();
         manager = new SNMPGetManager();
         manager.setSourceEventListener(sourceEventListener);
@@ -270,7 +305,7 @@ public class SNMPSource extends Source {
      */
     @Override
     public Class[] getOutputEventClasses() {
-        return new Class[0];
+        return new Class[]{Map.class};
     }
 
     /**
@@ -295,7 +330,8 @@ public class SNMPSource extends Source {
             thread = new Thread(snmpListener);
             thread.start();
         } catch (IOException e) {
-            throw new ConnectionUnavailableException(e);
+            throw new ConnectionUnavailableException("Exception in starting the snmp for stream: " +
+                     sourceEventListener.getStreamDefinition().getId(), e);
         }
     }
 
@@ -307,11 +343,6 @@ public class SNMPSource extends Source {
         if (snmpListener != null) {
             snmpListener.cancel(false);
         }
-        if (thread != null) {
-            thread.interrupt();
-        } else {
-            //log.info("");
-        }
     }
 
     /**
@@ -319,7 +350,6 @@ public class SNMPSource extends Source {
      */
     @Override
     public void destroy() {
-        //log.info("[SNMPSource.class] destroy triggered");
     }
 
     /**
@@ -327,7 +357,6 @@ public class SNMPSource extends Source {
      */
     @Override
     public void pause() {
-        //disconnect();
     }
 
     /**
@@ -335,7 +364,6 @@ public class SNMPSource extends Source {
      */
     @Override
     public void resume() {
-
     }
 
     /**

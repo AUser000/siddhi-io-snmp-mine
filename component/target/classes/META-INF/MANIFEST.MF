@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1549432384628
+Bnd-LastModified: 1549519615025
 Build-Jdk: 1.8.0_191
 Built-By: dhanushka
 Bundle-Contributors: WSO2 Inc
@@ -44,5 +44,5 @@ Import-Package: javax.crypto;resolution:=optional,javax.crypto.interface
  ore.util.transport;resolution:=optional;version="[4.3,5)",org.wso2.sidd
  hi.query.api.definition;resolution:=optional;version="[4.3,5)"
 Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"
-SCM-Revision: 85f4cec423483e8126c89e1d2447bab3c86b64cf
+SCM-Revision: 3f13927cfb9bb40d670a2bee04dbd8dede5b149f
 Tool: Bnd-3.0.0.201509101326

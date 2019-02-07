@@ -18,9 +18,16 @@
 package org.wso2.extension.siddhi.io.snmp.manager;
 
 import org.snmp4j.event.ResponseEvent;
+import org.snmp4j.mp.MPv3;
+import org.snmp4j.mp.SnmpConstants;
+import org.snmp4j.security.SecurityModels;
+import org.snmp4j.security.SecurityProtocols;
+import org.snmp4j.security.USM;
+import org.snmp4j.smi.OctetString;
 import org.snmp4j.smi.VariableBinding;
 import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,5 +67,22 @@ public class SNMPGetManager extends SNMPManager {
             log.info(SNMPGetManager.class.getName() + "event is null");
         }
     }
+
+    // get request sending?
+    public ResponseEvent send() throws IOException {
+        if (managerConfig.getVersion() == SnmpConstants.version3) {
+            USM usm = new USM(SecurityProtocols.getInstance()
+                    .addDefaultProtocols(),
+                    new OctetString(MPv3.createLocalEngineID()).substring(0, 9), 0);
+
+            SecurityModels.getInstance().addSecurityModel(usm);
+            snmp.getUSM().addUser(
+                    managerConfig.getUserName(),
+                    managerConfig.getUser());
+            return snmp.send(managerConfig.getPdu(), managerConfig.getUserTarget());
+        }
+        return snmp.get(managerConfig.getPdu(), managerConfig.getCommunityTarget());
+    }
+
 
 }

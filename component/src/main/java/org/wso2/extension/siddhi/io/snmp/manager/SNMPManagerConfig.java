@@ -87,6 +87,7 @@ public class SNMPManagerConfig {
         return secLvl;
     }
 
+    // for setting user parameters
     public void setUserMatrix(OctetString userName,
                        OID authProtocol,
                        OctetString authProtocolPass,
@@ -101,6 +102,7 @@ public class SNMPManagerConfig {
         this.secLvl = secLvl;
     }
 
+    // for create user target
     public UserTarget setUserTarget(String ip,
                                     String port,
                                     int retries,
@@ -130,6 +132,7 @@ public class SNMPManagerConfig {
         this.version = version;
     }
 
+    // for setting up community target
     public void setCommunityTarget(String ip,
                           String port,
                           String community,
@@ -162,6 +165,8 @@ public class SNMPManagerConfig {
         isTCP = b;
     }
 
+
+    // for setting up user target
     public void setUserTarget(String ip,
                               String port,
                               int retries,
@@ -193,7 +198,6 @@ public class SNMPManagerConfig {
                 this.privProtocol,
                 this.privProtocolPass);
     }
-
 
     public Target getCommunityTarget() {
         return this.communityTarget;

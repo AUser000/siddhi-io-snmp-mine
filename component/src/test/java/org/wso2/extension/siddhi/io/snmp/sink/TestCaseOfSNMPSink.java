@@ -16,7 +16,7 @@ import java.util.concurrent.TimeoutException;
  * Contains test cases for SNMP sink.
  */
 public class TestCaseOfSNMPSink {
-    private static final Logger LOG  = Logger.getLogger(TestCaseOfSNMPSource.class);
+    private static final Logger log = Logger.getLogger(TestCaseOfSNMPSource.class);
     String port = "2019";
     String ip = "127.0.0.1";
 
@@ -26,13 +26,13 @@ public class TestCaseOfSNMPSink {
      */
     @Test
     public void snmpVersion2Sink() throws InterruptedException, TimeoutException, IOException {
-        LOG.info("-----------------------------------------------");
-        LOG.info("       SNMP Version 2 Sink Test Case     ");
-        LOG.info("-----------------------------------------------");
+        log.info("-----------------------------------------------");
+        log.info("       SNMP Version 2 Sink Test Case     ");
+        log.info("-----------------------------------------------");
 
         MyAgentV2 agent = new MyAgentV2(ip + "/" + port);
         agent.start();
-        LOG.info("[TestCaseOfSNMPSink] Agent started ");
+        log.info("[TestCaseOfSNMPSink] Agent started ");
 
         Thread.sleep(500);
 
@@ -60,7 +60,7 @@ public class TestCaseOfSNMPSink {
         SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
         InputHandler inputStream = executionPlanRuntime.getInputHandler("outputStream");
 
-        LOG.info("[TestCaseOfSNMPSink] Siddhi manager started ");
+        log.info("[TestCaseOfSNMPSink] Siddhi manager started ");
         executionPlanRuntime.start();
 
         inputStream.send(new Object[]{"banana"});
@@ -69,9 +69,9 @@ public class TestCaseOfSNMPSink {
         Thread.sleep(3000);
 
 
-        LOG.info("[TestCaseOfSNMPSink] Siddhi manager shutting down ");
+        log.info("[TestCaseOfSNMPSink] Siddhi manager shutting down ");
         siddhiManager.shutdown();
-        LOG.info("[TestCaseOfSNMPSink] SNMP agent shutting down \n");
+        log.info("[TestCaseOfSNMPSink] SNMP agent shutting down \n");
         agent.stop();
     }
 
@@ -81,12 +81,12 @@ public class TestCaseOfSNMPSink {
     @Test
     public void snmpVersion3Sink() throws InterruptedException, TimeoutException, IOException {
 
-        LOG.info("-----------------------------------------------");
-        LOG.info("       SNMP Version 3 Sink Test Case     ");
-        LOG.info("-----------------------------------------------");
+        log.info("-----------------------------------------------");
+        log.info("       SNMP Version 3 Sink Test Case     ");
+        log.info("-----------------------------------------------");
 
         MyAgentV3 agent = new MyAgentV3(ip , port);
-        LOG.info("[TestCaseOfSNMPSink] agent started ");
+        log.info("[TestCaseOfSNMPSink] agent started ");
         agent.start();
         Thread.sleep(500);
 
@@ -107,11 +107,9 @@ public class TestCaseOfSNMPSink {
                 "retries = '5')\n" +
                 "define stream outputStream(value string, value2 string);\n" +
 
-                "\n" +
                 "@sink(type='log')\n" +
                 "define stream testStream(value string, value2 string);\n" +
 
-                "\n" +
                 "@info(name='productionProcessingQuery')\n" +
                 "from outputStream\n" +
                 "select value, value2\n" +
@@ -121,7 +119,7 @@ public class TestCaseOfSNMPSink {
         SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
         InputHandler inputStream = executionPlanRuntime.getInputHandler("outputStream");
 
-        LOG.info("[TestCaseOfSNMPSink] Siddhi manager started ");
+        log.info("[TestCaseOfSNMPSink] Siddhi manager started ");
         executionPlanRuntime.start();
 
         inputStream.send(new Object[]{"banana", "Hello"});
@@ -129,9 +127,9 @@ public class TestCaseOfSNMPSink {
         inputStream.send(new Object[]{"banana", "Hello"});
         Thread.sleep(3000);
 
-        LOG.info("[TestCaseOfSNMPSink] siddhi manager shutting down ");
+        log.info("[TestCaseOfSNMPSink] siddhi manager shutting down ");
         siddhiManager.shutdown();
-        LOG.info("[TestCaseOfSNMPSink] SNMP agent shutting down ");
+        log.info("[TestCaseOfSNMPSink] SNMP agent shutting down ");
         agent.stop();
     }
 }

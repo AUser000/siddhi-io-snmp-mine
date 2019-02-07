@@ -46,14 +46,15 @@ public class SNMPListener implements RunnableFuture {
             try {
                 snmpGetManager.validateResponseAndNotify(snmpGetManager.send());
             } catch (IOException e) {
-                log.info("[server ] IOException! ");
+                log.info("[server ] IOException! " + e);
             }
             try {
                 Thread.sleep(requestInterval);
             } catch (InterruptedException e) {
-                log.info("");
+                log.info("[server ] IOException! " + e);
             }
         }
+        log.info("Who knows its still running? after while loop");
     }
 
     @Override

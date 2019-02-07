@@ -96,7 +96,7 @@ define stream outputStream(value string, value string);
 
 ### snmp *<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#source">(Source)</a>*
 
-<p style="word-wrap: break-word"> SNMP Source allows user to get massages from the agent as a manager. It has ability to make get request and get it's responce and get trap massages. </p>
+<p style="word-wrap: break-word"> SNMP Source allows user to make get request and get the responseof the request, once in request interval. </p>
 
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 ```
@@ -238,15 +238,51 @@ define stream outputStream(value string, value string);
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
 <span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
 ```
- @Source(type=’snmp’, 
-@map(type=’keyvalue’),
-host =’127.0.0.1’,
-version = ‘v2c’,
-request.interval = ‘20’,
-oids=’1.2.3.32.323, 9878.88’,
-community = ‘public’) 
-define stream inputStream(oid string, value string);
+@source(type='snmp', 
+@map(type='keyvalue',    @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),
+host ='127.0.0.1',
+version = 'v1',
+agent.port = '161',
+request.interval = '60000',
+oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',
+community = 'public') 
+ define stream inputStream(value1 string, value2 string);
 
 ```
-<p style="word-wrap: break-word"> please fill this </p>
+<p style="word-wrap: break-word">This example shows how to make get request for snmp version 1 </p>
+
+<span id="example-2" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 2</span>
+```
+@source(type='snmp', 
+@map(type='keyvalue',    @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),
+host ='127.0.0.1',
+version = 'v2c',
+agent.port = '161',
+request.interval = '60000',
+oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',
+community = 'public') 
+ define stream inputStream(value1 string, value2 string);
+
+```
+<p style="word-wrap: break-word">This example shows how to make get request for snmp version 2c </p>
+
+<span id="example-3" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 3</span>
+```
+@source(type='snmp', 
+@map(type='keyvalue',    @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),
+host ='127.0.0.1',
+version = 'v3',
+timeout = '1500',
+request.interval = '60000',
+agent.port = '161',
+oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',
+auth.protocol = 'AUTHMD5',
+priv.protocol = 'PRIVDES',
+priv.password = 'privpass',
+auth.password = 'authpass',
+user.name = 'agent5') 
+ define stream inputStream(value1 string, value2 string);
+
+```
+<p style="word-wrap: break-word">This example shows how to make get request for snmp version 3 </p>
 

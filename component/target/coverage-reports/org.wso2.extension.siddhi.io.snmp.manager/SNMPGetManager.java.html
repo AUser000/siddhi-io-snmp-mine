@@ -18,9 +18,16 @@
 package org.wso2.extension.siddhi.io.snmp.manager;
 
 import org.snmp4j.event.ResponseEvent;
+import org.snmp4j.mp.MPv3;
+import org.snmp4j.mp.SnmpConstants;
+import org.snmp4j.security.SecurityModels;
+import org.snmp4j.security.SecurityProtocols;
+import org.snmp4j.security.USM;
+import org.snmp4j.smi.OctetString;
 import org.snmp4j.smi.VariableBinding;
 import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,37 +36,54 @@ import java.util.Map;
  *
  *
  */
-<span class="fc" id="L32">public class SNMPGetManager extends SNMPManager {</span>
+<span class="fc" id="L39">public class SNMPGetManager extends SNMPManager {</span>
     private SourceEventListener sourceEventListener;
 
     public SourceEventListener getSourceEventListener() {
-<span class="nc" id="L36">        return sourceEventListener;</span>
+<span class="nc" id="L43">        return sourceEventListener;</span>
     }
 
     public void setSourceEventListener(SourceEventListener sourceEventListener) {
-<span class="fc" id="L40">        this.sourceEventListener = sourceEventListener;</span>
-<span class="fc" id="L41">    }</span>
+<span class="fc" id="L47">        this.sourceEventListener = sourceEventListener;</span>
+<span class="fc" id="L48">    }</span>
 
     public void validateResponseAndNotify(ResponseEvent event) {
-<span class="pc bpc" id="L44" title="1 of 2 branches missed.">        if (event != null) {</span>
-<span class="pc bpc" id="L45" title="1 of 2 branches missed.">            if (event.getResponse() != null) {</span>
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">        if (event != null) {</span>
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">            if (event.getResponse() != null) {</span>
                 //log.info(event.getResponse().toString());
-<span class="fc" id="L47">                List&lt;VariableBinding&gt; vbs = (List&lt;VariableBinding&gt;) event</span>
-<span class="fc" id="L48">                        .getResponse()</span>
-<span class="fc" id="L49">                        .getVariableBindings();</span>
-<span class="fc" id="L50">                Map&lt;String, String&gt; map = new HashMap&lt;&gt;();</span>
-<span class="fc bfc" id="L51" title="All 2 branches covered.">                for (VariableBinding vb: vbs) {</span>
-<span class="fc" id="L52">                    map.put(vb.getOid().toString(), vb.getVariable().toString());</span>
-<span class="fc" id="L53">                }</span>
-<span class="fc" id="L54">                sourceEventListener.onEvent(map, null);</span>
+<span class="fc" id="L54">                List&lt;VariableBinding&gt; vbs = (List&lt;VariableBinding&gt;) event</span>
+<span class="fc" id="L55">                        .getResponse()</span>
+<span class="fc" id="L56">                        .getVariableBindings();</span>
+<span class="fc" id="L57">                Map&lt;String, String&gt; map = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">                for (VariableBinding vb: vbs) {</span>
+<span class="fc" id="L59">                    map.put(vb.getOid().toString(), vb.getVariable().toString());</span>
+<span class="fc" id="L60">                }</span>
+<span class="fc" id="L61">                sourceEventListener.onEvent(map, null);</span>
                 //log.info(event.getResponse().toString());
-<span class="fc" id="L56">            } else {</span>
-<span class="nc" id="L57">                log.info(SNMPGetManager.class.getName() + &quot; response pdu is null&quot;);</span>
+<span class="fc" id="L63">            } else {</span>
+<span class="nc" id="L64">                log.info(SNMPGetManager.class.getName() + &quot; response pdu is null&quot;);</span>
             }
         } else {
-<span class="nc" id="L60">            log.info(SNMPGetManager.class.getName() + &quot;event is null&quot;);</span>
+<span class="nc" id="L67">            log.info(SNMPGetManager.class.getName() + &quot;event is null&quot;);</span>
         }
-<span class="fc" id="L62">    }</span>
+<span class="fc" id="L69">    }</span>
+
+    // get request sending?
+    public ResponseEvent send() throws IOException {
+<span class="fc bfc" id="L73" title="All 2 branches covered.">        if (managerConfig.getVersion() == SnmpConstants.version3) {</span>
+<span class="fc" id="L74">            USM usm = new USM(SecurityProtocols.getInstance()</span>
+<span class="fc" id="L75">                    .addDefaultProtocols(),</span>
+<span class="fc" id="L76">                    new OctetString(MPv3.createLocalEngineID()).substring(0, 9), 0);</span>
+
+<span class="fc" id="L78">            SecurityModels.getInstance().addSecurityModel(usm);</span>
+<span class="fc" id="L79">            snmp.getUSM().addUser(</span>
+<span class="fc" id="L80">                    managerConfig.getUserName(),</span>
+<span class="fc" id="L81">                    managerConfig.getUser());</span>
+<span class="fc" id="L82">            return snmp.send(managerConfig.getPdu(), managerConfig.getUserTarget());</span>
+        }
+<span class="fc" id="L84">        return snmp.get(managerConfig.getPdu(), managerConfig.getCommunityTarget());</span>
+    }
+
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

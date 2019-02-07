@@ -17,8 +17,15 @@
  */
 package org.wso2.extension.siddhi.io.snmp.manager;
 
-import org.snmp4j.PDU;
 import org.snmp4j.event.ResponseEvent;
+import org.snmp4j.mp.MPv3;
+import org.snmp4j.mp.SnmpConstants;
+import org.snmp4j.security.SecurityModels;
+import org.snmp4j.security.SecurityProtocols;
+import org.snmp4j.security.USM;
+import org.snmp4j.smi.OID;
+import org.snmp4j.smi.OctetString;
+import org.snmp4j.smi.VariableBinding;
 
 import java.io.IOException;
 import java.util.Map;
@@ -27,22 +34,35 @@ import java.util.Map;
  *
  *
  */
-<span class="fc" id="L30">public class SNMPSetManager extends SNMPManager {</span>
-
-    public ResponseEvent send(Map&lt;String, String&gt; map) throws IOException {
-<span class="fc" id="L33">        return send(map, PDU.SET);</span>
-    }
+<span class="fc" id="L37">public class SNMPSetManager extends SNMPManager {</span>
 
     public void validateResponseAndNotify(ResponseEvent event) {
-<span class="pc bpc" id="L37" title="1 of 2 branches missed.">        if (event != null) {</span>
-<span class="pc bpc" id="L38" title="1 of 2 branches missed.">            if (event.getResponse() != null) {</span>
+<span class="pc bpc" id="L40" title="1 of 2 branches missed.">        if (event != null) {</span>
+<span class="pc bpc" id="L41" title="1 of 2 branches missed.">            if (event.getResponse() != null) {</span>
                 //log.info(event.getResponse().toString());
             } else {
-<span class="nc" id="L41">                log.info(SNMPGetManager.class.getName() + &quot; response pdu is null&quot;);</span>
+<span class="nc" id="L44">                log.info(SNMPGetManager.class.getName() + &quot; response pdu is null&quot;);</span>
             }
         } else {
-<span class="nc" id="L44">            log.info(SNMPGetManager.class.getName() + &quot;event is null&quot;);</span>
+<span class="nc" id="L47">            log.info(SNMPGetManager.class.getName() + &quot;event is null&quot;);</span>
         }
-<span class="fc" id="L46">    }</span>
+<span class="fc" id="L49">    }</span>
+
+    // for sending set request messages
+    public ResponseEvent send(Map&lt;String, String&gt; map) throws IOException {
+<span class="fc bfc" id="L53" title="All 2 branches covered.">        for (Map.Entry&lt;String, String&gt; entry: map.entrySet()) {</span>
+<span class="fc" id="L54">            this.managerConfig.getPdu().add(new VariableBinding(new OID(entry.getKey()),</span>
+<span class="fc" id="L55">                    new OctetString(entry.getValue())));</span>
+<span class="fc" id="L56">        }</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">        if (managerConfig.getVersion() == SnmpConstants.version3) {</span>
+<span class="fc" id="L58">            USM usm = new USM(SecurityProtocols.getInstance().addDefaultProtocols(),</span>
+<span class="fc" id="L59">                    new OctetString(MPv3.createLocalEngineID()).substring(0, 9), 0);</span>
+<span class="fc" id="L60">            SecurityModels.getInstance().addSecurityModel(usm);</span>
+<span class="fc" id="L61">            snmp.getUSM().addUser(managerConfig.getUserName(), managerConfig.getUser());</span>
+
+<span class="fc" id="L63">            return snmp.set(managerConfig.getPdu(), managerConfig.getUserTarget());</span>
+        }
+<span class="fc" id="L65">        return snmp.set(managerConfig.getPdu(), managerConfig.getCommunityTarget());</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

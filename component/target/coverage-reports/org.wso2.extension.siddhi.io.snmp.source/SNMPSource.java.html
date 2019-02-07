@@ -93,8 +93,8 @@ import java.util.Map;
 @Extension(
         name = &quot;snmp&quot;,
         namespace = &quot;source&quot;,
-        description = &quot; SNMP Source allows user to get massages from the agent as a manager.&quot;
-                + &quot; It has ability to make get request and get it's responce and get trap massages. &quot;,
+        description = &quot; SNMP Source allows user to make get request and get the response&quot; +
+                &quot;of the request, once in request interval. &quot;,
         parameters = {
                 @Parameter(name = SNMPConstants.HOST,
                         description = &quot; Address or ip of the target. &quot; ,
@@ -109,7 +109,7 @@ import java.util.Map;
                         description = &quot; list of the OIDs separated by comma. &quot;,
                         type = DataType.STRING),
                 @Parameter(name = SNMPConstants.COMMUNITY,
-                        optional = true, // TODO did as optional
+                        optional = true,
                         description = &quot; Community string of the network. &quot;,
                         defaultValue = SNMPConstants.DEFAULT_COMMUNITY,
                         type = DataType.STRING),
@@ -168,34 +168,69 @@ import java.util.Map;
         },
         examples = {
                 @Example(
-                        syntax = &quot; @Source(type=’snmp’, \n&quot; +
-                                    &quot;@map(type=’keyvalue’),\n&quot; +
-                                    &quot;host =’127.0.0.1’,\n&quot; +
-                                    &quot;version = ‘v2c’,\n&quot; +
-                                    &quot;request.interval = ‘20’,\n&quot; +
-                                    &quot;oids=’1.2.3.32.323, 9878.88’,\n&quot; +
-                                    &quot;community = ‘public’) \n&quot; +
-                                    &quot;define stream inputStream(oid string, value string);\n&quot;,
-                        description = &quot; please fill this &quot;
-                )
+                        description = &quot;This example shows how to make get request for snmp version 1 &quot;,
+
+                        syntax = &quot;@source(type='snmp', \n&quot; +
+                        &quot;@map(type='keyvalue', &quot; +
+                        &quot;   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n&quot; +
+                        &quot;host ='127.0.0.1',\n&quot; +
+                        &quot;version = 'v1',\n&quot; +
+                        &quot;agent.port = '161',\n&quot; +
+                        &quot;request.interval = '60000',\n&quot; +
+                        &quot;oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n&quot; +
+                        &quot;community = 'public') \n&quot; +
+                        &quot; define stream inputStream(value1 string, value2 string);\n&quot;
+                ),
+                @Example(
+                        description = &quot;This example shows how to make get request for snmp version 2c &quot;,
+
+                        syntax = &quot;@source(type='snmp', \n&quot; +
+                                &quot;@map(type='keyvalue', &quot; +
+                                &quot;   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n&quot; +
+                                &quot;host ='127.0.0.1',\n&quot; +
+                                &quot;version = 'v2c',\n&quot; +
+                                &quot;agent.port = '161',\n&quot; +
+                                &quot;request.interval = '60000',\n&quot; +
+                                &quot;oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n&quot; +
+                                &quot;community = 'public') \n&quot; +
+                                &quot; define stream inputStream(value1 string, value2 string);\n&quot;
+                ),
+                @Example(
+                        description = &quot;This example shows how to make get request for snmp version 3 &quot;,
+
+                        syntax = &quot;@source(type='snmp', \n&quot; +
+                                &quot;@map(type='keyvalue', &quot; +
+                                &quot;   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n&quot; +
+                                &quot;host ='127.0.0.1',\n&quot; +
+                                &quot;version = 'v3',\n&quot; +
+                                &quot;timeout = '1500',\n&quot; +
+                                &quot;request.interval = '60000',\n&quot; +
+                                &quot;agent.port = '161',\n&quot; +
+                                &quot;oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n&quot; +
+                                &quot;auth.protocol = 'AUTHMD5',\n&quot; +
+                                &quot;priv.protocol = 'PRIVDES',\n&quot; +
+                                &quot;priv.password = 'privpass',\n&quot; +
+                                &quot;auth.password = 'authpass',\n&quot; +
+                                &quot;user.name = 'agent5') \n&quot; +
+                                &quot; define stream inputStream(value1 string, value2 string);\n&quot;
+                ),
         }
 )
 
 // for more information refer https://wso2.github.io/siddhi/documentation/siddhi-4.0/#sources
-<span class="fc" id="L185">public class SNMPSource extends Source {</span>
-<span class="fc" id="L186">    private static final Logger log = Logger.getLogger(SNMPSource.class);</span>
+<span class="fc" id="L221">public class SNMPSource extends Source {</span>
+<span class="fc" id="L222">    private static final Logger log = Logger.getLogger(SNMPSource.class);</span>
     private OptionHolder optionHolder;
     private SourceEventListener sourceEventListener;
-    private String siddhiAppName;
 
-<span class="fc" id="L191">    private boolean isTcp = false;</span>
+<span class="fc" id="L226">    private boolean isTcp = false;</span>
     private String host;
     private String port;
     private int requestInterval;
     private SNMPManagerConfig managerConfig;
     private SNMPGetManager manager;
-    SNMPListener snmpListener;
-    Thread thread;
+    private SNMPListener snmpListener;
+    private Thread thread;
 
 
     /**
@@ -212,55 +247,55 @@ import java.util.Map;
     public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,
                      String[] requestedTransportPropertyNames, ConfigReader configReader,
                      SiddhiAppContext siddhiAppContext) {
-<span class="fc" id="L215">        this.sourceEventListener = sourceEventListener;</span>
-<span class="fc" id="L216">        this.optionHolder = optionHolder;</span>
-<span class="fc" id="L217">        this.siddhiAppName = siddhiAppContext.getName();</span>
-<span class="fc" id="L218">        initSnmpProperties();</span>
-<span class="fc" id="L219">        manager = new SNMPGetManager();</span>
-<span class="fc" id="L220">        manager.setSourceEventListener(sourceEventListener);</span>
-<span class="fc" id="L221">    }</span>
+<span class="fc" id="L250">        this.sourceEventListener = sourceEventListener;</span>
+<span class="fc" id="L251">        this.optionHolder = optionHolder;</span>
+        //this.siddhiAppName = siddhiAppContext.getName();
+<span class="fc" id="L253">        initSnmpProperties();</span>
+<span class="fc" id="L254">        manager = new SNMPGetManager();</span>
+<span class="fc" id="L255">        manager.setSourceEventListener(sourceEventListener);</span>
+<span class="fc" id="L256">    }</span>
 
     private void initSnmpProperties() {
-<span class="fc" id="L224">        this.host = optionHolder.validateAndGetStaticValue(SNMPConstants.HOST);</span>
-<span class="fc" id="L225">        this.port = optionHolder.validateAndGetStaticValue(SNMPConstants.AGENT_PORT);</span>
-<span class="fc" id="L226">        this.requestInterval = Integer.parseInt(</span>
-<span class="fc" id="L227">                optionHolder.validateAndGetStaticValue(SNMPConstants.REQUEST_INTERVAL));</span>
-<span class="fc" id="L228">        int timeout = Integer.parseInt(</span>
-<span class="fc" id="L229">                optionHolder.validateAndGetStaticValue(SNMPConstants.TIMEOUT, SNMPConstants.DEFAULT_TIMEOUT));</span>
+<span class="fc" id="L259">        this.host = optionHolder.validateAndGetStaticValue(SNMPConstants.HOST);</span>
+<span class="fc" id="L260">        this.port = optionHolder.validateAndGetStaticValue(SNMPConstants.AGENT_PORT);</span>
+<span class="fc" id="L261">        this.requestInterval = Integer.parseInt(</span>
+<span class="fc" id="L262">                optionHolder.validateAndGetStaticValue(SNMPConstants.REQUEST_INTERVAL));</span>
+<span class="fc" id="L263">        int timeout = Integer.parseInt(</span>
+<span class="fc" id="L264">                optionHolder.validateAndGetStaticValue(SNMPConstants.TIMEOUT, SNMPConstants.DEFAULT_TIMEOUT));</span>
 
-<span class="fc" id="L231">        managerConfig = new SNMPManagerConfig();</span>
-<span class="fc" id="L232">        managerConfig.setVersion(</span>
-<span class="fc" id="L233">                SNMPUtils.validateVersion(</span>
-<span class="fc" id="L234">                        optionHolder.validateAndGetStaticValue(</span>
+<span class="fc" id="L266">        managerConfig = new SNMPManagerConfig();</span>
+<span class="fc" id="L267">        managerConfig.setVersion(</span>
+<span class="fc" id="L268">                SNMPUtils.validateVersion(</span>
+<span class="fc" id="L269">                        optionHolder.validateAndGetStaticValue(</span>
                                 SNMPConstants.VERSION)));
-<span class="fc" id="L236">        managerConfig.setVariablebindings(SNMPUtils.</span>
-<span class="fc" id="L237">                validateAndGetOidList(optionHolder.</span>
-<span class="fc" id="L238">                        validateAndGetStaticValue(SNMPConstants.OIDS)));</span>
+<span class="fc" id="L271">        managerConfig.setVariablebindings(SNMPUtils.</span>
+<span class="fc" id="L272">                validateAndGetOidList(optionHolder.</span>
+<span class="fc" id="L273">                        validateAndGetStaticValue(SNMPConstants.OIDS)));</span>
 
-<span class="fc bfc" id="L240" title="All 2 branches covered.">        if (managerConfig.getVersion() == SNMPConstants.V3) {</span>
-<span class="fc" id="L241">            String userName = optionHolder.validateAndGetStaticValue(SNMPConstants.USER_NAME,</span>
+<span class="fc bfc" id="L275" title="All 2 branches covered.">        if (managerConfig.getVersion() == SNMPConstants.V3) {</span>
+<span class="fc" id="L276">            String userName = optionHolder.validateAndGetStaticValue(SNMPConstants.USER_NAME,</span>
                                                                     SNMPConstants.DEFAULT_USERNAME);
-<span class="fc" id="L243">            String authpass = optionHolder.validateAndGetStaticValue(SNMPConstants.AUTH_PASSWORD,</span>
+<span class="fc" id="L278">            String authpass = optionHolder.validateAndGetStaticValue(SNMPConstants.AUTH_PASSWORD,</span>
                                                                     SNMPConstants.DEFAULT_AUT_PASSWORD);
-<span class="fc" id="L245">            String privpass = optionHolder.validateAndGetStaticValue(SNMPConstants.PRIV_PASSWORD,</span>
+<span class="fc" id="L280">            String privpass = optionHolder.validateAndGetStaticValue(SNMPConstants.PRIV_PASSWORD,</span>
                                                                     SNMPConstants.DEFAULT_PRIV_PASSWORD);
-<span class="fc" id="L247">            OID priv = SNMPUtils.validateAndGetPriv(optionHolder.validateAndGetStaticValue(SNMPConstants.PRIV_PROTOCOL,</span>
+<span class="fc" id="L282">            OID priv = SNMPUtils.validateAndGetPriv(optionHolder.validateAndGetStaticValue(SNMPConstants.PRIV_PROTOCOL,</span>
                                                                     SNMPConstants.DEFAULT_PRIV_PROTOCOL));
-<span class="fc" id="L249">            OID auth = SNMPUtils.validateAndGetAuth(optionHolder.validateAndGetStaticValue(SNMPConstants.AUTH_PROTOCOL,</span>
+<span class="fc" id="L284">            OID auth = SNMPUtils.validateAndGetAuth(optionHolder.validateAndGetStaticValue(SNMPConstants.AUTH_PROTOCOL,</span>
                                                                     SNMPConstants.DEFAULT_AUTH_PROTOCOL));
-<span class="fc" id="L251">            managerConfig.setUserMatrix(new OctetString(userName),</span>
+<span class="fc" id="L286">            managerConfig.setUserMatrix(new OctetString(userName),</span>
                     auth,
                     new OctetString(authpass),
                     priv,
                     new OctetString(privpass),
                     SecurityLevel.AUTH_PRIV);
-<span class="fc" id="L257">            managerConfig.setUserTarget(host, port, 5, timeout, managerConfig.getSecLvl());</span>
-<span class="fc" id="L258">        } else {</span>
-<span class="fc" id="L259">            String community = optionHolder.validateAndGetStaticValue(SNMPConstants.COMMUNITY,</span>
+<span class="fc" id="L292">            managerConfig.setUserTarget(host, port, 5, timeout, managerConfig.getSecLvl());</span>
+<span class="fc" id="L293">        } else {</span>
+<span class="fc" id="L294">            String community = optionHolder.validateAndGetStaticValue(SNMPConstants.COMMUNITY,</span>
                                                                     SNMPConstants.DEFAULT_COMMUNITY);
-<span class="fc" id="L261">            managerConfig.setCommunityTarget(host, port, community, 5, timeout);</span>
+<span class="fc" id="L296">            managerConfig.setCommunityTarget(host, port, community, 5, timeout);</span>
         }
-<span class="fc" id="L263">    }</span>
+<span class="fc" id="L298">    }</span>
 
     /**
      * Returns the list of classes which this source can output.
@@ -270,7 +305,7 @@ import java.util.Map;
      */
     @Override
     public Class[] getOutputEventClasses() {
-<span class="fc" id="L273">        return new Class[0];</span>
+<span class="fc" id="L308">        return new Class[]{Map.class};</span>
     }
 
     /**
@@ -284,59 +319,53 @@ import java.util.Map;
     public void connect(ConnectionCallback connectionCallback) throws ConnectionUnavailableException {
 
         try {
-<span class="pc bpc" id="L287" title="1 of 2 branches missed.">            if (isTcp) {</span>
-<span class="nc" id="L288">                manager.setTransportMappingTCP();</span>
+<span class="pc bpc" id="L322" title="1 of 2 branches missed.">            if (isTcp) {</span>
+<span class="nc" id="L323">                manager.setTransportMappingTCP();</span>
             } else {
-<span class="fc" id="L290">                manager.setTransportMappingUDP();</span>
+<span class="fc" id="L325">                manager.setTransportMappingUDP();</span>
             }
-<span class="fc" id="L292">            manager.setManagerConfig(managerConfig);</span>
+<span class="fc" id="L327">            manager.setManagerConfig(managerConfig);</span>
 
-<span class="fc" id="L294">            snmpListener = new SNMPListener(manager, requestInterval);</span>
-<span class="fc" id="L295">            thread = new Thread(snmpListener);</span>
-<span class="fc" id="L296">            thread.start();</span>
-<span class="nc" id="L297">        } catch (IOException e) {</span>
-<span class="nc" id="L298">            throw new ConnectionUnavailableException(e);</span>
-<span class="fc" id="L299">        }</span>
-<span class="fc" id="L300">    }</span>
+<span class="fc" id="L329">            snmpListener = new SNMPListener(manager, requestInterval);</span>
+<span class="fc" id="L330">            thread = new Thread(snmpListener);</span>
+<span class="fc" id="L331">            thread.start();</span>
+<span class="nc" id="L332">        } catch (IOException e) {</span>
+<span class="nc" id="L333">            throw new ConnectionUnavailableException(&quot;Exception in starting the snmp for stream: &quot; +</span>
+<span class="nc" id="L334">                     sourceEventListener.getStreamDefinition().getId(), e);</span>
+<span class="fc" id="L335">        }</span>
+<span class="fc" id="L336">    }</span>
 
     /**
      * This method can be called when it is needed to disconnect from the end point.
      */
     @Override
     public void disconnect() {
-<span class="pc bpc" id="L307" title="1 of 2 branches missed.">        if (snmpListener != null) {</span>
-<span class="fc" id="L308">            snmpListener.cancel(false);</span>
+
+<span class="pc bpc" id="L344" title="1 of 2 branches missed.">        if (snmpListener != null) {</span>
+<span class="fc" id="L345">            snmpListener.cancel(false);</span>
         }
-<span class="pc bpc" id="L310" title="1 of 2 branches missed.">        if (thread != null) {</span>
-<span class="fc" id="L311">            thread.interrupt();</span>
-        } else {
-            //log.info(&quot;&quot;);
-        }
-<span class="fc" id="L315">    }</span>
+<span class="fc" id="L347">    }</span>
 
     /**
      * Called at the end to clean all the resources consumed by the {@link Source}
      */
     @Override
     public void destroy() {
-        //log.info(&quot;[SNMPSource.class] destroy triggered&quot;);
-<span class="fc" id="L323">    }</span>
+<span class="fc" id="L354">    }</span>
 
     /**
      * Called to pause event consumption
      */
     @Override
     public void pause() {
-        //disconnect();
-<span class="nc" id="L331">    }</span>
+<span class="nc" id="L361">    }</span>
 
     /**
      * Called to resume event consumption
      */
     @Override
     public void resume() {
-
-<span class="nc" id="L339">    }</span>
+<span class="nc" id="L368">    }</span>
 
     /**
      * Used to collect the serializable state of the processing element, that need to be
@@ -346,7 +375,7 @@ import java.util.Map;
      */
     @Override
     public Map&lt;String, Object&gt; currentState() {
-<span class="nc" id="L349">        return null;</span>
+<span class="nc" id="L378">        return null;</span>
     }
 
     /**
@@ -359,7 +388,7 @@ import java.util.Map;
      @Override
      public void restoreState(Map&lt;String, Object&gt; map) {
 
-<span class="nc" id="L362">     }</span>
+<span class="nc" id="L391">     }</span>
 }
 
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

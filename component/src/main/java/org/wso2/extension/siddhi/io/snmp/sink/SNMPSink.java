@@ -45,29 +45,6 @@ import java.util.Map;
  * This is a sample class-level comment, explaining what the extension class does.
  */
 
-/**
- * Annotation of Siddhi Extension.
- * <pre><code>
- * eg:-
- * {@literal @}Extension(
- * name = "The name of the extension",
- * namespace = "The namespace of the extension",
- * description = "The description of the extension (optional).",
- * //Sink configurations
- * parameters = {
- * {@literal @}Parameter(name = "The name of the first parameter", type = "Supprted parameter types.
- *                              eg:{DataType.STRING,DataType.INT, DataType.LONG etc},dynamic=false ,optinal=true/false ,
- *                              if optional =true then assign default value according the type")
- *   System parameter is used to define common extension wide
- *              },
- * examples = {
- * {@literal @}Example({"Example of the first CustomExtension contain syntax and description.Here,
- *                      Syntax describe default mapping for SourceMapper and description describes
- *                      the output of according this syntax},
- *                      }
- * </code></pre>
- */
-
 @Extension(
         name = "snmp",
         namespace = "sink",
@@ -125,7 +102,6 @@ import java.util.Map;
 public class SNMPSink extends Sink {
     private static final Logger log = Logger.getLogger(SNMPSink.class);
     private OptionHolder optionHolder;
-    private String siddhiAppName;
 
     private boolean isTcp = false;
     private SNMPManagerConfig managerConfig;
@@ -167,7 +143,7 @@ public class SNMPSink extends Sink {
     protected void init(StreamDefinition streamDefinition, OptionHolder optionHolder, ConfigReader configReader,
             SiddhiAppContext siddhiAppContext) {
         this.optionHolder = optionHolder;
-        this.siddhiAppName = siddhiAppContext.getName();
+        //String siddhiAppName = siddhiAppContext.getName();
         initSnmpProperties();
     }
 
