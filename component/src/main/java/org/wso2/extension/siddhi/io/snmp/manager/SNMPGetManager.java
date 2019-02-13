@@ -39,10 +39,6 @@ import java.util.Map;
 public class SNMPGetManager extends SNMPManager {
     private SourceEventListener sourceEventListener;
 
-    public SourceEventListener getSourceEventListener() {
-        return sourceEventListener;
-    }
-
     public void setSourceEventListener(SourceEventListener sourceEventListener) {
         this.sourceEventListener = sourceEventListener;
     }
@@ -50,27 +46,29 @@ public class SNMPGetManager extends SNMPManager {
     public void validateResponseAndNotify(ResponseEvent event) {
         if (event != null) {
             if (event.getResponse() != null) {
-                //log.info(event.getResponse().toString());
-                List<VariableBinding> vbs = (List<VariableBinding>) event
-                        .getResponse()
-                        .getVariableBindings();
+                List<VariableBinding> vbs = (List<VariableBinding>) event.getResponse().getVariableBindings();
                 Map<String, String> map = new HashMap<>();
                 for (VariableBinding vb: vbs) {
                     map.put(vb.getOid().toString(), vb.getVariable().toString());
                 }
                 sourceEventListener.onEvent(map, null);
-                //log.info(event.getResponse().toString());
+
             } else {
-                log.info(SNMPGetManager.class.getName() + " response pdu is null");
+                log.debug("[" + SNMPGetManager.class.getName() + "] response pdu is null" +
+                        " authentication error or there is no such target ");
+
             }
         } else {
-            log.info(SNMPGetManager.class.getName() + "event is null");
+
+            log.debug("[" + SNMPGetManager.class.getName() + "] event is null");
+
         }
     }
 
     // get request sending?
     public ResponseEvent send() throws IOException {
         if (managerConfig.getVersion() == SnmpConstants.version3) {
+
             USM usm = new USM(SecurityProtocols.getInstance()
                     .addDefaultProtocols(),
                     new OctetString(MPv3.createLocalEngineID()).substring(0, 9), 0);
@@ -79,8 +77,10 @@ public class SNMPGetManager extends SNMPManager {
             snmp.getUSM().addUser(
                     managerConfig.getUserName(),
                     managerConfig.getUser());
-            return snmp.send(managerConfig.getPdu(), managerConfig.getUserTarget());
+            return snmp.get(managerConfig.getPdu(), managerConfig.getUserTarget());
+
         }
+
         return snmp.get(managerConfig.getPdu(), managerConfig.getCommunityTarget());
     }
 

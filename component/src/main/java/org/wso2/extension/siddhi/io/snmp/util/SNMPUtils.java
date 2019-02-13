@@ -27,8 +27,12 @@ import org.snmp4j.security.PrivAES128;
 import org.snmp4j.security.PrivAES192;
 import org.snmp4j.security.PrivAES256;
 import org.snmp4j.security.PrivDES;
+import org.snmp4j.security.SecurityLevel;
 import org.snmp4j.smi.OID;
+import org.snmp4j.smi.OctetString;
 import org.snmp4j.smi.VariableBinding;
+import org.wso2.extension.siddhi.io.snmp.manager.SNMPManagerConfig;
+import org.wso2.siddhi.core.util.transport.OptionHolder;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -114,5 +118,69 @@ public class SNMPUtils {
 
         }
         return oid;
+    }
+
+    public static int validateSecLvl(int lvl) {
+        switch (lvl) {
+            case 1: return SecurityLevel.NOAUTH_NOPRIV;
+            case 2: return SecurityLevel.AUTH_NOPRIV;
+            case 3: return SecurityLevel.AUTH_PRIV;
+            default: return SecurityLevel.NOAUTH_NOPRIV;
+        }
+    }
+
+    public static SNMPManagerConfig initSnmpProperties(OptionHolder optionHolder, boolean oids) {
+        SNMPManagerConfig managerConfig;
+        String host = optionHolder.validateAndGetStaticValue(SNMPConstants.HOST);
+        String port = optionHolder.validateAndGetStaticValue(SNMPConstants.AGENT_PORT);
+
+        Boolean isTcp = Boolean.parseBoolean(optionHolder.validateAndGetStaticValue(SNMPConstants.IS_TCP,
+                SNMPConstants.DEFAULT_IS_TCP));
+        int timeout = Integer.parseInt(
+                optionHolder.validateAndGetStaticValue(SNMPConstants.TIMEOUT, SNMPConstants.DEFAULT_TIMEOUT));
+
+        managerConfig = new SNMPManagerConfig();
+        managerConfig.isTcp(isTcp);
+        managerConfig.setVersion(
+                SNMPUtils.validateVersion(
+                        optionHolder.validateAndGetStaticValue(
+                                SNMPConstants.VERSION)));
+        if (oids) {
+            managerConfig.setVariablebindings(SNMPUtils.
+                    validateAndGetOidList(optionHolder.
+                            validateAndGetStaticValue(SNMPConstants.OIDS)));
+        }
+        if (managerConfig.getVersion() == SNMPConstants.V3) {
+            String userName = optionHolder.validateAndGetStaticValue(SNMPConstants.USER_NAME,
+                    SNMPConstants.DEFAULT_USERNAME);
+            String authpass = optionHolder.validateAndGetStaticValue(SNMPConstants.AUTH_PASSWORD,
+                    SNMPConstants.DEFAULT_AUT_PASSWORD);
+            String privpass = optionHolder.validateAndGetStaticValue(SNMPConstants.PRIV_PASSWORD,
+                    SNMPConstants.DEFAULT_PRIV_PASSWORD);
+            OID priv = SNMPUtils.validateAndGetPriv(optionHolder.validateAndGetStaticValue(SNMPConstants.PRIV_PROTOCOL,
+                    SNMPConstants.DEFAULT_PRIV_PROTOCOL));
+            OID auth = SNMPUtils.validateAndGetAuth(optionHolder.validateAndGetStaticValue(SNMPConstants.AUTH_PROTOCOL,
+                    SNMPConstants.DEFAULT_AUTH_PROTOCOL));
+            int secLvl = SNMPUtils.validateSecLvl(
+                    Integer.parseInt(optionHolder.validateAndGetStaticValue(SNMPConstants.SECURITY_LVL,
+                            SNMPConstants.DEFAULT_SECURITY_LVL)));
+            managerConfig.setUserMatrix(new OctetString(userName), auth,
+                    new OctetString(authpass), priv, new OctetString(privpass), secLvl);
+            managerConfig.setUserTarget(host,
+                    port,
+                    5,
+                    timeout,
+                    managerConfig.getSecLvl());
+        } else {
+            String community = optionHolder.validateAndGetStaticValue(SNMPConstants.COMMUNITY,
+                    SNMPConstants.DEFAULT_COMMUNITY);
+            managerConfig.setCommunityTarget(host,
+                    port,
+                    community,
+                    5,
+                    timeout);
+        }
+
+        return managerConfig;
     }
 }

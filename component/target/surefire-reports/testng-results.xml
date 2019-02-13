@@ -1,34 +1,102 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testng-results skipped="0" failed="0" ignored="0" total="5" passed="5">
+<testng-results skipped="0" failed="0" ignored="0" total="9" passed="9">
   <reporter-output>
   </reporter-output>
-  <suite name="Siddhi-Io-snmp-Test-Suite" duration-ms="25545" started-at="2019-02-07T06:06:26Z" finished-at="2019-02-07T06:06:52Z">
+  <suite name="Siddhi-Io-snmp-Test-Suite" duration-ms="26252" started-at="2019-02-13T06:33:18Z" finished-at="2019-02-13T06:33:45Z">
     <groups>
     </groups>
-    <test name="Siddhi-io-snmp-tests" duration-ms="25545" started-at="2019-02-07T06:06:26Z" finished-at="2019-02-07T06:06:52Z">
+    <test name="Siddhi-io-snmp-tests" duration-ms="26252" started-at="2019-02-13T06:33:18Z" finished-at="2019-02-13T06:33:45Z">
       <class name="org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSink">
-        <test-method status="PASS" signature="snmpVersion2Sink()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSink@2eaef76d]" name="snmpVersion2Sink" duration-ms="4917" started-at="2019-02-07T11:36:26Z" finished-at="2019-02-07T11:36:31Z">
+        <test-method status="PASS" signature="startAgent()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSink@2aa6311a]" name="startAgent" is-config="true" duration-ms="907" started-at="2019-02-13T12:03:18Z" finished-at="2019-02-13T12:03:19Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- startAgent -->
+        <test-method status="PASS" signature="clearHolder()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSink@2aa6311a]" name="clearHolder" is-config="true" duration-ms="0" started-at="2019-02-13T12:03:19Z" finished-at="2019-02-13T12:03:19Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- clearHolder -->
+        <test-method status="PASS" signature="snmpVersion2Sink()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSink@2aa6311a]" name="snmpVersion2Sink" duration-ms="2668" started-at="2019-02-13T12:03:19Z" finished-at="2019-02-13T12:03:22Z">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- snmpVersion2Sink -->
-        <test-method status="PASS" signature="snmpVersion3Sink()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSink@2eaef76d]" name="snmpVersion3Sink" duration-ms="3993" started-at="2019-02-07T11:36:31Z" finished-at="2019-02-07T11:36:35Z">
+        <test-method status="PASS" signature="snmpVersion3Sink()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSink@2aa6311a]" name="snmpVersion3Sink" duration-ms="1287" started-at="2019-02-13T12:03:22Z" finished-at="2019-02-13T12:03:23Z">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- snmpVersion3Sink -->
+        <test-method status="PASS" signature="clearHolder()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSink@2aa6311a]" name="clearHolder" is-config="true" duration-ms="0" started-at="2019-02-13T12:03:22Z" finished-at="2019-02-13T12:03:22Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- clearHolder -->
+        <test-method status="PASS" signature="stopAgent()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSink@2aa6311a]" name="stopAgent" is-config="true" duration-ms="3" started-at="2019-02-13T12:03:23Z" finished-at="2019-02-13T12:03:23Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- stopAgent -->
       </class> <!-- org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSink -->
       <class name="org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource">
-        <test-method status="PASS" signature="snmpVersion1Source()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource@36b310aa]" name="snmpVersion1Source" duration-ms="5537" started-at="2019-02-07T11:36:35Z" finished-at="2019-02-07T11:36:41Z">
+        <test-method status="PASS" signature="startAgent()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource@61f39bb]" name="startAgent" is-config="true" duration-ms="210" started-at="2019-02-13T12:03:23Z" finished-at="2019-02-13T12:03:23Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- startAgent -->
+        <test-method status="PASS" signature="init()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource@61f39bb]" name="init" is-config="true" duration-ms="0" started-at="2019-02-13T12:03:23Z" finished-at="2019-02-13T12:03:23Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- init -->
+        <test-method status="PASS" signature="snmpVersion1Source()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource@61f39bb]" name="snmpVersion1Source" duration-ms="3033" started-at="2019-02-13T12:03:23Z" finished-at="2019-02-13T12:03:26Z">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- snmpVersion1Source -->
-        <test-method status="PASS" signature="snmpVersion2Source()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource@36b310aa]" name="snmpVersion2Source" duration-ms="5524" started-at="2019-02-07T11:36:41Z" finished-at="2019-02-07T11:36:46Z">
+        <test-method status="PASS" signature="init()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource@61f39bb]" name="init" is-config="true" duration-ms="0" started-at="2019-02-13T12:03:26Z" finished-at="2019-02-13T12:03:26Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- init -->
+        <test-method status="PASS" signature="snmpVersion2Source()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource@61f39bb]" name="snmpVersion2Source" duration-ms="3015" started-at="2019-02-13T12:03:26Z" finished-at="2019-02-13T12:03:30Z">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- snmpVersion2Source -->
-        <test-method status="PASS" signature="snmpVersion3TestWithAllValues()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource@36b310aa]" name="snmpVersion3TestWithAllValues" duration-ms="5530" started-at="2019-02-07T11:36:46Z" finished-at="2019-02-07T11:36:52Z">
+        <test-method status="PASS" signature="snmpVersion2TCP()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource@61f39bb]" name="snmpVersion2TCP" duration-ms="3016" started-at="2019-02-13T12:03:30Z" finished-at="2019-02-13T12:03:33Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- snmpVersion2TCP -->
+        <test-method status="PASS" signature="init()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource@61f39bb]" name="init" is-config="true" duration-ms="0" started-at="2019-02-13T12:03:30Z" finished-at="2019-02-13T12:03:30Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- init -->
+        <test-method status="PASS" signature="init()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource@61f39bb]" name="init" is-config="true" duration-ms="1" started-at="2019-02-13T12:03:33Z" finished-at="2019-02-13T12:03:33Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- init -->
+        <test-method status="PASS" signature="snmpVersion3TCP()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource@61f39bb]" name="snmpVersion3TCP" duration-ms="3015" started-at="2019-02-13T12:03:33Z" finished-at="2019-02-13T12:03:36Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- snmpVersion3TCP -->
+        <test-method status="PASS" signature="init()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource@61f39bb]" name="init" is-config="true" duration-ms="1" started-at="2019-02-13T12:03:36Z" finished-at="2019-02-13T12:03:36Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- init -->
+        <test-method status="PASS" signature="snmpVersion3TestWithAllValues()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource@61f39bb]" name="snmpVersion3TestWithAllValues" duration-ms="3012" started-at="2019-02-13T12:03:36Z" finished-at="2019-02-13T12:03:39Z">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- snmpVersion3TestWithAllValues -->
+        <test-method status="PASS" signature="init()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource@61f39bb]" name="init" is-config="true" duration-ms="0" started-at="2019-02-13T12:03:39Z" finished-at="2019-02-13T12:03:39Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- init -->
+        <test-method status="PASS" signature="snmpVersion3User0001()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource@61f39bb]" name="snmpVersion3User0001" duration-ms="3015" started-at="2019-02-13T12:03:39Z" finished-at="2019-02-13T12:03:42Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- snmpVersion3User0001 -->
+        <test-method status="PASS" signature="init()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource@61f39bb]" name="init" is-config="true" duration-ms="1" started-at="2019-02-13T12:03:42Z" finished-at="2019-02-13T12:03:42Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- init -->
+        <test-method status="PASS" signature="snmpVersionAgent5()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource@61f39bb]" name="snmpVersionAgent5" duration-ms="3012" started-at="2019-02-13T12:03:42Z" finished-at="2019-02-13T12:03:45Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- snmpVersionAgent5 -->
+        <test-method status="PASS" signature="stopAgent()[pri:0, instance:org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource@61f39bb]" name="stopAgent" is-config="true" duration-ms="1" started-at="2019-02-13T12:03:45Z" finished-at="2019-02-13T12:03:45Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- stopAgent -->
       </class> <!-- org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource -->
     </test> <!-- Siddhi-io-snmp-tests -->
   </suite> <!-- Siddhi-Io-snmp-Test-Suite -->

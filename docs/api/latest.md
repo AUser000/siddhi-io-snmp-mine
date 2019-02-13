@@ -82,15 +82,50 @@
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
 <span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
 ```
- @Sink(type='snmp',
-@map(type='keyvalue'),
-host = '127.0.0.1'
-version = 'v2c'
-community = 'public')
-agent.port = '161' 
-define stream outputStream(value string, value string);
+@Sink(type='snmp',
+@map(type='keyvalue', @payload('1.3.6.1.2.1.1.1.0' = 'value')),
+host = '127.0.0.1',
+version = 'v1',
+community = 'public',
+agent.port = '161',
+retries = '5')
+define stream outputStream(value string);
+
 ```
-<p style="word-wrap: break-word"> please fill this </p>
+<p style="word-wrap: break-word"> This example shows how to make set request using snmp version v1 </p>
+
+<span id="example-2" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 2</span>
+```
+@Sink(type='snmp',
+@map(type='keyvalue', @payload('1.3.6.1.2.1.1.1.0' = 'value')),
+host = '127.0.0.1',
+version = 'v2c',
+community = 'public',
+agent.port = '161',
+retries = '5')
+define stream outputStream(value string);
+
+```
+<p style="word-wrap: break-word"> This example shows how to make set request using snmp  version v2c </p>
+
+<span id="example-3" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 3</span>
+```
+@Sink(type='snmp',
+@map(type='keyvalue', @payload('1.3.6.1.2.1.1.3.0' = 'value', '1.3.6.1.2.1.1.2.0' = 'value2')),
+host = '127.0.0.1',
+version = 'v3',
+agent.port = '161',
+priv.password = 'privpass',
+auth.protocol = 'AUTHMD5',
+priv.protocol = 'PRIVDES',
+auth.password = 'authpass',
+priv.password = 'privpass',
+user.name = 'agent5', 
+retries = '5')
+define stream outputStream(value string, value2 string);
+
+```
+<p style="word-wrap: break-word"> This example shows how to make set request using snmp  version v3 </p>
 
 ## Source
 
@@ -100,7 +135,7 @@ define stream outputStream(value string, value string);
 
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 ```
-@source(type="snmp", host="<STRING>", version="<STRING>", request.interval="<INT>", oids="<STRING>", community="<STRING>", agent.port="<STRING>", istcp="<BOOL>", retries="<INT>", timeout="<INT>", user.name="<STRING>", security.mode="<STRING>", priv.protocol="<STRING>", priv.password="<STRING>", auth.protocol="<STRING>", auth.password="<STRING>", @map(...)))
+@source(type="snmp", host="<STRING>", version="<STRING>", request.interval="<INT>", oids="<STRING>", community="<STRING>", agent.port="<STRING>", istcp="<BOOL>", retries="<INT>", timeout="<INT>", user.name="<STRING>", security.lvl="<INT>", priv.protocol="<STRING>", priv.password="<STRING>", auth.protocol="<STRING>", auth.password="<STRING>", @map(...)))
 ```
 
 <span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
@@ -194,10 +229,10 @@ define stream outputStream(value string, value string);
         <td style="vertical-align: top">No</td>
     </tr>
     <tr>
-        <td style="vertical-align: top">security.mode</td>
-        <td style="vertical-align: top; word-wrap: break-word"> Security mode. </td>
-        <td style="vertical-align: top">noMode</td>
-        <td style="vertical-align: top">STRING</td>
+        <td style="vertical-align: top">security.lvl</td>
+        <td style="vertical-align: top; word-wrap: break-word"> Security level. </td>
+        <td style="vertical-align: top">1</td>
+        <td style="vertical-align: top">INT</td>
         <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>
     </tr>
@@ -268,7 +303,7 @@ community = 'public')
 
 <span id="example-3" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 3</span>
 ```
-@source(type='snmp', 
+@source(type ='snmp', 
 @map(type='keyvalue',    @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),
 host ='127.0.0.1',
 version = 'v3',
@@ -281,7 +316,7 @@ priv.protocol = 'PRIVDES',
 priv.password = 'privpass',
 auth.password = 'authpass',
 user.name = 'agent5') 
- define stream inputStream(value1 string, value2 string);
+define stream inputStream(value1 string, value2 string);
 
 ```
 <p style="word-wrap: break-word">This example shows how to make get request for snmp version 3 </p>

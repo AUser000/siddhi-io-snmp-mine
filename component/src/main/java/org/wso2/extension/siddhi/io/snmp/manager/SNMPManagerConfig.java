@@ -67,22 +67,6 @@ public class SNMPManagerConfig {
         return userName;
     }
 
-    public OID getAuthProtocol() {
-        return authProtocol;
-    }
-
-    public OctetString getAuthProtocolPass() {
-        return authProtocolPass;
-    }
-
-    public OID getPrivProtocol() {
-        return privProtocol;
-    }
-
-    public OctetString getPrivProtocolPass() {
-        return privProtocolPass;
-    }
-
     public int getSecLvl() {
         return secLvl;
     }
@@ -102,27 +86,6 @@ public class SNMPManagerConfig {
         this.secLvl = secLvl;
     }
 
-    // for create user target
-    public UserTarget setUserTarget(String ip,
-                                    String port,
-                                    int retries,
-                                    int timeout) {
-        userTarget = new UserTarget();
-        userTarget.setSecurityName(new OctetString(this.userName));
-        userTarget.setSecurityLevel(this.secLvl);
-        Address address;
-        if (isTCP) {
-            address = GenericAddress.parse("tcp:" + ip + "/" + port);
-        } else {
-            //setTransportMappingUDP();
-            address = GenericAddress.parse("udp:" + ip + "/" + port);
-        }
-        userTarget.setAddress(address);
-        userTarget.setRetries(retries);
-        userTarget.setTimeout(timeout);
-        userTarget.setVersion(SnmpConstants.version3);
-        return userTarget;
-    }
 
     public int getVersion() {
         return version;
@@ -164,7 +127,9 @@ public class SNMPManagerConfig {
     public void isTcp(boolean b) {
         isTCP = b;
     }
-
+    public boolean getIsTCP() {
+        return isTCP;
+    }
 
     // for setting up user target
     public void setUserTarget(String ip,
@@ -235,9 +200,5 @@ public class SNMPManagerConfig {
             this.pdu = null;
             this.pdu = new PDU();
         }
-    }
-
-    public void setType() {
-        pdu.setType(PDU.GET);
     }
 }

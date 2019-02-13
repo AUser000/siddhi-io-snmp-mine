@@ -27,8 +27,12 @@ import org.snmp4j.security.PrivAES128;
 import org.snmp4j.security.PrivAES192;
 import org.snmp4j.security.PrivAES256;
 import org.snmp4j.security.PrivDES;
+import org.snmp4j.security.SecurityLevel;
 import org.snmp4j.smi.OID;
+import org.snmp4j.smi.OctetString;
 import org.snmp4j.smi.VariableBinding;
+import org.wso2.extension.siddhi.io.snmp.manager.SNMPManagerConfig;
+import org.wso2.siddhi.core.util.transport.OptionHolder;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -38,82 +42,146 @@ import java.util.List;
  *  SNMP Utils //
  *
  */
-<span class="nc" id="L41">public class SNMPUtils {</span>
-<span class="fc" id="L42">    private static final Logger log = Logger.getLogger(SNMPUtils.class);</span>
+<span class="nc" id="L45">public class SNMPUtils {</span>
+<span class="fc" id="L46">    private static final Logger log = Logger.getLogger(SNMPUtils.class);</span>
 
     public static int validateVersion(String versionString) {
-<span class="fc bfc" id="L45" title="All 2 branches covered.">        if (versionString.equals(&quot;v1&quot;)) {</span>
-<span class="fc" id="L46">            return SNMPConstants.V1;</span>
-<span class="fc bfc" id="L47" title="All 2 branches covered.">        } else if (versionString.equals(&quot;v2c&quot;)) {</span>
-<span class="fc" id="L48">            return SNMPConstants.V2C;</span>
-<span class="fc bfc" id="L49" title="All 2 branches covered.">        } else if (versionString.equals(&quot;v3&quot;)) {</span>
-<span class="fc" id="L50">            return SNMPConstants.V3;</span>
+<span class="fc bfc" id="L49" title="All 2 branches covered.">        if (versionString.equals(&quot;v1&quot;)) {</span>
+<span class="fc" id="L50">            return SNMPConstants.V1;</span>
+<span class="fc bfc" id="L51" title="All 2 branches covered.">        } else if (versionString.equals(&quot;v2c&quot;)) {</span>
+<span class="fc" id="L52">            return SNMPConstants.V2C;</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">        } else if (versionString.equals(&quot;v3&quot;)) {</span>
+<span class="fc" id="L54">            return SNMPConstants.V3;</span>
         }
-<span class="fc" id="L52">        return SNMPConstants.V2C;</span>
+<span class="fc" id="L56">        return SNMPConstants.V2C;</span>
     }
 
     public static List&lt;VariableBinding&gt; validateAndGetOidList(String oidListString) {
-<span class="fc" id="L56">        List&lt;VariableBinding&gt; list = new LinkedList&lt;&gt;();</span>
-<span class="pc bpc" id="L57" title="3 of 4 branches missed.">        if (!oidListString.isEmpty() || !oidListString.equals(&quot;&quot;)) {</span>
-<span class="pc bpc" id="L58" title="1 of 2 branches missed.">            if (!oidListString.equals(&quot;&quot;)) {</span>
-<span class="fc" id="L59">                List&lt;String&gt; oids = Arrays.asList(oidListString.replace(&quot; &quot;, &quot;&quot;)</span>
-<span class="fc" id="L60">                        .split(&quot;,&quot;));</span>
-<span class="fc bfc" id="L61" title="All 2 branches covered.">                for (String oid : oids) {</span>
-<span class="fc" id="L62">                    list.add(new VariableBinding(new OID(oid)));</span>
-<span class="fc" id="L63">                }</span>
-<span class="fc" id="L64">            } else {</span>
-<span class="nc" id="L65">                log.info(SNMPUtils.class.getName() + &quot; oid genaration faild !&quot;);</span>
+<span class="fc" id="L60">        List&lt;VariableBinding&gt; list = new LinkedList&lt;&gt;();</span>
+<span class="pc bpc" id="L61" title="3 of 4 branches missed.">        if (!oidListString.isEmpty() || !oidListString.equals(&quot;&quot;)) {</span>
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">            if (!oidListString.equals(&quot;&quot;)) {</span>
+<span class="fc" id="L63">                List&lt;String&gt; oids = Arrays.asList(oidListString.replace(&quot; &quot;, &quot;&quot;)</span>
+<span class="fc" id="L64">                        .split(&quot;,&quot;));</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">                for (String oid : oids) {</span>
+<span class="fc" id="L66">                    list.add(new VariableBinding(new OID(oid)));</span>
+<span class="fc" id="L67">                }</span>
+<span class="fc" id="L68">            } else {</span>
+<span class="nc" id="L69">                log.info(SNMPUtils.class.getName() + &quot; oid genaration faild !&quot;);</span>
             }
 
         }
-<span class="fc" id="L69">        return list;</span>
+<span class="fc" id="L73">        return list;</span>
     }
 
     public static OID validateAndGetPriv(String priv) {
         OID oid;
-<span class="pc bpc" id="L74" title="19 of 22 branches missed.">        switch (priv) {</span>
+<span class="pc bpc" id="L78" title="19 of 22 branches missed.">        switch (priv) {</span>
             case &quot;PRIVDES&quot; :
-<span class="fc" id="L76">                oid = PrivDES.ID;</span>
-<span class="fc" id="L77">                break;</span>
+<span class="fc" id="L80">                oid = PrivDES.ID;</span>
+<span class="fc" id="L81">                break;</span>
             case &quot;PRIVDES128&quot; :
-<span class="nc" id="L79">                oid = PrivAES128.ID;</span>
-<span class="nc" id="L80">                break;</span>
+<span class="nc" id="L83">                oid = PrivAES128.ID;</span>
+<span class="nc" id="L84">                break;</span>
             case &quot;PRIVAES192&quot; :
-<span class="nc" id="L82">                oid = PrivAES192.ID;</span>
-<span class="nc" id="L83">                break;</span>
+<span class="nc" id="L86">                oid = PrivAES192.ID;</span>
+<span class="nc" id="L87">                break;</span>
             case &quot;PRIVAES256&quot; :
-<span class="nc" id="L85">                oid = PrivAES256.ID;</span>
-<span class="nc" id="L86">                break;</span>
+<span class="nc" id="L89">                oid = PrivAES256.ID;</span>
+<span class="nc" id="L90">                break;</span>
             case &quot;PRIV3DES&quot; :
-<span class="nc" id="L88">                oid = Priv3DES.ID;</span>
-<span class="nc" id="L89">                break;</span>
+<span class="nc" id="L92">                oid = Priv3DES.ID;</span>
+<span class="nc" id="L93">                break;</span>
             default :
-<span class="nc" id="L91">                oid = PrivDES.ID;</span>
+<span class="nc" id="L95">                oid = PrivDES.ID;</span>
                 break;
 
         }
-<span class="fc" id="L95">        return oid;</span>
+<span class="fc" id="L99">        return oid;</span>
     }
 
     public static OID validateAndGetAuth(String auth) {
         OID oid;
-<span class="pc bpc" id="L100" title="15 of 18 branches missed.">        switch (auth) {</span>
+<span class="pc bpc" id="L104" title="12 of 18 branches missed.">        switch (auth) {</span>
             case &quot;AUTHMD5&quot; :
-<span class="fc" id="L102">                oid = AuthMD5.ID;</span>
-<span class="fc" id="L103">                break;</span>
+<span class="fc" id="L106">                oid = AuthMD5.ID;</span>
+<span class="fc" id="L107">                break;</span>
             case &quot;AUTHSHA&quot; :
-<span class="nc" id="L105">                oid = AuthSHA.ID;</span>
-<span class="nc" id="L106">                break;</span>
+<span class="fc" id="L109">                oid = AuthSHA.ID;</span>
+<span class="fc" id="L110">                break;</span>
             case &quot;AUTHHMAC192SHA256&quot; :
-<span class="nc" id="L108">                oid = AuthHMAC192SHA256.ID;</span>
-<span class="nc" id="L109">                break;</span>
+<span class="nc" id="L112">                oid = AuthHMAC192SHA256.ID;</span>
+<span class="nc" id="L113">                break;</span>
             case &quot;AUTHHMAC192SHA512&quot; :
-<span class="nc" id="L111">                oid = AuthHMAC192SHA256.ID;</span>
-<span class="nc" id="L112">                break;</span>
-<span class="nc" id="L113">            default : oid = AuthSHA.ID;</span>
+<span class="nc" id="L115">                oid = AuthHMAC192SHA256.ID;</span>
+<span class="nc" id="L116">                break;</span>
+<span class="nc" id="L117">            default : oid = AuthSHA.ID;</span>
 
         }
-<span class="fc" id="L116">        return oid;</span>
+<span class="fc" id="L120">        return oid;</span>
+    }
+
+    public static int validateSecLvl(int lvl) {
+<span class="pc bpc" id="L124" title="2 of 4 branches missed.">        switch (lvl) {</span>
+<span class="nc" id="L125">            case 1: return SecurityLevel.NOAUTH_NOPRIV;</span>
+<span class="fc" id="L126">            case 2: return SecurityLevel.AUTH_NOPRIV;</span>
+<span class="fc" id="L127">            case 3: return SecurityLevel.AUTH_PRIV;</span>
+<span class="nc" id="L128">            default: return SecurityLevel.NOAUTH_NOPRIV;</span>
+        }
+    }
+
+    public static SNMPManagerConfig initSnmpProperties(OptionHolder optionHolder, boolean oids) {
+        SNMPManagerConfig managerConfig;
+<span class="fc" id="L134">        String host = optionHolder.validateAndGetStaticValue(SNMPConstants.HOST);</span>
+<span class="fc" id="L135">        String port = optionHolder.validateAndGetStaticValue(SNMPConstants.AGENT_PORT);</span>
+
+<span class="fc" id="L137">        Boolean isTcp = Boolean.parseBoolean(optionHolder.validateAndGetStaticValue(SNMPConstants.IS_TCP,</span>
+                SNMPConstants.DEFAULT_IS_TCP));
+<span class="fc" id="L139">        int timeout = Integer.parseInt(</span>
+<span class="fc" id="L140">                optionHolder.validateAndGetStaticValue(SNMPConstants.TIMEOUT, SNMPConstants.DEFAULT_TIMEOUT));</span>
+
+<span class="fc" id="L142">        managerConfig = new SNMPManagerConfig();</span>
+<span class="fc" id="L143">        managerConfig.isTcp(isTcp);</span>
+<span class="fc" id="L144">        managerConfig.setVersion(</span>
+<span class="fc" id="L145">                SNMPUtils.validateVersion(</span>
+<span class="fc" id="L146">                        optionHolder.validateAndGetStaticValue(</span>
+                                SNMPConstants.VERSION)));
+<span class="fc bfc" id="L148" title="All 2 branches covered.">        if (oids) {</span>
+<span class="fc" id="L149">            managerConfig.setVariablebindings(SNMPUtils.</span>
+<span class="fc" id="L150">                    validateAndGetOidList(optionHolder.</span>
+<span class="fc" id="L151">                            validateAndGetStaticValue(SNMPConstants.OIDS)));</span>
+        }
+<span class="fc bfc" id="L153" title="All 2 branches covered.">        if (managerConfig.getVersion() == SNMPConstants.V3) {</span>
+<span class="fc" id="L154">            String userName = optionHolder.validateAndGetStaticValue(SNMPConstants.USER_NAME,</span>
+                    SNMPConstants.DEFAULT_USERNAME);
+<span class="fc" id="L156">            String authpass = optionHolder.validateAndGetStaticValue(SNMPConstants.AUTH_PASSWORD,</span>
+                    SNMPConstants.DEFAULT_AUT_PASSWORD);
+<span class="fc" id="L158">            String privpass = optionHolder.validateAndGetStaticValue(SNMPConstants.PRIV_PASSWORD,</span>
+                    SNMPConstants.DEFAULT_PRIV_PASSWORD);
+<span class="fc" id="L160">            OID priv = SNMPUtils.validateAndGetPriv(optionHolder.validateAndGetStaticValue(SNMPConstants.PRIV_PROTOCOL,</span>
+                    SNMPConstants.DEFAULT_PRIV_PROTOCOL));
+<span class="fc" id="L162">            OID auth = SNMPUtils.validateAndGetAuth(optionHolder.validateAndGetStaticValue(SNMPConstants.AUTH_PROTOCOL,</span>
+                    SNMPConstants.DEFAULT_AUTH_PROTOCOL));
+<span class="fc" id="L164">            int secLvl = SNMPUtils.validateSecLvl(</span>
+<span class="fc" id="L165">                    Integer.parseInt(optionHolder.validateAndGetStaticValue(SNMPConstants.SECURITY_LVL,</span>
+                            SNMPConstants.DEFAULT_SECURITY_LVL)));
+<span class="fc" id="L167">            managerConfig.setUserMatrix(new OctetString(userName), auth,</span>
+                    new OctetString(authpass), priv, new OctetString(privpass), secLvl);
+<span class="fc" id="L169">            managerConfig.setUserTarget(host,</span>
+                    port,
+                    5,
+                    timeout,
+<span class="fc" id="L173">                    managerConfig.getSecLvl());</span>
+<span class="fc" id="L174">        } else {</span>
+<span class="fc" id="L175">            String community = optionHolder.validateAndGetStaticValue(SNMPConstants.COMMUNITY,</span>
+                    SNMPConstants.DEFAULT_COMMUNITY);
+<span class="fc" id="L177">            managerConfig.setCommunityTarget(host,</span>
+                    port,
+                    community,
+                    5,
+                    timeout);
+        }
+
+<span class="fc" id="L184">        return managerConfig;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

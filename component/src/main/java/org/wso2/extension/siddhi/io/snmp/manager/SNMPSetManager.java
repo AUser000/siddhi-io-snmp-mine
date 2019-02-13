@@ -39,12 +39,12 @@ public class SNMPSetManager extends SNMPManager {
     public void validateResponseAndNotify(ResponseEvent event) {
         if (event != null) {
             if (event.getResponse() != null) {
-                //log.info(event.getResponse().toString());
+                log.debug(event.getResponse().toString());
             } else {
-                log.info(SNMPGetManager.class.getName() + " response pdu is null");
+                log.debug(SNMPGetManager.class.getName() + " response pdu is null");
             }
         } else {
-            log.info(SNMPGetManager.class.getName() + "event is null");
+            log.debug(SNMPGetManager.class.getName() + "event is null");
         }
     }
 

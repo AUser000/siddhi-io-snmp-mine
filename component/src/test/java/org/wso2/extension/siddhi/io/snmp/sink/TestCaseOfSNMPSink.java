@@ -1,13 +1,20 @@
 package org.wso2.extension.siddhi.io.snmp.sink;
 
 import org.apache.log4j.Logger;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.wso2.extension.siddhi.io.snmp.agent.MyAgentV2;
-import org.wso2.extension.siddhi.io.snmp.agent.MyAgentV3;
 import org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource;
+import org.wso2.extension.siddhi.io.snmp.utils.AdvancedCommandProcessor;
+import org.wso2.extension.siddhi.io.snmp.utils.Agent;
+import org.wso2.extension.siddhi.io.snmp.utils.EventHolder;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
+import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.InputHandler;
+import org.wso2.siddhi.core.stream.output.StreamCallback;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
@@ -19,60 +26,73 @@ public class TestCaseOfSNMPSink {
     private static final Logger log = Logger.getLogger(TestCaseOfSNMPSource.class);
     String port = "2019";
     String ip = "127.0.0.1";
+    Agent agent;
+    AdvancedCommandProcessor processor;
+    EventHolder eventHolder;
 
+    @BeforeClass
+    public void startAgent() throws IOException {
+        processor = new AdvancedCommandProcessor();
+        eventHolder = new EventHolder();
+        processor.setEventListener(eventHolder);
+        agent = new Agent(processor);
+        agent.start(ip, port);
+        log.info("agent started.");
+    }
 
-    /**
-     * Test for configure the SNMP Sink to publish the set request to a SNMP-agent.
-     */
+    @AfterClass
+    public void stopAgent() {
+        //log.info(processor.getEventListener().getEvent(0).toString());
+        agent.stop();
+    }
+
+    @BeforeMethod
+    public void clearHolder() {
+        eventHolder.clear();
+    }
+
     @Test
-    public void snmpVersion2Sink() throws InterruptedException, TimeoutException, IOException {
+    public void snmpVersion2Sink() throws InterruptedException {
         log.info("-----------------------------------------------");
-        log.info("       SNMP Version 2 Sink Test Case     ");
+        log.info("        SNMP Version 2 Sink Test Case          ");
         log.info("-----------------------------------------------");
-
-        MyAgentV2 agent = new MyAgentV2(ip + "/" + port);
-        agent.start();
-        log.info("[TestCaseOfSNMPSink] Agent started ");
-
-        Thread.sleep(500);
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String siddhiApp = "@App:name('snmpSink') \n" +
                 "\n" +
                 "@Sink(type='snmp',\n" +
-                "@map(type='keyvalue', @payload('1.3.6.1.2.1.1.1.0' = 'value')),\n" +
+                "@map(type='keyvalue', @payload('1.3.6.1.2.1.1.4.0' = 'value')),\n" +
                 "host = '" + ip + "',\n" +
                 "version = 'v2',\n" +
                 "community = 'public',\n" +
                 "agent.port = '" + port + "',\n" +
                 "retries = '5')\n" +
-                "define stream outputStream(value string);\n" +
-                "\n" +
-                "@sink(type='log')\n" +
-                "define stream testStream(value string);\n" +
-                "\n" +
-                "@info(name='productionProcessingQuery')\n" +
-                "from outputStream\n" +
-                "select value\n" +
-                "insert into testStream;";
+                "define stream outputStream(value string);";
 
 
         SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
         InputHandler inputStream = executionPlanRuntime.getInputHandler("outputStream");
+        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                for (Event event: events) {
+                    log.info(event.toString());
+                }
+            }
+        });
 
-        log.info("[TestCaseOfSNMPSink] Siddhi manager started ");
+        log.info("Siddhi manager started ");
         executionPlanRuntime.start();
 
-        inputStream.send(new Object[]{"banana"});
-        inputStream.send(new Object[]{"banana"});
-        inputStream.send(new Object[]{"banana"});
-        Thread.sleep(3000);
+        inputStream.send(new Object[]{"mail@wso2.com"});
+        Thread.sleep(2000);
 
+        Assert.assertTrue(eventHolder.assertDataContent("mail@wso2.com", 0));
 
-        log.info("[TestCaseOfSNMPSink] Siddhi manager shutting down ");
+        log.info("Siddhi manager shutting down ");
         siddhiManager.shutdown();
-        log.info("[TestCaseOfSNMPSink] SNMP agent shutting down \n");
-        agent.stop();
+
+
     }
 
     /**
@@ -85,52 +105,48 @@ public class TestCaseOfSNMPSink {
         log.info("       SNMP Version 3 Sink Test Case     ");
         log.info("-----------------------------------------------");
 
-        MyAgentV3 agent = new MyAgentV3(ip , port);
-        log.info("[TestCaseOfSNMPSink] agent started ");
-        agent.start();
-        Thread.sleep(500);
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String siddhiApp = "@App:name('snmpSink') \n" +
                 "\n" +
                 "@Sink(type='snmp',\n" +
-                "@map(type='keyvalue', @payload('1.3.6.1.2.1.1.3.0' = 'value', '1.3.6.1.2.1.1.2.0' = 'value2')),\n" +
-                "host = '127.0.0.1',\n" +
+                "@map(type='keyvalue', @payload('1.3.6.1.2.1.1.4.0' = 'value')),\n" +
+                "host = '" + ip + "',\n" +
                 "version = 'v3',\n" +
-                "agent.port = '161',\n" +
+                "agent.port = '" + port + "',\n" +
                 "priv.password = 'privpass',\n" +
-                "auth.protocol = 'AUTHMD5',\n" +
+                "auth.protocol = 'AUTHSHA',\n" +
                 "priv.protocol = 'PRIVDES',\n" +
                 "auth.password = 'authpass',\n" +
                 "priv.password = 'privpass',\n" +
+                "security.lvl = '3',\n" +
                 "user.name = 'agent5', \n" +
                 "retries = '5')\n" +
-                "define stream outputStream(value string, value2 string);\n" +
-
-                "@sink(type='log')\n" +
-                "define stream testStream(value string, value2 string);\n" +
-
-                "@info(name='productionProcessingQuery')\n" +
-                "from outputStream\n" +
-                "select value, value2\n" +
-                "insert into testStream;";
+                "define stream outputStream(value string);";
 
 
         SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
         InputHandler inputStream = executionPlanRuntime.getInputHandler("outputStream");
+        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                for (Event event: events) {
+                    log.info(event.toString());
+                }
+            }
+        });
 
-        log.info("[TestCaseOfSNMPSink] Siddhi manager started ");
+
+        log.info(" Siddhi manager started ");
         executionPlanRuntime.start();
 
-        inputStream.send(new Object[]{"banana", "Hello"});
-        inputStream.send(new Object[]{"banana", "Hello"});
-        inputStream.send(new Object[]{"banana", "Hello"});
-        Thread.sleep(3000);
+        inputStream.send(new Object[]{"mail@wso2.com"});
+        Thread.sleep(1000);
 
-        log.info("[TestCaseOfSNMPSink] siddhi manager shutting down ");
+        Assert.assertTrue(eventHolder.assertDataContent("mail@wso2.com", 0));
+
+        log.info(" siddhi manager shutting down ");
         siddhiManager.shutdown();
-        log.info("[TestCaseOfSNMPSink] SNMP agent shutting down ");
-        agent.stop();
     }
 }
 

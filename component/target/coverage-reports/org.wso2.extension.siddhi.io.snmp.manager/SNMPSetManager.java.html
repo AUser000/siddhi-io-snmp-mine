@@ -37,16 +37,16 @@ import java.util.Map;
 <span class="fc" id="L37">public class SNMPSetManager extends SNMPManager {</span>
 
     public void validateResponseAndNotify(ResponseEvent event) {
-<span class="pc bpc" id="L40" title="1 of 2 branches missed.">        if (event != null) {</span>
-<span class="pc bpc" id="L41" title="1 of 2 branches missed.">            if (event.getResponse() != null) {</span>
-                //log.info(event.getResponse().toString());
+<span class="nc bnc" id="L40" title="All 2 branches missed.">        if (event != null) {</span>
+<span class="nc bnc" id="L41" title="All 2 branches missed.">            if (event.getResponse() != null) {</span>
+<span class="nc" id="L42">                log.debug(event.getResponse().toString());</span>
             } else {
-<span class="nc" id="L44">                log.info(SNMPGetManager.class.getName() + &quot; response pdu is null&quot;);</span>
+<span class="nc" id="L44">                log.debug(SNMPGetManager.class.getName() + &quot; response pdu is null&quot;);</span>
             }
         } else {
-<span class="nc" id="L47">            log.info(SNMPGetManager.class.getName() + &quot;event is null&quot;);</span>
+<span class="nc" id="L47">            log.debug(SNMPGetManager.class.getName() + &quot;event is null&quot;);</span>
         }
-<span class="fc" id="L49">    }</span>
+<span class="nc" id="L49">    }</span>
 
     // for sending set request messages
     public ResponseEvent send(Map&lt;String, String&gt; map) throws IOException {

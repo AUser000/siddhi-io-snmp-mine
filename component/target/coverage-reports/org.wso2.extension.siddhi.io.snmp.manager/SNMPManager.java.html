@@ -53,30 +53,35 @@ public class SNMPManager {
 <span class="fc" id="L53">    }</span>
 
     public void setTransportMappingTCP() throws IOException {
-<span class="nc" id="L56">        this.transportMapping = new DefaultTcpTransportMapping();</span>
-<span class="nc" id="L57">    }</span>
+<span class="fc" id="L56">        this.transportMapping = new DefaultTcpTransportMapping();</span>
+<span class="fc" id="L57">    }</span>
 
     // set manager configurations and snmp listen
     public void setManagerConfig(SNMPManagerConfig managerConfig) throws IOException {
-<span class="fc" id="L61">        this.managerConfig = managerConfig;</span>
-<span class="fc" id="L62">        snmp = new Snmp(this.transportMapping);</span>
-
-<span class="pc bpc" id="L64" title="1 of 4 branches missed.">        if (managerConfig.getVersion() == SnmpConstants.version3 &amp;&amp; !managerConfig.isTSM) {</span>
-<span class="fc" id="L65">            USM usm = new USM(SecurityProtocols.getInstance(), managerConfig.getLocalEngineID(), 0);</span>
-<span class="fc" id="L66">            SecurityModels.getInstance().addSecurityModel(usm);</span>
-<span class="fc" id="L67">            snmp.getUSM().addUser(managerConfig.getUserName(), managerConfig.getUser());</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">        if (managerConfig.getIsTCP()) {</span>
+<span class="fc" id="L62">            setTransportMappingTCP();</span>
+        } else {
+<span class="fc" id="L64">            setTransportMappingUDP();</span>
         }
-<span class="fc" id="L69">        snmp.listen();</span>
-<span class="fc" id="L70">    }</span>
+<span class="fc" id="L66">        this.managerConfig = managerConfig;</span>
+<span class="fc" id="L67">        snmp = new Snmp(this.transportMapping);</span>
+
+<span class="pc bpc" id="L69" title="1 of 4 branches missed.">        if (managerConfig.getVersion() == SnmpConstants.version3 &amp;&amp; !managerConfig.isTSM) {</span>
+<span class="fc" id="L70">            USM usm = new USM(SecurityProtocols.getInstance(), managerConfig.getLocalEngineID(), 0);</span>
+<span class="fc" id="L71">            SecurityModels.getInstance().addSecurityModel(usm);</span>
+<span class="fc" id="L72">            snmp.getUSM().addUser(managerConfig.getUserName(), managerConfig.getUser());</span>
+        }
+<span class="fc" id="L74">        snmp.listen();</span>
+<span class="fc" id="L75">    }</span>
 
     public void close() {
         try {
-<span class="fc" id="L74">            snmp.close();</span>
-<span class="fc" id="L75">            managerConfig.close();</span>
-<span class="nc" id="L76">        } catch (IOException e) {</span>
-<span class="nc" id="L77">            log.info(&quot; hell &quot;);</span>
-<span class="fc" id="L78">        }</span>
-<span class="fc" id="L79">    }</span>
+<span class="fc" id="L79">            snmp.close();</span>
+<span class="fc" id="L80">            managerConfig.close();</span>
+<span class="nc" id="L81">        } catch (IOException e) {</span>
+<span class="nc" id="L82">            log.info(&quot; hell &quot;);</span>
+<span class="fc" id="L83">        }</span>
+<span class="fc" id="L84">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

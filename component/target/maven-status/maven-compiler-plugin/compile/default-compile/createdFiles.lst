@@ -2,7 +2,7 @@ org/wso2/extension/siddhi/io/snmp/util/SNMPUtils.class
 org/wso2/extension/siddhi/io/snmp/manager/SNMPManager.class
 org/wso2/extension/siddhi/io/snmp/manager/SNMPGetManager.class
 org/wso2/extension/siddhi/io/snmp/util/SNMPConstants.class
-org/wso2/extension/siddhi/io/snmp/manager/SNMPListener.class
+org/wso2/extension/siddhi/io/snmp/manager/Server.class
 META-INF/annotations/org.wso2.siddhi.annotation.Extension
 org/wso2/extension/siddhi/io/snmp/sink/SNMPSink.class
 org/wso2/extension/siddhi/io/snmp/manager/SNMPManagerConfig.class

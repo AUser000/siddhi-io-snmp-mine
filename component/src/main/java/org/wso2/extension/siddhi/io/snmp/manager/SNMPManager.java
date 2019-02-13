@@ -58,6 +58,11 @@ public class SNMPManager {
 
     // set manager configurations and snmp listen
     public void setManagerConfig(SNMPManagerConfig managerConfig) throws IOException {
+        if (managerConfig.getIsTCP()) {
+            setTransportMappingTCP();
+        } else {
+            setTransportMappingUDP();
+        }
         this.managerConfig = managerConfig;
         snmp = new Snmp(this.transportMapping);
 
