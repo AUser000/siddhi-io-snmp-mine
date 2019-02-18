@@ -11,4 +11,6 @@ org/wso2/extension/siddhi/io/snmp/sink/TestCaseOfSNMPSink$1.class
 org/wso2/extension/siddhi/io/snmp/utils/AdvancedCommandProcessor.class
 org/wso2/extension/siddhi/io/snmp/sink/TestCaseOfSNMPSink$2.class
 org/wso2/extension/siddhi/io/snmp/source/TestCaseOfSNMPSource$4.class
+org/wso2/extension/siddhi/io/snmp/source/TestCaseOfSNMPSource$8.class
 org/wso2/extension/siddhi/io/snmp/source/TestCaseOfSNMPSource.class
+org/wso2/extension/siddhi/io/snmp/utils/Test.class

@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SNMPManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Siddhi io snmp extension</a> &gt; <a href="index.source.html" class="el_package">org.wso2.extension.siddhi.io.snmp.util</a> &gt; <span class="el_source">SNMPManager.java</span></div><h1>SNMPManager.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the &quot;License&quot;); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.wso2.extension.siddhi.io.snmp.util;
+
+import org.apache.log4j.Logger;
+import org.snmp4j.Snmp;
+import org.snmp4j.TransportMapping;
+import org.snmp4j.event.ResponseEvent;
+import org.snmp4j.mp.MPv3;
+import org.snmp4j.mp.SnmpConstants;
+import org.snmp4j.security.SecurityModels;
+import org.snmp4j.security.SecurityProtocols;
+import org.snmp4j.security.USM;
+import org.snmp4j.smi.OID;
+import org.snmp4j.smi.OctetString;
+import org.snmp4j.smi.VariableBinding;
+import org.snmp4j.transport.DefaultTcpTransportMapping;
+import org.snmp4j.transport.DefaultUdpTransportMapping;
+import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ *  Handle SNMP Manager data and request
+ *
+ */
+public class SNMPManager {
+
+<span class="fc" id="L47">    private Logger log = Logger.getLogger(SNMPManager.class);</span>
+    private Snmp snmp;
+    private TransportMapping transportMapping;
+    private SNMPManagerConfig managerConfig;
+    private SourceEventListener sourceEventListener;
+
+<span class="fc" id="L53">    public SNMPManager() {</span>
+<span class="fc" id="L54">    }</span>
+
+    public void setSourceEventListener(SourceEventListener sourceEventListener) {
+<span class="fc" id="L57">        this.sourceEventListener = sourceEventListener;</span>
+<span class="fc" id="L58">    }</span>
+
+    public void setUDPTransportMapping() throws IOException {
+<span class="fc" id="L61">        this.transportMapping = new DefaultUdpTransportMapping();</span>
+<span class="fc" id="L62">    }</span>
+
+    public void setTCPTransportMapping() throws IOException {
+<span class="fc" id="L65">        this.transportMapping = new DefaultTcpTransportMapping();</span>
+<span class="fc" id="L66">    }</span>
+
+    public void setManagerConfig(SNMPManagerConfig managerConfig) throws IOException {
+<span class="fc bfc" id="L69" title="All 2 branches covered.">        if (managerConfig.isTCP()) {</span>
+<span class="fc" id="L70">            setTCPTransportMapping();</span>
+        } else {
+<span class="fc" id="L72">            setUDPTransportMapping();</span>
+        }
+<span class="fc" id="L74">        this.managerConfig = managerConfig;</span>
+<span class="fc" id="L75">        snmp = new Snmp(this.transportMapping);</span>
+
+<span class="fc bfc" id="L77" title="All 2 branches covered.">        if (managerConfig.getVersion() == SnmpConstants.version3) {</span>
+<span class="fc" id="L78">            USM usm = new USM(SecurityProtocols.getInstance(), null, 0);</span>
+<span class="fc" id="L79">            SecurityModels.getInstance().addSecurityModel(usm);</span>
+<span class="fc" id="L80">            snmp.getUSM().addUser(managerConfig.getUserName(), managerConfig.getUser());</span>
+        }
+<span class="fc" id="L82">        snmp.listen();</span>
+<span class="fc" id="L83">    }</span>
+
+    public void close() {
+        try {
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">            if (snmp != null) {</span>
+<span class="fc" id="L88">                snmp.close();</span>
+            }
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">            if (managerConfig != null) {</span>
+<span class="fc" id="L91">                managerConfig.clear();</span>
+            }
+<span class="nc" id="L93">        } catch (IOException e) {</span>
+<span class="nc" id="L94">            log.info(&quot;  &quot;);</span>
+<span class="fc" id="L95">        }</span>
+<span class="fc" id="L96">    }</span>
+
+    // get snmp event, rearrange data and notify to siddhi
+    public void validateResponseAndNotify(ResponseEvent event) {
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">        if (event != null) {</span>
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">            if (event.getResponse() != null) {</span>
+<span class="fc" id="L102">                List&lt;VariableBinding&gt; vbs = (List&lt;VariableBinding&gt;) event.getResponse().getVariableBindings();</span>
+<span class="fc" id="L103">                Map&lt;String, String&gt; map = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">                for (VariableBinding vb: vbs) {</span>
+<span class="fc" id="L105">                    map.put(vb.getOid().toString(), vb.getVariable().toString());</span>
+<span class="fc" id="L106">                }</span>
+<span class="fc" id="L107">                sourceEventListener.onEvent(map, null);</span>
+            }
+        }
+<span class="fc" id="L110">    }</span>
+
+    // make get-request
+    public ResponseEvent send() throws IOException {
+<span class="fc bfc" id="L114" title="All 2 branches covered.">        if (managerConfig.getVersion() == SnmpConstants.version3) {</span>
+<span class="fc" id="L115">            USM usm = new USM(SecurityProtocols.getInstance().addDefaultProtocols(),</span>
+<span class="fc" id="L116">                    new OctetString(MPv3.createLocalEngineID()).substring(0, 9), 0);</span>
+<span class="fc" id="L117">            SecurityModels.getInstance().addSecurityModel(usm);</span>
+<span class="fc" id="L118">            snmp.getUSM().addUser(managerConfig.getUserName(), managerConfig.getUser());</span>
+<span class="fc" id="L119">            return snmp.get(managerConfig.getPdu(), managerConfig.getUserTarget());</span>
+        }
+<span class="fc" id="L121">        return snmp.get(managerConfig.getPdu(), managerConfig.getCommunityTarget());</span>
+    }
+
+    // get snmp event, validate it for debug
+    public void validateResponse(ResponseEvent event) {
+<span class="nc bnc" id="L126" title="All 2 branches missed.">        if (event != null) {</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">            if (event.getResponse() != null) {</span>
+<span class="nc" id="L128">                log.info(event.getResponse().toString());</span>
+            } else {
+<span class="nc" id="L130">                log.debug(&quot; response pdu is null&quot;);</span>
+            }
+        } else {
+<span class="nc" id="L133">            log.debug(&quot;event is null&quot;);</span>
+        }
+<span class="nc" id="L135">    }</span>
+
+    // make set-request
+    public ResponseEvent send(Map&lt;String, String&gt; map) throws IOException {
+<span class="fc bfc" id="L139" title="All 2 branches covered.">        for (Map.Entry&lt;String, String&gt; entry: map.entrySet()) {</span>
+<span class="fc" id="L140">            this.managerConfig.getPdu()</span>
+<span class="fc" id="L141">                    .add(new VariableBinding(new OID(entry.getKey()), new OctetString(entry.getValue())));</span>
+<span class="fc" id="L142">        }</span>
+<span class="fc bfc" id="L143" title="All 2 branches covered.">        if (managerConfig.getVersion() == SnmpConstants.version3) {</span>
+<span class="fc" id="L144">            USM usm = new USM(SecurityProtocols.getInstance().addDefaultProtocols(),</span>
+<span class="fc" id="L145">                    new OctetString(MPv3.createLocalEngineID()).substring(0, 9), 0);</span>
+<span class="fc" id="L146">            SecurityModels.getInstance().addSecurityModel(usm);</span>
+<span class="fc" id="L147">            snmp.getUSM().addUser(managerConfig.getUserName(), managerConfig.getUser());</span>
+
+<span class="fc" id="L149">            return snmp.set(managerConfig.getPdu(), managerConfig.getUserTarget());</span>
+        }
+<span class="fc" id="L151">        return snmp.set(managerConfig.getPdu(), managerConfig.getCommunityTarget());</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

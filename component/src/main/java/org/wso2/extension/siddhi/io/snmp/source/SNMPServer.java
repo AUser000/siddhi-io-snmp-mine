@@ -15,9 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.extension.siddhi.io.snmp.manager;
+package org.wso2.extension.siddhi.io.snmp.source;
 
 import org.apache.log4j.Logger;
+import org.wso2.extension.siddhi.io.snmp.util.SNMPManager;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
@@ -25,20 +26,23 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 /**
- * Java Doc Comment
+ * This class will help to make set request
+ * continuously once withing request interval time
+ * in a different thread
+ *
  * */
-public class Server implements Runnable {
+public class SNMPServer implements Runnable {
 
-    private static final Logger log = Logger.getLogger(Server.class);
-    private SNMPGetManager snmpGetManager;
-    private int requestInterval = 1000;
+    private static final Logger log = Logger.getLogger(SNMPServer.class);
+    private SNMPManager snmpManager;
+    private int requestInterval;
     private volatile boolean running = false;
     ExecutorService executorService;
     private Future<?> thread;
 
-    public Server(SNMPGetManager snmpGetManager, int requestInterval) {
+    public SNMPServer(SNMPManager snmpManager, int requestInterval) {
         this.requestInterval = requestInterval;
-        this.snmpGetManager = snmpGetManager;
+        this.snmpManager = snmpManager;
         this.executorService = Executors.newSingleThreadExecutor();
     }
 
@@ -53,8 +57,8 @@ public class Server implements Runnable {
     public void run() {
         while (running) {
             try {
+                snmpManager.validateResponseAndNotify(snmpManager.send());
                 Thread.sleep(requestInterval);
-                snmpGetManager.validateResponseAndNotify(snmpGetManager.send());
             } catch (IOException | InterruptedException e) {
                 log.error("Error in sending request" + e);
             }

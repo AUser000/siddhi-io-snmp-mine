@@ -72,7 +72,7 @@
     <tr>
         <td style="vertical-align: top">timeout</td>
         <td style="vertical-align: top; word-wrap: break-word"> Underline connection protocol. </td>
-        <td style="vertical-align: top">1000</td>
+        <td style="vertical-align: top">1500</td>
         <td style="vertical-align: top">INT</td>
         <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>
@@ -215,7 +215,7 @@ define stream outputStream(value string, value2 string);
     <tr>
         <td style="vertical-align: top">timeout</td>
         <td style="vertical-align: top; word-wrap: break-word"> Timeout for response of the request default value is 1500 of milliseconds. </td>
-        <td style="vertical-align: top">1000</td>
+        <td style="vertical-align: top">1500</td>
         <td style="vertical-align: top">INT</td>
         <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>

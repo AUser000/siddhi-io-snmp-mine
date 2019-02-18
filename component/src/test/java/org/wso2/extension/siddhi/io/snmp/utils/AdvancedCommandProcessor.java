@@ -39,8 +39,8 @@ public class AdvancedCommandProcessor extends CommandProcessor {
         return eventHolder;
     }
 
-    public void setEventListener(EventHolder eventListener) {
-        this.eventHolder = eventListener;
+    public void setEventListener(EventHolder eventHolder) {
+        this.eventHolder = eventHolder;
     }
 
 

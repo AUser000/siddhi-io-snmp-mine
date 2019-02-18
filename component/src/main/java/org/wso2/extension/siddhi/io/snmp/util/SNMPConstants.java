@@ -25,7 +25,7 @@ import org.snmp4j.mp.SnmpConstants;
  *
  */
 public class SNMPConstants {
-    // dynamic true
+    // static
     public static final String HOST = "host";
     public static final String VERSION = "version";
     public static final String REQUEST_INTERVAL = "request.interval";
@@ -38,7 +38,7 @@ public class SNMPConstants {
     public static final String RETRIES = "retries";
     public static final String TIMEOUT = "timeout";
 
-    // v3
+    // v3 // optional
     public static final String USER_NAME = "user.name";
     public static final String SECURITY_LVL = "security.lvl";
     public static final String PRIV_PROTOCOL = "priv.protocol";
@@ -47,15 +47,15 @@ public class SNMPConstants {
     public static final String AUTH_PASSWORD = "auth.password";
 
 
-    public static final int V1 = SnmpConstants.version1;
+    public static final int V1  = SnmpConstants.version1;
     public static final int V2C = SnmpConstants.version2c;
-    public static final int V3 = SnmpConstants.version3;
+    public static final int V3  = SnmpConstants.version3;
 
     // default values
     public static final String DEFAULT_AGENT_PORT = "161";
     public static final String DEFAULT_IS_TCP = "false";
     public static final String DEFAULT_RETRIES = "5";
-    public static final String DEFAULT_TIMEOUT = "1000";
+    public static final String DEFAULT_TIMEOUT = "1500";
 
     public static final String DEFAULT_USERNAME = "noUser";
     public static final String DEFAULT_SECURITY_LVL = "1";

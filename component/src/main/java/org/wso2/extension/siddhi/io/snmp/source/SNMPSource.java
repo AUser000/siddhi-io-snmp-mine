@@ -18,11 +18,10 @@
 package org.wso2.extension.siddhi.io.snmp.source;
 
 import org.apache.log4j.Logger;
-import org.wso2.extension.siddhi.io.snmp.manager.SNMPGetManager;
-import org.wso2.extension.siddhi.io.snmp.manager.SNMPManagerConfig;
-import org.wso2.extension.siddhi.io.snmp.manager.Server;
 import org.wso2.extension.siddhi.io.snmp.util.SNMPConstants;
-import org.wso2.extension.siddhi.io.snmp.util.SNMPUtils;
+import org.wso2.extension.siddhi.io.snmp.util.SNMPManager;
+import org.wso2.extension.siddhi.io.snmp.util.SNMPManagerConfig;
+import org.wso2.extension.siddhi.io.snmp.util.SNMPValidations;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
@@ -121,15 +120,15 @@ import java.util.Map;
                         description = "This example shows how to make get request for snmp version 1 ",
 
                         syntax = "@source(type='snmp', \n" +
-                        "@map(type='keyvalue', " +
-                        "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
-                        "host ='127.0.0.1',\n" +
-                        "version = 'v1',\n" +
-                        "agent.port = '161',\n" +
-                        "request.interval = '60000',\n" +
-                        "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
-                        "community = 'public') \n" +
-                        " define stream inputStream(value1 string, value2 string);\n"
+                                "@map(type='keyvalue', " +
+                                "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
+                                "host ='127.0.0.1',\n" +
+                                "version = 'v1',\n" +
+                                "agent.port = '161',\n" +
+                                "request.interval = '60000',\n" +
+                                "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
+                                "community = 'public') \n" +
+                                " define stream inputStream(value1 string, value2 string);\n"
                 ),
                 @Example(
                         description = "This example shows how to make get request for snmp version 2c ",
@@ -168,24 +167,23 @@ import java.util.Map;
 )
 
 public class SNMPSource extends Source {
-    // TODO -> security level
 
     private static final Logger LOG = Logger.getLogger(SNMPSource.class);
-    private OptionHolder optionHolder;
-    private SourceEventListener sourceEventListener;
     private int requestInterval;
     private SNMPManagerConfig managerConfig;
-    private SNMPGetManager manager;
-    private Server snmpServer;
+    private SNMPManager manager;
+    private SNMPServer snmpServer;
+    private SNMPValidations validation;
 
     @Override
     public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,
                      String[] requestedTransportPropertyNames, ConfigReader configReader,
                      SiddhiAppContext siddhiAppContext) {
-        this.sourceEventListener = sourceEventListener;
-        this.optionHolder = optionHolder;
-        this.managerConfig = SNMPUtils.initSnmpProperties(optionHolder, true);
-        this.manager = new SNMPGetManager();
+        validation = new SNMPValidations();
+        this.managerConfig = validation.initSnmpProperties(optionHolder,
+                sourceEventListener.getStreamDefinition().getId(),
+                true);
+        this.manager = new SNMPManager();
         this.manager.setSourceEventListener(sourceEventListener);
         this.requestInterval = Integer.parseInt(
                 optionHolder.validateAndGetStaticValue(SNMPConstants.REQUEST_INTERVAL));
@@ -200,12 +198,11 @@ public class SNMPSource extends Source {
     public void connect(ConnectionCallback connectionCallback) throws ConnectionUnavailableException {
         try {
             manager.setManagerConfig(managerConfig);
-            snmpServer = new Server(manager, requestInterval);
+            snmpServer = new SNMPServer(manager, requestInterval);
             snmpServer.start();
         } catch (IOException e) {
             LOG.error("Error while setting transport mapping");
-            throw new ConnectionUnavailableException("Exception in starting the snmp for stream: " +
-                     sourceEventListener.getStreamDefinition().getId(), e);
+            throw new ConnectionUnavailableException("Exception in starting the snmp for stream: ");
         }
     }
 
@@ -218,6 +215,7 @@ public class SNMPSource extends Source {
 
     @Override
     public void destroy() {
+        manager.close();
     }
 
     @Override

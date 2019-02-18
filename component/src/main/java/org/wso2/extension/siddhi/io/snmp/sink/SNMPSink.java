@@ -18,10 +18,10 @@
 package org.wso2.extension.siddhi.io.snmp.sink;
 
 import org.apache.log4j.Logger;
-import org.wso2.extension.siddhi.io.snmp.manager.SNMPManagerConfig;
-import org.wso2.extension.siddhi.io.snmp.manager.SNMPSetManager;
 import org.wso2.extension.siddhi.io.snmp.util.SNMPConstants;
-import org.wso2.extension.siddhi.io.snmp.util.SNMPUtils;
+import org.wso2.extension.siddhi.io.snmp.util.SNMPManager;
+import org.wso2.extension.siddhi.io.snmp.util.SNMPManagerConfig;
+import org.wso2.extension.siddhi.io.snmp.util.SNMPValidations;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
@@ -131,12 +131,10 @@ import java.util.Map;
 // for more information refer https://wso2.github.io/siddhi/documentation/siddhi-4.0/#sinks
 
 public class SNMPSink extends Sink {
-    // TODO -> security level
-
     private static final Logger LOG = Logger.getLogger(SNMPSink.class);
-    private boolean isTcp = false;
     private SNMPManagerConfig managerConfig;
-    private SNMPSetManager manager;
+    private SNMPManager manager;
+    private SNMPValidations validation;
 
     @Override
     public Class[] getSupportedInputEventClasses() {
@@ -145,51 +143,46 @@ public class SNMPSink extends Sink {
 
     @Override
     public String[] getSupportedDynamicOptions() {
-        LOG.info("getSupportedDynamicOptions requested!");
         return new String[0];
     }
 
     @Override
     protected void init(StreamDefinition streamDefinition, OptionHolder optionHolder, ConfigReader configReader,
             SiddhiAppContext siddhiAppContext) {
-        LOG.info("init !");
-        managerConfig = SNMPUtils.initSnmpProperties(optionHolder, false);
-        manager = new SNMPSetManager();
+        validation = new SNMPValidations();
+        managerConfig = validation.initSnmpProperties(optionHolder, streamDefinition.getId(), false);
+        manager = new SNMPManager();
     }
 
     @Override
     public void publish(Object payload, DynamicOptions dynamicOptions) throws ConnectionUnavailableException {
-        LOG.info("publish !");
-        Map data = (Map) payload;
+        Map<String, String> data = (Map) payload;
         try {
-            manager.setManagerConfig(managerConfig);
-        } catch (IOException e) {
-            throw new ConnectionUnavailableException(" Error in Connecting to agent : " + e);
-        }
-
-        try {
-            //ToDO -> validation part
-            //manager.validateResponseAndNotify(manager.send(data));
             manager.send(data);
         } catch (IOException e) {
             throw new ConnectionUnavailableException(" e " + e.toString());
         }
-        manager.close();
+        managerConfig.clear();
     }
 
     @Override
     public void connect() throws ConnectionUnavailableException {
-        LOG.info("connect !");
+        try {
+            manager.setManagerConfig(managerConfig);
+        } catch (IOException e) {
+            throw new ConnectionUnavailableException(" Error in Setting up Connection : " + e);
+        }
     }
 
     @Override
     public void disconnect() {
-        LOG.info("disconnect! ");
+        if (manager != null) {
+            manager.close();
+        }
     }
 
     @Override
     public void destroy() {
-        LOG.info("destroy! ");
     }
 
     @Override

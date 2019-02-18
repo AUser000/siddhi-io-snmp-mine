@@ -1,3 +1,4 @@
+/home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/test/java/org/wso2/extension/siddhi/io/snmp/utils/Test.java
 /home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/test/java/org/wso2/extension/siddhi/io/snmp/source/TestCaseOfSNMPSource.java
 /home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/test/java/org/wso2/extension/siddhi/io/snmp/sink/TestCaseOfSNMPSink.java
 /home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/test/java/org/wso2/extension/siddhi/io/snmp/utils/EventHolder.java

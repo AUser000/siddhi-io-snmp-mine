@@ -63,7 +63,7 @@ public class TestCaseOfSNMPSink {
                 "@Sink(type='snmp',\n" +
                 "@map(type='keyvalue', @payload('1.3.6.1.2.1.1.4.0' = 'value')),\n" +
                 "host = '" + ip + "',\n" +
-                "version = 'v2',\n" +
+                "version = 'v2c',\n" +
                 "community = 'public',\n" +
                 "agent.port = '" + port + "',\n" +
                 "retries = '5')\n" +
@@ -84,6 +84,7 @@ public class TestCaseOfSNMPSink {
         log.info("Siddhi manager started ");
         executionPlanRuntime.start();
 
+        inputStream.send(new Object[]{"mail@wso2.com"});
         inputStream.send(new Object[]{"mail@wso2.com"});
         Thread.sleep(2000);
 
@@ -119,7 +120,7 @@ public class TestCaseOfSNMPSink {
                 "priv.protocol = 'PRIVDES',\n" +
                 "auth.password = 'authpass',\n" +
                 "priv.password = 'privpass',\n" +
-                "security.lvl = '3',\n" +
+                "security.lvl = 'AUTH_PRIV',\n" +
                 "user.name = 'agent5', \n" +
                 "retries = '5')\n" +
                 "define stream outputStream(value string);";
@@ -132,6 +133,7 @@ public class TestCaseOfSNMPSink {
             public void receive(Event[] events) {
                 for (Event event: events) {
                     log.info(event.toString());
+                    log.info(event.getData());
                 }
             }
         });
@@ -140,6 +142,10 @@ public class TestCaseOfSNMPSink {
         log.info(" Siddhi manager started ");
         executionPlanRuntime.start();
 
+        inputStream.send(new Object[]{"mail@wso2.com"});
+        inputStream.send(new Object[]{"mail@wso2.com"});
+        inputStream.send(new Object[]{"mail@wso2.com"});
+        inputStream.send(new Object[]{"dhanu@wso2.com"});
         inputStream.send(new Object[]{"mail@wso2.com"});
         Thread.sleep(1000);
 

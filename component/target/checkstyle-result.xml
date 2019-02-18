@@ -2,25 +2,23 @@
 <checkstyle version="6.11.2">
 <file name="/home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/main/java/org/wso2/extension/siddhi/io/snmp/sink/SNMPSink.java">
 </file>
-<file name="/home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/main/java/org/wso2/extension/siddhi/io/snmp/manager/SNMPGetManager.java">
-</file>
-<file name="/home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/main/java/org/wso2/extension/siddhi/io/snmp/manager/SNMPSetManager.java">
-</file>
-<file name="/home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/main/java/org/wso2/extension/siddhi/io/snmp/manager/SNMPManagerConfig.java">
-</file>
-<file name="/home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/main/java/org/wso2/extension/siddhi/io/snmp/manager/Server.java">
-</file>
-<file name="/home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/main/java/org/wso2/extension/siddhi/io/snmp/manager/SNMPManager.java">
+<file name="/home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/main/java/org/wso2/extension/siddhi/io/snmp/source/SNMPServer.java">
 </file>
 <file name="/home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/main/java/org/wso2/extension/siddhi/io/snmp/source/SNMPSource.java">
 </file>
-<file name="/home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/main/java/org/wso2/extension/siddhi/io/snmp/util/SNMPUtils.java">
+<file name="/home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/main/java/org/wso2/extension/siddhi/io/snmp/util/SNMPValidations.java">
+</file>
+<file name="/home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/main/java/org/wso2/extension/siddhi/io/snmp/util/SNMPManagerConfig.java">
+</file>
+<file name="/home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/main/java/org/wso2/extension/siddhi/io/snmp/util/SNMPManager.java">
 </file>
 <file name="/home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/main/java/org/wso2/extension/siddhi/io/snmp/util/SNMPConstants.java">
 </file>
 <file name="/home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/test/java/org/wso2/extension/siddhi/io/snmp/sink/TestCaseOfSNMPSink.java">
 </file>
 <file name="/home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/test/java/org/wso2/extension/siddhi/io/snmp/source/TestCaseOfSNMPSource.java">
+</file>
+<file name="/home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/test/java/org/wso2/extension/siddhi/io/snmp/utils/Test.java">
 </file>
 <file name="/home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/test/java/org/wso2/extension/siddhi/io/snmp/utils/AdvancedCommandProcessor.java">
 </file>

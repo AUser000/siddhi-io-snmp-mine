@@ -19,6 +19,11 @@ public class EventHolder { //ToDo ->  fixme ;-)
         eventList = new LinkedList<>();
     }
 
+    public EventHolder(int size) {
+        eventList = new LinkedList<>();
+        this.listSize = size;
+    }
+
     public int getEventCounts() {
         return eventList.size();
     }

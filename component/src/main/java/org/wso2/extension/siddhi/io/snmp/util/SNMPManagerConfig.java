@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.extension.siddhi.io.snmp.manager;
+package org.wso2.extension.siddhi.io.snmp.util;
 
 import org.apache.log4j.Logger;
 import org.snmp4j.CommunityTarget;
@@ -37,31 +37,28 @@ import java.util.List;
  * Manager config
  */
 public class SNMPManagerConfig {
-    Logger log = Logger.getLogger(SNMPManagerConfig.class);
+    private Logger log = Logger.getLogger(SNMPManagerConfig.class);
 
-    boolean isTCP = false;
-    PDU pdu = new PDU();
-    CommunityTarget communityTarget;
-
+    private boolean isTCP = false;
+    private PDU pdu;
+    private CommunityTarget communityTarget;
     private int version;
 
     // version 3 properties
-    ScopedPDU scopedPDU = new ScopedPDU();
+    private ScopedPDU scopedPDU;
     private OctetString userName;
     private OID authProtocol;
     private OctetString authProtocolPass;
     private OID privProtocol;
     private OctetString privProtocolPass;
     private int secLvl;
-    private OctetString localEngineID;
+    //private OctetString localEngineID;
     private UserTarget userTarget;
 
-    // version 3 getters and setters //
-    boolean isTSM = false;
 
-    public OctetString getLocalEngineID() {
-        return localEngineID;
-    }
+//    public OctetString getLocalEngineID() {
+//        return localEngineID;
+//    }
 
     public OctetString getUserName() {
         return userName;
@@ -69,6 +66,10 @@ public class SNMPManagerConfig {
 
     public int getSecLvl() {
         return secLvl;
+    }
+
+    public int getVersion() {
+        return version;
     }
 
     // for setting user parameters
@@ -84,11 +85,6 @@ public class SNMPManagerConfig {
         this.privProtocol = privProtocol;
         this.privProtocolPass = privProtocolPass;
         this.secLvl = secLvl;
-    }
-
-
-    public int getVersion() {
-        return version;
     }
 
     public void setVersion(int version) {
@@ -113,7 +109,7 @@ public class SNMPManagerConfig {
         communityTarget.setAddress(address);
         communityTarget.setRetries(retries);
         communityTarget.setTimeout(timeout);
-        if (this.version == SnmpConstants.version2c) {
+        if (this.version == SNMPConstants.V2C) {
             communityTarget.setVersion(SnmpConstants.version2c);
             setVersion(SnmpConstants.version2c);
         } else if (this.version == SnmpConstants.version1) {
@@ -127,7 +123,8 @@ public class SNMPManagerConfig {
     public void isTcp(boolean b) {
         isTCP = b;
     }
-    public boolean getIsTCP() {
+
+    public boolean isTCP() {
         return isTCP;
     }
 
@@ -173,32 +170,33 @@ public class SNMPManagerConfig {
             pdu = new PDU();
             return;
         }
-        if (version != SnmpConstants.version3) {
-            pdu = new PDU();
-            pdu.addAll(vbs);
-        } else {
+        if (version == SnmpConstants.version3) {
             scopedPDU = new ScopedPDU();
             scopedPDU.addAll(vbs);
+        } else {
+            pdu = new PDU();
+            pdu.addAll(vbs);
         }
     }
 
     public PDU getPdu() {
         if (version == SnmpConstants.version3) {
-            //log.info(scopedPDU.toString());
+            if (scopedPDU == null) {
+                scopedPDU = new ScopedPDU();
+            }
             return scopedPDU;
         }
-        //log.info(pdu.toString());
+        if (pdu == null) {
+            pdu = new PDU();
+        }
         return pdu;
     }
 
-    public void close() {
-
+    public void clear() {
         if (version == SnmpConstants.version3) {
-            this.scopedPDU = null;
-            this.scopedPDU = new ScopedPDU();
+            this.scopedPDU.clear();
         } else {
-            this.pdu = null;
-            this.pdu = new PDU();
+            this.pdu.clear();
         }
     }
 }
