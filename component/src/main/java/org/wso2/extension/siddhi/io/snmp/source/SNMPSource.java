@@ -32,6 +32,7 @@ import org.wso2.siddhi.core.stream.input.source.Source;
 import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
+import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.io.IOException;
 import java.util.Map;
@@ -43,73 +44,73 @@ import java.util.Map;
         name = "snmp",
         namespace = "source",
         description = " SNMP Source allows user to make get request and get the response" +
-                "of the request, once in request interval. ",
+                " of the request, once in request interval. ",
         parameters = {
                 @Parameter(name = SNMPConstants.HOST,
-                        description = " Address or ip of the target. " ,
+                        description = "Address or ip of the target." ,
                         type = DataType.STRING),
                 @Parameter(name = SNMPConstants.VERSION,
-                        description = " Version of the snmp protocol. " ,
+                        description = "Version of the snmp protocol." ,
                         type = DataType.STRING),
                 @Parameter(name = SNMPConstants.REQUEST_INTERVAL,
-                        description = " Request interval of the get requests. ",
+                        description = "Request interval of the get requests.",
                         type = DataType.INT),
                 @Parameter(name = SNMPConstants.OIDS,
-                        description = " list of the OIDs separated by comma. ",
+                        description = "list of the OIDs separated by comma.",
                         type = DataType.STRING),
                 @Parameter(name = SNMPConstants.COMMUNITY,
                         optional = true,
-                        description = " Community string of the network. ",
+                        description = "Community string of the network.",
                         defaultValue = SNMPConstants.DEFAULT_COMMUNITY,
                         type = DataType.STRING),
                 @Parameter(name = SNMPConstants.AGENT_PORT,
-                        description = " Port of the agent. ",
+                        description = "Port of the agent.",
                         optional = true,
                         type = DataType.STRING,
                         defaultValue = SNMPConstants.DEFAULT_AGENT_PORT),
                 @Parameter(name = SNMPConstants.IS_TCP,
-                        description = " Underline protocol default id UDP ",
+                        description = "Underline protocol default id UDP.",
                         optional  = true,
                         type = DataType.BOOL,
                         defaultValue = SNMPConstants.DEFAULT_IS_TCP),
                 @Parameter(name = SNMPConstants.RETRIES,
-                        description = " Number of retries of if request fails. ",
+                        description = "Number of retries of if request fails.",
                         optional = true,
                         type = DataType.INT,
                         defaultValue = SNMPConstants.DEFAULT_RETRIES),
                 @Parameter(name  = SNMPConstants.TIMEOUT,
-                        description = " Timeout for response of the request default value is 1500 of milliseconds. ",
+                        description = "Timeout for response of the request, default value is 1500 of milliseconds.",
                         optional = true,
                         type = DataType.INT,
                         defaultValue = SNMPConstants.DEFAULT_TIMEOUT),
                 // this parameters for v3
                 @Parameter(name = SNMPConstants.USER_NAME,
-                        description = " Username if user use snmp version 3.",
+                        description = "Username if user use snmp version 3.",
                         optional = true,
                         type = DataType.STRING,
                         defaultValue = SNMPConstants.DEFAULT_USERNAME),
                 @Parameter(name = SNMPConstants.SECURITY_LVL,
-                        description = " Security level. ",
+                        description = "Security level. Acceptance level AUTH_PRIV, AUTH_NO_PRIVE, NO_AUTH_NO_PRIVE.",
                         optional = true,
                         type = DataType.INT,
                         defaultValue = SNMPConstants.DEFAULT_SECURITY_LVL),
                 @Parameter(name = SNMPConstants.PRIV_PROTOCOL,
-                        description = " Encryption protocol if use ",
+                        description = "Encryption protocol if use.",
                         optional = true,
                         type = DataType.STRING,
                         defaultValue = SNMPConstants.DEFAULT_PRIV_PROTOCOL),
                 @Parameter(name = SNMPConstants.PRIV_PASSWORD,
-                        description = " Encryption protocol password ",
+                        description = "Privacy protocol password.",
                         optional = true,
                         type = DataType.STRING,
                         defaultValue = SNMPConstants.DEFAULT_PRIV_PASSWORD),
                 @Parameter(name = SNMPConstants.AUTH_PROTOCOL,
-                        description = " Auth protocol is use. ",
+                        description = "Authentication protocol if use.",
                         optional = true,
                         type = DataType.STRING,
                         defaultValue = SNMPConstants.DEFAULT_AUTH_PROTOCOL),
                 @Parameter(name = SNMPConstants.AUTH_PASSWORD,
-                        description = " Auth protocol is use. ",
+                        description = "Auth protocol password.",
                         optional = true,
                         type = DataType.STRING,
                         defaultValue = SNMPConstants.DEFAULT_AUT_PASSWORD)
@@ -173,20 +174,24 @@ public class SNMPSource extends Source {
     private SNMPManagerConfig managerConfig;
     private SNMPManager manager;
     private SNMPServer snmpServer;
-    private SNMPValidations validation;
+    private StreamDefinition streamDefinition;
+
 
     @Override
     public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,
                      String[] requestedTransportPropertyNames, ConfigReader configReader,
                      SiddhiAppContext siddhiAppContext) {
-        validation = new SNMPValidations();
+        if (LOG.isDebugEnabled()) {
+            LOG.info("init method triggered ");
+        }
+        SNMPValidations validation = new SNMPValidations();
         this.managerConfig = validation.initSnmpProperties(optionHolder,
                 sourceEventListener.getStreamDefinition().getId(),
                 true);
         this.manager = new SNMPManager();
         this.manager.setSourceEventListener(sourceEventListener);
-        this.requestInterval = Integer.parseInt(
-                optionHolder.validateAndGetStaticValue(SNMPConstants.REQUEST_INTERVAL));
+        this.requestInterval = Integer.parseInt(optionHolder.validateAndGetStaticValue(SNMPConstants.REQUEST_INTERVAL));
+        this.streamDefinition = sourceEventListener.getStreamDefinition();
     }
 
     @Override
@@ -196,13 +201,18 @@ public class SNMPSource extends Source {
 
     @Override
     public void connect(ConnectionCallback connectionCallback) throws ConnectionUnavailableException {
+        if (LOG.isDebugEnabled()) {
+            LOG.info("connect method triggered ");
+        }
         try {
             manager.setManagerConfig(managerConfig);
-            snmpServer = new SNMPServer(manager, requestInterval);
+            snmpServer = new SNMPServer();
+            snmpServer.setManager(manager);
+            snmpServer.setRequestInterval(requestInterval);
             snmpServer.start();
         } catch (IOException e) {
-            LOG.error("Error while setting transport mapping");
-            throw new ConnectionUnavailableException("Exception in starting the snmp for stream: ");
+            throw new ConnectionUnavailableException(streamDefinition.getId()
+                    + " Exception in starting the snmp for stream: ");
         }
     }
 
@@ -211,11 +221,19 @@ public class SNMPSource extends Source {
         if (snmpServer != null) {
             snmpServer.stop();
         }
+        if (LOG.isDebugEnabled()) {
+            LOG.info("disconnect method triggered ");
+        }
     }
 
     @Override
     public void destroy() {
-        manager.close();
+        if (manager != null) {
+            manager.close();
+        }
+        if (LOG.isDebugEnabled()) {
+            LOG.info("destroy method triggered ");
+        }
     }
 
     @Override

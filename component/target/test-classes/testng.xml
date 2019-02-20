@@ -5,8 +5,10 @@
 <suite name="Siddhi-Io-snmp-Test-Suite">
     <test name="Siddhi-io-snmp-tests" enabled="true" preserve-order="true" parallel="false">
         <classes>
-            <class name="org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSink"/>
-            <class name="org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSource"/>
+            <class name="org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSinkV1V2"/>
+            <class name="org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSinkV3"/>
+            <class name="org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSourceV1V2"/>
+            <class name="org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSourceV3"/>
         </classes>
     </test>
 </suite>

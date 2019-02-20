@@ -22,8 +22,8 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class TestCaseOfSNMPSource {
-    private static final Logger LOG  = Logger.getLogger(TestCaseOfSNMPSource.class);
+public class TestCaseOfSNMPSourceV3 {
+    private static final Logger LOG  = Logger.getLogger(TestCaseOfSNMPSourceV3.class);
     private AtomicInteger eventCount = new AtomicInteger(0);
     private AtomicBoolean eventArrived = new AtomicBoolean(false);
     private String port = "2019";
@@ -57,90 +57,6 @@ public class TestCaseOfSNMPSource {
     }
 
     @Test
-    public void snmpVersion1Source() throws InterruptedException, TimeoutException, IOException {
-        LOG.info("-----------------------------------------------");
-        LOG.info("    SNMP Version 1 Basic Source Test Case      ");
-        LOG.info("-----------------------------------------------");
-
-        SiddhiManager siddhiManager = new SiddhiManager();
-
-        String siddhiApp = "@App:name('test') \n" +
-
-                "@source(type='snmp', \n" +
-                "@map(type='keyvalue', " +
-                "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
-                "host ='" + ip + "',\n" +
-                "version = 'v1',\n" +
-                "agent.port = '" + port + "',\n" +
-                "request.interval = '500',\n" +
-                "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
-                "community = 'public') \n" +
-                " define stream inputStream(value1 string, value2 string);\n";
-
-        SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
-        executionPlanRuntime.addCallback("inputStream", new StreamCallback() {
-            @Override
-            public void receive(Event[] events) {
-                EventPrinter.print(events);
-                for (Event event : events) {
-                    //log.info(event);
-                    eventCount.getAndIncrement();
-                    eventArrived.set(true);
-                }
-            }
-        });
-
-        executionPlanRuntime.start();
-        SiddhiTestHelper.waitForEvents(sleepTime, 5, eventCount, timeout);
-        Assert.assertTrue(eventArrived.get());
-
-
-        LOG.info("[TestCaseOfSNMPSource.class] Siddhi shutting down");
-        siddhiManager.shutdown();
-    }
-
-    @Test
-    public void snmpVersion2Source() throws InterruptedException, TimeoutException, IOException {
-        LOG.info("-----------------------------------------------");
-        LOG.info("     SNMP Version 2 Basic Source Test Case     ");
-        LOG.info("-----------------------------------------------");
-
-        SiddhiManager siddhiManager = new SiddhiManager();
-
-        String siddhiApp = "@App:name('test') \n" +
-                "@source(type='snmp', \n" +
-                "@map(type='keyvalue', " +
-                "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
-                "host ='" + ip + "',\n" +
-                "version = 'v2c',\n" +
-                "agent.port = '" + port + "',\n" +
-                "request.interval = '500',\n" +
-                "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
-                "community = 'public') \n" +
-                " define stream inputStream(value1 string, value2 string);\n";
-
-        SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
-        executionPlanRuntime.addCallback("inputStream", new StreamCallback() {
-            @Override
-            public void receive(Event[] events) {
-                EventPrinter.print(events);
-                for (Event event : events) {
-                    //log.info(event);
-                    eventCount.getAndIncrement();
-                    eventArrived.set(true);
-                }
-            }
-        });
-
-        executionPlanRuntime.start();
-        SiddhiTestHelper.waitForEvents(sleepTime, 5, eventCount, timeout);
-        Assert.assertTrue(eventArrived.get());
-
-        LOG.info(" Siddhi shutting down");
-        siddhiManager.shutdown();
-    }
-
-    @Test
     public void snmpVersion3TestWithAllValues() throws InterruptedException, TimeoutException, IOException {
         LOG.info("-----------------------------------------------");
         LOG.info("     SNMP Version 3 Basic Source Test Case     ");
@@ -148,23 +64,23 @@ public class TestCaseOfSNMPSource {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-            String siddhiApp = "@App:name('test') \n" +
-                    "@source(type='snmp', \n" +
-                    "@map(type='keyvalue', " +
-                    "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
-                    "host ='" + ip + "',\n" +
-                    "version = 'v3',\n" +
-                    "timeout = '100',\n" +
-                    "request.interval = '500',\n" +
-                    "agent.port = '" + port + "',\n" +
-                    "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
-                    "auth.protocol = 'AUTHMD5',\n" +
-                    "priv.protocol = 'PRIVDES',\n" +
-                    "priv.password = 'privpass',\n" +
-                    "auth.password = 'authpass',\n" +
-                    "security.lvl = 'AUTH_PRIV',\n" +
-                    "user.name = 'agent5') \n" +
-                    " define stream inputStream(value1 string, value2 string);\n";
+        String siddhiApp = "@App:name('test') \n" +
+                "@source(type='snmp', \n" +
+                "@map(type='keyvalue', " +
+                "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
+                "host ='" + ip + "',\n" +
+                "version = 'v3',\n" +
+                "timeout = '100',\n" +
+                "request.interval = '500',\n" +
+                "agent.port = '" + port + "',\n" +
+                "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
+                "auth.protocol = 'AUTHMD5',\n" +
+                "priv.protocol = 'PRIVDES',\n" +
+                "priv.password = 'privpass',\n" +
+                "auth.password = 'authpass',\n" +
+                "security.lvl = 'AUTH_PRIV',\n" +
+                "user.name = 'agent5') \n" +
+                " define stream inputStream(value1 string, value2 string);\n";
 
         SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
         executionPlanRuntime.addCallback("inputStream", new StreamCallback() {
@@ -190,7 +106,7 @@ public class TestCaseOfSNMPSource {
 
     // TODO -> configure Agent! for AuthNoPriv
     @Test
-    public void snmpVersion3User0001() throws InterruptedException, TimeoutException, IOException {
+    public void snmpVersion3AuthNoPriv() throws InterruptedException, TimeoutException, IOException {
         LOG.info("-----------------------------------------------");
         LOG.info("   SNMP Version 3 Source Test Case Sec Lvl 2   ");
         LOG.info("-----------------------------------------------");
@@ -283,50 +199,9 @@ public class TestCaseOfSNMPSource {
         siddhiManager.shutdown();
     }
 
-    @Test
-    public void snmpVersion2TCP() throws InterruptedException, TimeoutException, IOException {
-        LOG.info("-----------------------------------------------");
-        LOG.info("    SNMP Version 2 Source Test Case for TCP    ");
-        LOG.info("-----------------------------------------------");
-
-        SiddhiManager siddhiManager = new SiddhiManager();
-        String siddhiApp = "@App:name('test') \n" +
-                "@source(type='snmp', \n" +
-                "@map(type='keyvalue', " +
-                "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
-                "host ='" + ip + "',\n" +
-                "version = 'v2c',\n" +
-                "timeout = '500',\n" +
-                "istcp = 'false',\n" +
-                "community = 'public',\n" +
-                "request.interval = '500',\n" +
-                "agent.port = '" + port + "',\n" +
-                "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0')\n" +
-                " define stream inputStream(value1 string, value2 string);\n";
-
-        SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
-        executionPlanRuntime.addCallback("inputStream", new StreamCallback() {
-            @Override
-            public void receive(Event[] events) {
-                EventPrinter.print(events);
-                for (Event event : events) {
-                    //log.info(event.toString());
-                    eventCount.getAndIncrement();
-                    eventArrived.set(true);
-                }
-            }
-        });
-
-        executionPlanRuntime.start();
-        SiddhiTestHelper.waitForEvents(sleepTime, 5, eventCount, timeout);
-        Assert.assertTrue(eventArrived.get());
-
-        LOG.info("[TestCaseOfSNMPSource.class] Siddhi manager shutting down");
-        siddhiManager.shutdown();
-    }
 
     @Test
-    public void snmpVersionAgent5() throws InterruptedException, TimeoutException, IOException {
+    public void snmpVersionAuthPriv() throws InterruptedException, TimeoutException, IOException {
         LOG.info("-----------------------------------------------");
         LOG.info("SNMP Version 3 Source Test Case Sec Lvl 3 Agent5");
         LOG.info("-----------------------------------------------");
@@ -372,12 +247,11 @@ public class TestCaseOfSNMPSource {
         siddhiManager.shutdown();
     }
 
-
     @Test(expectedExceptions = SiddhiAppValidationException.class)
     public void snmpValidationTest() throws InterruptedException, TimeoutException, IOException {
-        LOG.info("-----------------------------------------------");
+        LOG.info("------------------------------------------------");
         LOG.info("SNMP Version 3 Source Test Case Sec Lvl 3 Agent5");
-        LOG.info("-----------------------------------------------");
+        LOG.info("------------------------------------------------");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -416,6 +290,49 @@ public class TestCaseOfSNMPSource {
         LOG.info("[TestCaseOfSNMPSource.class] Siddhi manager shutting down");
         siddhiManager.shutdown();
     }
+
+    @Test(expectedExceptions = RuntimeException.class)
+    public void snmpRuntimeTest() throws InterruptedException, TimeoutException, IOException {
+        LOG.info("------------------------------------------------");
+        LOG.info("SNMP Version 3 Source Test Case Sec Lvl 3 Agent5");
+        LOG.info("------------------------------------------------");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String siddhiApp = "@App:name('test') \n" +
+                "@source(type='snmp', \n" +
+                "@map(type='keyvalue', " +
+                "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
+                "host ='" + ip + "',\n" +
+                "version = 'v3',\n" +
+                "timeout = '100',\n" +
+                "request.interval = '500',\n" +
+                "agent.port = '" + 200 + "',\n" +
+                "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
+                "auth.protocol = 'AUTHSHA',\n" +
+                "priv.protocol = 'PRIVDE',\n" +
+                "priv.password = 'privpass',\n" +
+                "auth.password = 'authpass',\n" +
+                "security.lvl = 'AUTH_PRIV',\n" +
+                "user.name = 'agent5') \n" +
+                " define stream inputStream(value1 string, value2 string);\n";
+
+        SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        executionPlanRuntime.addCallback("inputStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                for (Event event : events) {
+                    //log.info(event.toString());
+                    eventCount.getAndIncrement();
+                    eventArrived.set(true);
+                }
+            }
+        });
+
+        executionPlanRuntime.start();
+        LOG.info("[TestCaseOfSNMPSource.class] Siddhi manager shutting down");
+        siddhiManager.shutdown();
+    }
+
 }
-
-

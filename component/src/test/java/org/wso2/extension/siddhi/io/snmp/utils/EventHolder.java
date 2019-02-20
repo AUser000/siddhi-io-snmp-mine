@@ -28,14 +28,14 @@ public class EventHolder { //ToDo ->  fixme ;-)
         return eventList.size();
     }
 
-    public void addEvent(Map<String, String> map) {
+    public synchronized void addEvent(Map<String, String> map) {
         eventList.addFirst(map);
         if (eventList.size() > listSize) {
             eventList.removeLast();
         }
     }
 
-    public Map<String, String> getEvent(int index) {
+    public synchronized Map<String, String> getEvent(int index) {
         if (index > listSize) {
             return eventList.get(listSize);
         } else if (index < 0) {

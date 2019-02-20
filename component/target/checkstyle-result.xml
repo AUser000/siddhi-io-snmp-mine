@@ -14,9 +14,13 @@
 </file>
 <file name="/home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/main/java/org/wso2/extension/siddhi/io/snmp/util/SNMPConstants.java">
 </file>
-<file name="/home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/test/java/org/wso2/extension/siddhi/io/snmp/sink/TestCaseOfSNMPSink.java">
+<file name="/home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/test/java/org/wso2/extension/siddhi/io/snmp/sink/TestCaseOfSNMPSinkV3.java">
 </file>
-<file name="/home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/test/java/org/wso2/extension/siddhi/io/snmp/source/TestCaseOfSNMPSource.java">
+<file name="/home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/test/java/org/wso2/extension/siddhi/io/snmp/sink/TestCaseOfSNMPSinkV1V2.java">
+</file>
+<file name="/home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/test/java/org/wso2/extension/siddhi/io/snmp/source/TestCaseOfSNMPSourceV3.java">
+</file>
+<file name="/home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/test/java/org/wso2/extension/siddhi/io/snmp/source/TestCaseOfSNMPSourceV1V2.java">
 </file>
 <file name="/home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/test/java/org/wso2/extension/siddhi/io/snmp/utils/Test.java">
 </file>

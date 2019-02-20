@@ -40,7 +40,6 @@ import java.util.Map;
 
 /**
  *  Handle SNMP Manager data and request
- *
  */
 public class SNMPManager {
 
@@ -96,7 +95,7 @@ public class SNMPManager {
     }
 
     // get snmp event, rearrange data and notify to siddhi
-    public void validateResponseAndNotify(ResponseEvent event) {
+    private void validateResponseAndNotify(ResponseEvent event) {
         if (event != null) {
             if (event.getResponse() != null) {
                 List<VariableBinding> vbs = (List<VariableBinding>) event.getResponse().getVariableBindings();
@@ -110,7 +109,7 @@ public class SNMPManager {
     }
 
     // make get-request
-    public ResponseEvent send() throws IOException {
+    private ResponseEvent send() throws IOException {
         if (managerConfig.getVersion() == SnmpConstants.version3) {
             USM usm = new USM(SecurityProtocols.getInstance().addDefaultProtocols(),
                     new OctetString(MPv3.createLocalEngineID()).substring(0, 9), 0);
@@ -121,21 +120,24 @@ public class SNMPManager {
         return snmp.get(managerConfig.getPdu(), managerConfig.getCommunityTarget());
     }
 
-    // get snmp event, validate it for debug
-    public void validateResponse(ResponseEvent event) {
-        if (event != null) {
-            if (event.getResponse() != null) {
-                log.info(event.getResponse().toString());
-            } else {
-                log.debug(" response pdu is null");
-            }
-        } else {
-            log.debug("event is null");
-        }
+    public void sendAndNotify() throws IOException {
+        validateResponseAndNotify(send());
     }
 
+    // set snmp event validation
+    private void validateResponse(ResponseEvent event) {
+        if (event == null) {
+            throw new RuntimeException(" No such target or invalid authentication ");
+        }
+        if (event.getResponse() == null) {
+            throw new RuntimeException(" No such target ");
+        }
+        if (event.getResponse().getErrorIndex() != 0) {
+            throw new RuntimeException(" Target has no privilege to write ");
+        }
+    }
     // make set-request
-    public ResponseEvent send(Map<String, String> map) throws IOException {
+    private ResponseEvent send(Map<String, String> map) throws IOException {
         for (Map.Entry<String, String> entry: map.entrySet()) {
             this.managerConfig.getPdu()
                     .add(new VariableBinding(new OID(entry.getKey()), new OctetString(entry.getValue())));
@@ -149,5 +151,9 @@ public class SNMPManager {
             return snmp.set(managerConfig.getPdu(), managerConfig.getUserTarget());
         }
         return snmp.set(managerConfig.getPdu(), managerConfig.getCommunityTarget());
+    }
+
+    public void sendAndValidate(Map<String, String> map) throws IOException {
+        validateResponse(send(map));
     }
 }

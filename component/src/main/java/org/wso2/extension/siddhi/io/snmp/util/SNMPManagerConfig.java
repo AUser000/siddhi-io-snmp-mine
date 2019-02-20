@@ -37,7 +37,7 @@ import java.util.List;
  * Manager config
  */
 public class SNMPManagerConfig {
-    private Logger log = Logger.getLogger(SNMPManagerConfig.class);
+    private static final Logger LOG = Logger.getLogger(SNMPManagerConfig.class);
 
     private boolean isTCP = false;
     private PDU pdu;
@@ -52,13 +52,8 @@ public class SNMPManagerConfig {
     private OID privProtocol;
     private OctetString privProtocolPass;
     private int secLvl;
-    //private OctetString localEngineID;
     private UserTarget userTarget;
 
-
-//    public OctetString getLocalEngineID() {
-//        return localEngineID;
-//    }
 
     public OctetString getUserName() {
         return userName;
@@ -110,13 +105,9 @@ public class SNMPManagerConfig {
         communityTarget.setRetries(retries);
         communityTarget.setTimeout(timeout);
         if (this.version == SNMPConstants.V2C) {
-            communityTarget.setVersion(SnmpConstants.version2c);
-            setVersion(SnmpConstants.version2c);
-        } else if (this.version == SnmpConstants.version1) {
-            communityTarget.setVersion(SnmpConstants.version1);
-            setVersion(SnmpConstants.version1);
+            communityTarget.setVersion(SNMPConstants.V2C);
         } else {
-            log.info("snmp version is not set");
+            communityTarget.setVersion(SNMPConstants.V1);
         }
     }
 
@@ -129,11 +120,7 @@ public class SNMPManagerConfig {
     }
 
     // for setting up user target
-    public void setUserTarget(String ip,
-                              String port,
-                              int retries,
-                              int timeout,
-                              int securityLvl) {
+    public void setUserTarget(String ip, String port, int retries, int timeout, int securityLvl) {
         userTarget = new UserTarget();
         userTarget.setSecurityLevel(securityLvl);
         userTarget.setVersion(SnmpConstants.version3);
@@ -151,21 +138,18 @@ public class SNMPManagerConfig {
 
     public UserTarget getUserTarget() {
         return this.userTarget;
-    };
+    }
 
     public UsmUser getUser() {
-        return new UsmUser(this.userName,
-                this.authProtocol,
-                this.authProtocolPass,
-                this.privProtocol,
-                this.privProtocolPass);
+        return new UsmUser(this.userName, this.authProtocol, this.authProtocolPass,
+                this.privProtocol, this.privProtocolPass);
     }
 
     public Target getCommunityTarget() {
         return this.communityTarget;
     }
 
-    public void setVariablebindings(List<VariableBinding> vbs) {
+    public void setVariableBindings(List<VariableBinding> vbs) {
         if (vbs == null) {
             pdu = new PDU();
             return;

@@ -36,39 +36,50 @@ public class SNMPServer implements Runnable {
 <span class="fc" id="L36">    private static final Logger log = Logger.getLogger(SNMPServer.class);</span>
     private SNMPManager snmpManager;
     private int requestInterval;
-<span class="fc" id="L39">    private volatile boolean running = false;</span>
-    ExecutorService executorService;
+<span class="fc" id="L39">    private boolean running = false;</span>
+    private ExecutorService executorService;
     private Future&lt;?&gt; thread;
 
-<span class="fc" id="L43">    public SNMPServer(SNMPManager snmpManager, int requestInterval) {</span>
-<span class="fc" id="L44">        this.requestInterval = requestInterval;</span>
-<span class="fc" id="L45">        this.snmpManager = snmpManager;</span>
-<span class="fc" id="L46">        this.executorService = Executors.newSingleThreadExecutor();</span>
-<span class="fc" id="L47">    }</span>
+<span class="fc" id="L43">    public SNMPServer() {</span>
+<span class="fc" id="L44">        this.executorService = Executors.newSingleThreadExecutor();</span>
+<span class="fc" id="L45">    }</span>
 
-    public void start() {
-<span class="pc bpc" id="L50" title="1 of 2 branches missed.">        if (!running) {</span>
-<span class="fc" id="L51">            running = true;</span>
-<span class="fc" id="L52">            this.thread = executorService.submit(this);</span>
+    public void setManager(SNMPManager snmpManager) {
+<span class="fc" id="L48">        this.snmpManager = snmpManager;</span>
+<span class="fc" id="L49">    }</span>
+
+    public void setRequestInterval(int requestInterval) {
+<span class="fc" id="L52">        this.requestInterval = requestInterval;</span>
+<span class="fc" id="L53">    }</span>
+
+    public synchronized  void start() {
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">        if (!isRunning()) {</span>
+<span class="fc" id="L57">            running = true;</span>
+<span class="fc" id="L58">            this.thread = executorService.submit(this);</span>
         }
-<span class="fc" id="L54">    }</span>
+<span class="fc" id="L60">    }</span>
 
     @Override
     public void run() {
-<span class="fc bfc" id="L58" title="All 2 branches covered.">        while (running) {</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        while (isRunning()) {</span>
             try {
-<span class="fc" id="L60">                snmpManager.validateResponseAndNotify(snmpManager.send());</span>
-<span class="fc" id="L61">                Thread.sleep(requestInterval);</span>
-<span class="nc" id="L62">            } catch (IOException | InterruptedException e) {</span>
-<span class="nc" id="L63">                log.error(&quot;Error in sending request&quot; + e);</span>
-<span class="pc" id="L64">            }</span>
-        }
-<span class="fc" id="L66">    }</span>
-
-    public void stop() {
-<span class="pc bpc" id="L69" title="1 of 2 branches missed.">        if (running) {</span>
-<span class="fc" id="L70">            running = false;</span>
+<span class="fc" id="L66">                snmpManager.sendAndNotify();</span>
+<span class="fc" id="L67">                Thread.sleep(requestInterval);</span>
+<span class="nc" id="L68">            } catch (IOException | InterruptedException e) {</span>
+<span class="nc" id="L69">                log.error(&quot;Error in sending request&quot; + e);</span>
+<span class="pc" id="L70">            }</span>
         }
 <span class="fc" id="L72">    }</span>
+
+    public synchronized void stop() {
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">        if (isRunning()) {</span>
+<span class="fc" id="L76">            running = false;</span>
+        }
+<span class="fc" id="L78">    }</span>
+
+    private synchronized boolean isRunning() {
+<span class="fc" id="L81">        return running;</span>
+    }
+
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

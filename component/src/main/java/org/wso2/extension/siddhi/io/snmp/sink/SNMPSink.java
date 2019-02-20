@@ -48,33 +48,33 @@ import java.util.Map;
                 + " It has ability to make set request and get it's response. ",
         parameters = {
                 @Parameter(name = SNMPConstants.HOST,
-                        description = " Address or ip of the target. " ,
+                        description = "Address or ip of the target." ,
                         type = DataType.STRING),
                 @Parameter(name = SNMPConstants.VERSION,
-                        description = " Version of the snmp protocol. " ,
+                        description = "Version of the snmp protocol." ,
                         type = DataType.STRING),
                 @Parameter(name = SNMPConstants.COMMUNITY,
-                        description = " Community string of the network. ",
+                        description = "Community string of the network.",
                         optional = true,
                         type = DataType.STRING,
                         defaultValue = SNMPConstants.DEFAULT_COMMUNITY),
                 @Parameter(name = SNMPConstants.AGENT_PORT,
-                        description = " Port of the agent. ",
+                        description = "Port of the agent.",
                         optional = true,
                         type = DataType.STRING,
                         defaultValue = SNMPConstants.DEFAULT_AGENT_PORT),
                 @Parameter(name = SNMPConstants.IS_TCP,
-                        description = " Underline connection protocol. ",
+                        description = "Underline connection protocol.",
                         optional = true,
                         type = DataType.BOOL,
                         defaultValue = SNMPConstants.DEFAULT_IS_TCP),
                 @Parameter(name = SNMPConstants.RETRIES,
-                        description = " Underline connection protocol. ",
+                        description = "Underline connection protocol.",
                         optional = true,
                         type = DataType.INT,
                         defaultValue = SNMPConstants.DEFAULT_RETRIES),
                 @Parameter(name = SNMPConstants.TIMEOUT,
-                        description = " Underline connection protocol. ",
+                        description = "Underline connection protocol.",
                         optional = true,
                         type = DataType.INT,
                         defaultValue = SNMPConstants.DEFAULT_TIMEOUT)
@@ -135,6 +135,7 @@ public class SNMPSink extends Sink {
     private SNMPManagerConfig managerConfig;
     private SNMPManager manager;
     private SNMPValidations validation;
+    private StreamDefinition streamDefinition;
 
     @Override
     public Class[] getSupportedInputEventClasses() {
@@ -150,17 +151,20 @@ public class SNMPSink extends Sink {
     protected void init(StreamDefinition streamDefinition, OptionHolder optionHolder, ConfigReader configReader,
             SiddhiAppContext siddhiAppContext) {
         validation = new SNMPValidations();
-        managerConfig = validation.initSnmpProperties(optionHolder, streamDefinition.getId(), false);
+        this.streamDefinition = streamDefinition;
+        managerConfig = validation.initSnmpProperties(optionHolder, this.streamDefinition.getId(), false);
         manager = new SNMPManager();
     }
 
     @Override
-    public void publish(Object payload, DynamicOptions dynamicOptions) throws ConnectionUnavailableException {
+    public void publish(Object payload, DynamicOptions dynamicOptions)  {
         Map<String, String> data = (Map) payload;
         try {
-            manager.send(data);
+            manager.sendAndValidate(data);
         } catch (IOException e) {
-            throw new ConnectionUnavailableException(" e " + e.toString());
+            throw new RuntimeException(this.streamDefinition.getId() + " IO exception error " + e);
+        } catch (RuntimeException ex) {
+            throw new RuntimeException(this.streamDefinition.getId() + " Invalid Authentication " + ex);
         }
         managerConfig.clear();
     }
@@ -170,7 +174,8 @@ public class SNMPSink extends Sink {
         try {
             manager.setManagerConfig(managerConfig);
         } catch (IOException e) {
-            throw new ConnectionUnavailableException(" Error in Setting up Connection : " + e);
+            throw new ConnectionUnavailableException(this.streamDefinition.getId()
+                    + " Error in Setting up Connection : " + e);
         }
     }
 

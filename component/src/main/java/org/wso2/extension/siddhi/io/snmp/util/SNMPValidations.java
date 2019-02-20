@@ -48,23 +48,21 @@ public class SNMPValidations {
 
     private int validateVersion(String versionString, String streamName) {
         versionString = versionString.toLowerCase(Locale.ENGLISH);
-        if (versionString.equals("v1")) {
-            return SNMPConstants.V1;
-        } else if (versionString.equals("v2c")) {
-            return SNMPConstants.V2C;
-        } else if (versionString.equals("v3")) {
-            return SNMPConstants.V3;
+        switch (versionString) {
+            case "v1"  : return SNMPConstants.V1;
+            case "v2c" : return SNMPConstants.V2C;
+            case "v3"  : return SNMPConstants.V3;
+            default: throw new SiddhiAppValidationException(streamName + " version validation failed. " +
+                    "snmp accept v1, v2c, v3 only. ");
         }
-        throw new SiddhiAppValidationException(streamName + " version validation failed. " +
-                "snmp accept v1, v2c, v3 only. ");
     }
 
     private List<VariableBinding> validateAndGetOidList(String oidListString, String streamName) {
-        List<VariableBinding> list = new LinkedList<>();
         oidListString = oidListString.replace(" ", "");
         if (oidListString.equals("")) {
             throw new SiddhiAppValidationException(streamName + "oid list empty!");
         }
+        List<VariableBinding> list = new LinkedList<>();
         List<String> oids = Arrays.asList(oidListString.split(","));
         for (String oid : oids) {
             list.add(new VariableBinding(new OID(oid)));
@@ -73,7 +71,6 @@ public class SNMPValidations {
     }
 
     private OID validateAndGetPriv(String priv, String streamName) {
-        OID oid;
         priv = priv.toUpperCase(Locale.ENGLISH);
         switch (priv) {
             case "PRIVDES" :
@@ -95,7 +92,6 @@ public class SNMPValidations {
     }
 
     private OID validateAndGetAuth(String auth, String streamName) {
-        OID oid;
         auth = auth.toUpperCase(Locale.ENGLISH);
         switch (auth) {
             case "AUTHMD5" :
@@ -126,8 +122,8 @@ public class SNMPValidations {
 
     //for validation
     public SNMPManagerConfig initSnmpProperties(OptionHolder optionHolder,
-                                                       String streamName,
-                                                       boolean includeOids) {
+                                                String streamName,
+                                                boolean includeOids) {
         SNMPManagerConfig managerConfig = new SNMPManagerConfig();
         String host = optionHolder.validateAndGetStaticValue(SNMPConstants.HOST);
         String port = optionHolder.validateAndGetStaticValue(SNMPConstants.AGENT_PORT);
@@ -141,7 +137,7 @@ public class SNMPValidations {
         managerConfig.setVersion(validateVersion(optionHolder.validateAndGetStaticValue(SNMPConstants.VERSION),
                                                                                         streamName));
         if (includeOids) {
-            managerConfig.setVariablebindings(validateAndGetOidList(
+            managerConfig.setVariableBindings(validateAndGetOidList(
                     optionHolder.validateAndGetStaticValue(SNMPConstants.OIDS),
                     streamName));
         }
@@ -161,18 +157,10 @@ public class SNMPValidations {
             int secLvl = validateSecLvl(optionHolder.validateAndGetStaticValue(SNMPConstants.SECURITY_LVL,
                                                                                 SNMPConstants.DEFAULT_SECURITY_LVL),
                                                                                 streamName);
-            managerConfig.setUserMatrix(new OctetString(userName),
-                                        auth,
-                                        new OctetString(authpass),
-                                        priv,
-                                        new OctetString(privpass),
-                                        secLvl);
+            managerConfig.setUserMatrix(new OctetString(userName), auth, new OctetString(authpass),
+                    priv, new OctetString(privpass), secLvl);
 
-            managerConfig.setUserTarget(host,
-                                        port,
-                                        retries,
-                                        timeout,
-                                        managerConfig.getSecLvl());
+            managerConfig.setUserTarget(host, port, retries, timeout, managerConfig.getSecLvl());
         } else {
             String community = optionHolder.validateAndGetStaticValue(SNMPConstants.COMMUNITY,
                                                                         SNMPConstants.DEFAULT_COMMUNITY);

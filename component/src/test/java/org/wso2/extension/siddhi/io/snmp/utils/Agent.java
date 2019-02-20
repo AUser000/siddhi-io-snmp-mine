@@ -118,6 +118,8 @@ public class Agent extends BaseAgent {
                 new OctetString("v3notify"),
                 SecurityLevel.NOAUTH_NOPRIV,
                 StorageType.permanent);
+        /////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////
         notificationMIB.addNotifyEntry(new OctetString("default"),
                 new OctetString("notify"),
                 SnmpNotificationMIB.SnmpNotifyTypeEnum.inform,
@@ -183,7 +185,7 @@ public class Agent extends BaseAgent {
         // user001-auth-no-priv
         vacm.addGroup(SecurityModel.SECURITY_MODEL_USM,
                 new OctetString("user001"),
-                new OctetString("v3auth_nopriv_group"),     // 01 user
+                new OctetString("customGroup01"),     // 01 user
                 StorageType.nonVolatile);
         //===========================================//
 

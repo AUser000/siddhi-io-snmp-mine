@@ -32,6 +32,7 @@ import org.wso2.siddhi.core.stream.input.source.Source;
 import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
+import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.io.IOException;
 import java.util.Map;
@@ -43,73 +44,73 @@ import java.util.Map;
         name = &quot;snmp&quot;,
         namespace = &quot;source&quot;,
         description = &quot; SNMP Source allows user to make get request and get the response&quot; +
-                &quot;of the request, once in request interval. &quot;,
+                &quot; of the request, once in request interval. &quot;,
         parameters = {
                 @Parameter(name = SNMPConstants.HOST,
-                        description = &quot; Address or ip of the target. &quot; ,
+                        description = &quot;Address or ip of the target.&quot; ,
                         type = DataType.STRING),
                 @Parameter(name = SNMPConstants.VERSION,
-                        description = &quot; Version of the snmp protocol. &quot; ,
+                        description = &quot;Version of the snmp protocol.&quot; ,
                         type = DataType.STRING),
                 @Parameter(name = SNMPConstants.REQUEST_INTERVAL,
-                        description = &quot; Request interval of the get requests. &quot;,
+                        description = &quot;Request interval of the get requests.&quot;,
                         type = DataType.INT),
                 @Parameter(name = SNMPConstants.OIDS,
-                        description = &quot; list of the OIDs separated by comma. &quot;,
+                        description = &quot;list of the OIDs separated by comma.&quot;,
                         type = DataType.STRING),
                 @Parameter(name = SNMPConstants.COMMUNITY,
                         optional = true,
-                        description = &quot; Community string of the network. &quot;,
+                        description = &quot;Community string of the network.&quot;,
                         defaultValue = SNMPConstants.DEFAULT_COMMUNITY,
                         type = DataType.STRING),
                 @Parameter(name = SNMPConstants.AGENT_PORT,
-                        description = &quot; Port of the agent. &quot;,
+                        description = &quot;Port of the agent.&quot;,
                         optional = true,
                         type = DataType.STRING,
                         defaultValue = SNMPConstants.DEFAULT_AGENT_PORT),
                 @Parameter(name = SNMPConstants.IS_TCP,
-                        description = &quot; Underline protocol default id UDP &quot;,
+                        description = &quot;Underline protocol default id UDP.&quot;,
                         optional  = true,
                         type = DataType.BOOL,
                         defaultValue = SNMPConstants.DEFAULT_IS_TCP),
                 @Parameter(name = SNMPConstants.RETRIES,
-                        description = &quot; Number of retries of if request fails. &quot;,
+                        description = &quot;Number of retries of if request fails.&quot;,
                         optional = true,
                         type = DataType.INT,
                         defaultValue = SNMPConstants.DEFAULT_RETRIES),
                 @Parameter(name  = SNMPConstants.TIMEOUT,
-                        description = &quot; Timeout for response of the request default value is 1500 of milliseconds. &quot;,
+                        description = &quot;Timeout for response of the request, default value is 1500 of milliseconds.&quot;,
                         optional = true,
                         type = DataType.INT,
                         defaultValue = SNMPConstants.DEFAULT_TIMEOUT),
                 // this parameters for v3
                 @Parameter(name = SNMPConstants.USER_NAME,
-                        description = &quot; Username if user use snmp version 3.&quot;,
+                        description = &quot;Username if user use snmp version 3.&quot;,
                         optional = true,
                         type = DataType.STRING,
                         defaultValue = SNMPConstants.DEFAULT_USERNAME),
                 @Parameter(name = SNMPConstants.SECURITY_LVL,
-                        description = &quot; Security level. &quot;,
+                        description = &quot;Security level. Acceptance level AUTH_PRIV, AUTH_NO_PRIVE, NO_AUTH_NO_PRIVE.&quot;,
                         optional = true,
                         type = DataType.INT,
                         defaultValue = SNMPConstants.DEFAULT_SECURITY_LVL),
                 @Parameter(name = SNMPConstants.PRIV_PROTOCOL,
-                        description = &quot; Encryption protocol if use &quot;,
+                        description = &quot;Encryption protocol if use.&quot;,
                         optional = true,
                         type = DataType.STRING,
                         defaultValue = SNMPConstants.DEFAULT_PRIV_PROTOCOL),
                 @Parameter(name = SNMPConstants.PRIV_PASSWORD,
-                        description = &quot; Encryption protocol password &quot;,
+                        description = &quot;Privacy protocol password.&quot;,
                         optional = true,
                         type = DataType.STRING,
                         defaultValue = SNMPConstants.DEFAULT_PRIV_PASSWORD),
                 @Parameter(name = SNMPConstants.AUTH_PROTOCOL,
-                        description = &quot; Auth protocol is use. &quot;,
+                        description = &quot;Authentication protocol if use.&quot;,
                         optional = true,
                         type = DataType.STRING,
                         defaultValue = SNMPConstants.DEFAULT_AUTH_PROTOCOL),
                 @Parameter(name = SNMPConstants.AUTH_PASSWORD,
-                        description = &quot; Auth protocol is use. &quot;,
+                        description = &quot;Auth protocol password.&quot;,
                         optional = true,
                         type = DataType.STRING,
                         defaultValue = SNMPConstants.DEFAULT_AUT_PASSWORD)
@@ -166,74 +167,91 @@ import java.util.Map;
         }
 )
 
-<span class="fc" id="L169">public class SNMPSource extends Source {</span>
+<span class="fc" id="L170">public class SNMPSource extends Source {</span>
 
-<span class="fc" id="L171">    private static final Logger LOG = Logger.getLogger(SNMPSource.class);</span>
+<span class="fc" id="L172">    private static final Logger LOG = Logger.getLogger(SNMPSource.class);</span>
     private int requestInterval;
     private SNMPManagerConfig managerConfig;
     private SNMPManager manager;
     private SNMPServer snmpServer;
-    private SNMPValidations validation;
+    private StreamDefinition streamDefinition;
+
 
     @Override
     public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,
                      String[] requestedTransportPropertyNames, ConfigReader configReader,
                      SiddhiAppContext siddhiAppContext) {
-<span class="fc" id="L182">        validation = new SNMPValidations();</span>
-<span class="fc" id="L183">        this.managerConfig = validation.initSnmpProperties(optionHolder,</span>
-<span class="fc" id="L184">                sourceEventListener.getStreamDefinition().getId(),</span>
+<span class="pc bpc" id="L184" title="1 of 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L185">            LOG.info(&quot;init method triggered &quot;);</span>
+        }
+<span class="fc" id="L187">        SNMPValidations validation = new SNMPValidations();</span>
+<span class="fc" id="L188">        this.managerConfig = validation.initSnmpProperties(optionHolder,</span>
+<span class="fc" id="L189">                sourceEventListener.getStreamDefinition().getId(),</span>
                 true);
-<span class="fc" id="L186">        this.manager = new SNMPManager();</span>
-<span class="fc" id="L187">        this.manager.setSourceEventListener(sourceEventListener);</span>
-<span class="fc" id="L188">        this.requestInterval = Integer.parseInt(</span>
-<span class="fc" id="L189">                optionHolder.validateAndGetStaticValue(SNMPConstants.REQUEST_INTERVAL));</span>
-<span class="fc" id="L190">    }</span>
+<span class="fc" id="L191">        this.manager = new SNMPManager();</span>
+<span class="fc" id="L192">        this.manager.setSourceEventListener(sourceEventListener);</span>
+<span class="fc" id="L193">        this.requestInterval = Integer.parseInt(optionHolder.validateAndGetStaticValue(SNMPConstants.REQUEST_INTERVAL));</span>
+<span class="fc" id="L194">        this.streamDefinition = sourceEventListener.getStreamDefinition();</span>
+<span class="fc" id="L195">    }</span>
 
     @Override
     public Class[] getOutputEventClasses() {
-<span class="fc" id="L194">        return new Class[]{Map.class};</span>
+<span class="fc" id="L199">        return new Class[]{Map.class};</span>
     }
 
     @Override
     public void connect(ConnectionCallback connectionCallback) throws ConnectionUnavailableException {
+<span class="pc bpc" id="L204" title="1 of 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L205">            LOG.info(&quot;connect method triggered &quot;);</span>
+        }
         try {
-<span class="fc" id="L200">            manager.setManagerConfig(managerConfig);</span>
-<span class="fc" id="L201">            snmpServer = new SNMPServer(manager, requestInterval);</span>
-<span class="fc" id="L202">            snmpServer.start();</span>
-<span class="nc" id="L203">        } catch (IOException e) {</span>
-<span class="nc" id="L204">            LOG.error(&quot;Error while setting transport mapping&quot;);</span>
-<span class="nc" id="L205">            throw new ConnectionUnavailableException(&quot;Exception in starting the snmp for stream: &quot;);</span>
-<span class="fc" id="L206">        }</span>
-<span class="fc" id="L207">    }</span>
+<span class="fc" id="L208">            manager.setManagerConfig(managerConfig);</span>
+<span class="fc" id="L209">            snmpServer = new SNMPServer();</span>
+<span class="fc" id="L210">            snmpServer.setManager(manager);</span>
+<span class="fc" id="L211">            snmpServer.setRequestInterval(requestInterval);</span>
+<span class="fc" id="L212">            snmpServer.start();</span>
+<span class="nc" id="L213">        } catch (IOException e) {</span>
+<span class="nc" id="L214">            throw new ConnectionUnavailableException(streamDefinition.getId()</span>
+                    + &quot; Exception in starting the snmp for stream: &quot;);
+<span class="fc" id="L216">        }</span>
+<span class="fc" id="L217">    }</span>
 
     @Override
     public void disconnect() {
-<span class="pc bpc" id="L211" title="1 of 2 branches missed.">        if (snmpServer != null) {</span>
-<span class="fc" id="L212">            snmpServer.stop();</span>
+<span class="pc bpc" id="L221" title="1 of 2 branches missed.">        if (snmpServer != null) {</span>
+<span class="fc" id="L222">            snmpServer.stop();</span>
         }
-<span class="fc" id="L214">    }</span>
+<span class="pc bpc" id="L224" title="1 of 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L225">            LOG.info(&quot;disconnect method triggered &quot;);</span>
+        }
+<span class="fc" id="L227">    }</span>
 
     @Override
     public void destroy() {
-<span class="fc" id="L218">        manager.close();</span>
-<span class="fc" id="L219">    }</span>
+<span class="pc bpc" id="L231" title="1 of 2 branches missed.">        if (manager != null) {</span>
+<span class="fc" id="L232">            manager.close();</span>
+        }
+<span class="pc bpc" id="L234" title="1 of 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L235">            LOG.info(&quot;destroy method triggered &quot;);</span>
+        }
+<span class="fc" id="L237">    }</span>
 
     @Override
     public void pause() {
-<span class="nc" id="L223">    }</span>
+<span class="nc" id="L241">    }</span>
 
     @Override
     public void resume() {
-<span class="nc" id="L227">    }</span>
+<span class="nc" id="L245">    }</span>
 
     @Override
     public Map&lt;String, Object&gt; currentState() {
-<span class="nc" id="L231">        return null;</span>
+<span class="nc" id="L249">        return null;</span>
     }
 
     @Override
     public void restoreState(Map&lt;String, Object&gt; map) {
-<span class="nc" id="L236">    }</span>
+<span class="nc" id="L254">    }</span>
 }
 
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

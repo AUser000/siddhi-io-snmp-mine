@@ -23,7 +23,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">host</td>
-        <td style="vertical-align: top; word-wrap: break-word"> Address or ip of the target. </td>
+        <td style="vertical-align: top; word-wrap: break-word">Address or ip of the target.</td>
         <td style="vertical-align: top"></td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">No</td>
@@ -31,7 +31,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">version</td>
-        <td style="vertical-align: top; word-wrap: break-word"> Version of the snmp protocol. </td>
+        <td style="vertical-align: top; word-wrap: break-word">Version of the snmp protocol.</td>
         <td style="vertical-align: top"></td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">No</td>
@@ -39,7 +39,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">community</td>
-        <td style="vertical-align: top; word-wrap: break-word"> Community string of the network. </td>
+        <td style="vertical-align: top; word-wrap: break-word">Community string of the network.</td>
         <td style="vertical-align: top">public</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
@@ -47,7 +47,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">agent.port</td>
-        <td style="vertical-align: top; word-wrap: break-word"> Port of the agent. </td>
+        <td style="vertical-align: top; word-wrap: break-word">Port of the agent.</td>
         <td style="vertical-align: top">161</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
@@ -55,7 +55,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">istcp</td>
-        <td style="vertical-align: top; word-wrap: break-word"> Underline connection protocol. </td>
+        <td style="vertical-align: top; word-wrap: break-word">Underline connection protocol.</td>
         <td style="vertical-align: top">false</td>
         <td style="vertical-align: top">BOOL</td>
         <td style="vertical-align: top">Yes</td>
@@ -63,7 +63,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">retries</td>
-        <td style="vertical-align: top; word-wrap: break-word"> Underline connection protocol. </td>
+        <td style="vertical-align: top; word-wrap: break-word">Underline connection protocol.</td>
         <td style="vertical-align: top">5</td>
         <td style="vertical-align: top">INT</td>
         <td style="vertical-align: top">Yes</td>
@@ -71,7 +71,7 @@
     </tr>
     <tr>
         <td style="vertical-align: top">timeout</td>
-        <td style="vertical-align: top; word-wrap: break-word"> Underline connection protocol. </td>
+        <td style="vertical-align: top; word-wrap: break-word">Underline connection protocol.</td>
         <td style="vertical-align: top">1500</td>
         <td style="vertical-align: top">INT</td>
         <td style="vertical-align: top">Yes</td>
@@ -131,7 +131,7 @@ define stream outputStream(value string, value2 string);
 
 ### snmp *<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#source">(Source)</a>*
 
-<p style="word-wrap: break-word"> SNMP Source allows user to make get request and get the responseof the request, once in request interval. </p>
+<p style="word-wrap: break-word"> SNMP Source allows user to make get request and get the response of the request, once in request interval. </p>
 
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 ```
@@ -150,7 +150,7 @@ define stream outputStream(value string, value2 string);
     </tr>
     <tr>
         <td style="vertical-align: top">host</td>
-        <td style="vertical-align: top; word-wrap: break-word"> Address or ip of the target. </td>
+        <td style="vertical-align: top; word-wrap: break-word">Address or ip of the target.</td>
         <td style="vertical-align: top"></td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">No</td>
@@ -158,7 +158,7 @@ define stream outputStream(value string, value2 string);
     </tr>
     <tr>
         <td style="vertical-align: top">version</td>
-        <td style="vertical-align: top; word-wrap: break-word"> Version of the snmp protocol. </td>
+        <td style="vertical-align: top; word-wrap: break-word">Version of the snmp protocol.</td>
         <td style="vertical-align: top"></td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">No</td>
@@ -166,7 +166,7 @@ define stream outputStream(value string, value2 string);
     </tr>
     <tr>
         <td style="vertical-align: top">request.interval</td>
-        <td style="vertical-align: top; word-wrap: break-word"> Request interval of the get requests. </td>
+        <td style="vertical-align: top; word-wrap: break-word">Request interval of the get requests.</td>
         <td style="vertical-align: top"></td>
         <td style="vertical-align: top">INT</td>
         <td style="vertical-align: top">No</td>
@@ -174,7 +174,7 @@ define stream outputStream(value string, value2 string);
     </tr>
     <tr>
         <td style="vertical-align: top">oids</td>
-        <td style="vertical-align: top; word-wrap: break-word"> list of the OIDs separated by comma. </td>
+        <td style="vertical-align: top; word-wrap: break-word">list of the OIDs separated by comma.</td>
         <td style="vertical-align: top"></td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">No</td>
@@ -182,7 +182,7 @@ define stream outputStream(value string, value2 string);
     </tr>
     <tr>
         <td style="vertical-align: top">community</td>
-        <td style="vertical-align: top; word-wrap: break-word"> Community string of the network. </td>
+        <td style="vertical-align: top; word-wrap: break-word">Community string of the network.</td>
         <td style="vertical-align: top">public</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
@@ -190,7 +190,7 @@ define stream outputStream(value string, value2 string);
     </tr>
     <tr>
         <td style="vertical-align: top">agent.port</td>
-        <td style="vertical-align: top; word-wrap: break-word"> Port of the agent. </td>
+        <td style="vertical-align: top; word-wrap: break-word">Port of the agent.</td>
         <td style="vertical-align: top">161</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
@@ -198,7 +198,7 @@ define stream outputStream(value string, value2 string);
     </tr>
     <tr>
         <td style="vertical-align: top">istcp</td>
-        <td style="vertical-align: top; word-wrap: break-word"> Underline protocol default id UDP </td>
+        <td style="vertical-align: top; word-wrap: break-word">Underline protocol default id UDP.</td>
         <td style="vertical-align: top">false</td>
         <td style="vertical-align: top">BOOL</td>
         <td style="vertical-align: top">Yes</td>
@@ -206,7 +206,7 @@ define stream outputStream(value string, value2 string);
     </tr>
     <tr>
         <td style="vertical-align: top">retries</td>
-        <td style="vertical-align: top; word-wrap: break-word"> Number of retries of if request fails. </td>
+        <td style="vertical-align: top; word-wrap: break-word">Number of retries of if request fails.</td>
         <td style="vertical-align: top">5</td>
         <td style="vertical-align: top">INT</td>
         <td style="vertical-align: top">Yes</td>
@@ -214,7 +214,7 @@ define stream outputStream(value string, value2 string);
     </tr>
     <tr>
         <td style="vertical-align: top">timeout</td>
-        <td style="vertical-align: top; word-wrap: break-word"> Timeout for response of the request default value is 1500 of milliseconds. </td>
+        <td style="vertical-align: top; word-wrap: break-word">Timeout for response of the request, default value is 1500 of milliseconds.</td>
         <td style="vertical-align: top">1500</td>
         <td style="vertical-align: top">INT</td>
         <td style="vertical-align: top">Yes</td>
@@ -222,7 +222,7 @@ define stream outputStream(value string, value2 string);
     </tr>
     <tr>
         <td style="vertical-align: top">user.name</td>
-        <td style="vertical-align: top; word-wrap: break-word"> Username if user use snmp version 3.</td>
+        <td style="vertical-align: top; word-wrap: break-word">Username if user use snmp version 3.</td>
         <td style="vertical-align: top">noUser</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
@@ -230,7 +230,7 @@ define stream outputStream(value string, value2 string);
     </tr>
     <tr>
         <td style="vertical-align: top">security.lvl</td>
-        <td style="vertical-align: top; word-wrap: break-word"> Security level. </td>
+        <td style="vertical-align: top; word-wrap: break-word">Security level. Acceptance level AUTH_PRIV, AUTH_NO_PRIVE, NO_AUTH_NO_PRIVE.</td>
         <td style="vertical-align: top">1</td>
         <td style="vertical-align: top">INT</td>
         <td style="vertical-align: top">Yes</td>
@@ -238,7 +238,7 @@ define stream outputStream(value string, value2 string);
     </tr>
     <tr>
         <td style="vertical-align: top">priv.protocol</td>
-        <td style="vertical-align: top; word-wrap: break-word"> Encryption protocol if use </td>
+        <td style="vertical-align: top; word-wrap: break-word">Encryption protocol if use.</td>
         <td style="vertical-align: top">nopriv</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
@@ -246,7 +246,7 @@ define stream outputStream(value string, value2 string);
     </tr>
     <tr>
         <td style="vertical-align: top">priv.password</td>
-        <td style="vertical-align: top; word-wrap: break-word"> Encryption protocol password </td>
+        <td style="vertical-align: top; word-wrap: break-word">Privacy protocol password.</td>
         <td style="vertical-align: top">privpass</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
@@ -254,7 +254,7 @@ define stream outputStream(value string, value2 string);
     </tr>
     <tr>
         <td style="vertical-align: top">auth.protocol</td>
-        <td style="vertical-align: top; word-wrap: break-word"> Auth protocol is use. </td>
+        <td style="vertical-align: top; word-wrap: break-word">Authentication protocol if use.</td>
         <td style="vertical-align: top">noEnc</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
@@ -262,7 +262,7 @@ define stream outputStream(value string, value2 string);
     </tr>
     <tr>
         <td style="vertical-align: top">auth.password</td>
-        <td style="vertical-align: top; word-wrap: break-word"> Auth protocol is use. </td>
+        <td style="vertical-align: top; word-wrap: break-word">Auth protocol password.</td>
         <td style="vertical-align: top">authpass</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>

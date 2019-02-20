@@ -36,18 +36,24 @@ public class SNMPServer implements Runnable {
     private static final Logger log = Logger.getLogger(SNMPServer.class);
     private SNMPManager snmpManager;
     private int requestInterval;
-    private volatile boolean running = false;
-    ExecutorService executorService;
+    private boolean running = false;
+    private ExecutorService executorService;
     private Future<?> thread;
 
-    public SNMPServer(SNMPManager snmpManager, int requestInterval) {
-        this.requestInterval = requestInterval;
-        this.snmpManager = snmpManager;
+    public SNMPServer() {
         this.executorService = Executors.newSingleThreadExecutor();
     }
 
-    public void start() {
-        if (!running) {
+    public void setManager(SNMPManager snmpManager) {
+        this.snmpManager = snmpManager;
+    }
+
+    public void setRequestInterval(int requestInterval) {
+        this.requestInterval = requestInterval;
+    }
+
+    public synchronized  void start() {
+        if (!isRunning()) {
             running = true;
             this.thread = executorService.submit(this);
         }
@@ -55,9 +61,9 @@ public class SNMPServer implements Runnable {
 
     @Override
     public void run() {
-        while (running) {
+        while (isRunning()) {
             try {
-                snmpManager.validateResponseAndNotify(snmpManager.send());
+                snmpManager.sendAndNotify();
                 Thread.sleep(requestInterval);
             } catch (IOException | InterruptedException e) {
                 log.error("Error in sending request" + e);
@@ -65,9 +71,14 @@ public class SNMPServer implements Runnable {
         }
     }
 
-    public void stop() {
-        if (running) {
+    public synchronized void stop() {
+        if (isRunning()) {
             running = false;
         }
     }
+
+    private synchronized boolean isRunning() {
+        return running;
+    }
+
 }
