@@ -17,21 +17,24 @@
  */
 
 package org.wso2.extension.siddhi.io.snmp.sink.exceptions;
+
+import org.wso2.extension.siddhi.io.snmp.util.exceptions.SNMPRuntimeException;
+
 /**
  * Snmp Sink Runtime exception
  *
  **/
-public class SNMPSinkRuntimeException extends RuntimeException {
+public class SNMPSinkRuntimeException extends SNMPRuntimeException {
     public SNMPSinkRuntimeException() {
-<span class="nc" id="L26">        super();</span>
-<span class="nc" id="L27">    }</span>
+<span class="nc" id="L29">        super();</span>
+<span class="nc" id="L30">    }</span>
 
     public SNMPSinkRuntimeException(String message) {
-<span class="nc" id="L30">        super(message);</span>
-<span class="nc" id="L31">    }</span>
+<span class="nc" id="L33">        super(message);</span>
+<span class="nc" id="L34">    }</span>
 
     public SNMPSinkRuntimeException(String message, Throwable cause) {
-<span class="nc" id="L34">        super(message, cause);</span>
-<span class="nc" id="L35">    }</span>
+<span class="nc" id="L37">        super(message, cause);</span>
+<span class="nc" id="L38">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

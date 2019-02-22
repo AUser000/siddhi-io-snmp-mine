@@ -17,11 +17,14 @@
  */
 
 package org.wso2.extension.siddhi.io.snmp.sink.exceptions;
+
+import org.wso2.extension.siddhi.io.snmp.util.exceptions.SNMPRuntimeException;
+
 /**
  * Snmp Sink Runtime exception
  *
  **/
-public class SNMPSinkRuntimeException extends RuntimeException {
+public class SNMPSinkRuntimeException extends SNMPRuntimeException {
     public SNMPSinkRuntimeException() {
         super();
     }

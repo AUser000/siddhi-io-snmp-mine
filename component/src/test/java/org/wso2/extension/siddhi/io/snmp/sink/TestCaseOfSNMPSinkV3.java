@@ -23,6 +23,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.wso2.extension.siddhi.io.snmp.sink.exceptions.SNMPSinkRuntimeException;
 import org.wso2.extension.siddhi.io.snmp.utils.AdvancedCommandProcessor;
 import org.wso2.extension.siddhi.io.snmp.utils.Agent;
 import org.wso2.extension.siddhi.io.snmp.utils.EventHolder;
@@ -170,58 +171,9 @@ public class TestCaseOfSNMPSinkV3 {
         siddhiManager.shutdown();
     }
 
-    // expected fail // invalid port //TODO ->
-//    @Test(expectedExceptions = SNMPSinkRuntimeException.class)
-//    public void snmpVersion3SinkValidationException() {
-//
-//        log.info("-----------------------------------------------");
-//        log.info("       SNMP Version 3 Sink Test Case           ");
-//        log.info("-----------------------------------------------");
-//
-//        SiddhiManager siddhiManager = new SiddhiManager();
-//        String siddhiApp = "@App:name('snmpSink') \n" +
-//                "\n" +
-//                "@Sink(type='snmp',\n" +
-//                "@map(type='keyvalue', @payload('1.3.6.1.2.1.1.4.0' = 'value')),\n" +
-//                "host = '" + ip + "',\n" +
-//                "version = 'v3',\n" +
-//                "agent.port = '" + 1000 + "',\n" +
-//                "priv.password = 'privpass',\n" +
-//                "auth.protocol = 'AUTHSHA',\n" +
-//                "priv.protocol = 'PRIVDES',\n" +
-//                "auth.password = 'authpass',\n" +
-//                "priv.password = 'privpass',\n" +
-//                "security.lvl = 'AUTH_PRIV',\n" +
-//                "user.name = 'agent5', \n" +
-//                "retries = '1')\n" +
-//                "define stream outputStream(value string);";
-//
-//        SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
-//        InputHandler inputStream = executionPlanRuntime.getInputHandler("outputStream");
-//        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
-//            @Override
-//            public void receive(Event[] events) {
-//
-//                for (Event event : events) {
-//                    log.info(event.toString());
-//                }
-//            }
-//        });
-//
-//        try {
-//            inputStream.send(new Object[]{"mail@wso2.com"});
-//        } catch (InterruptedException e) {
-//            log.info(e.getClass().toString());
-//        }
-//
-//        log.info(" siddhi manager shutting down ");
-//        siddhiManager.shutdown();
-//    }
-
-
-    // giving invalid port number
+    // giving invalid security.lvl string
     @Test(expectedExceptions = SiddhiAppValidationException.class)
-    public void snmpVersion3SinkException() throws Exception {
+    public void snmpVersion3SinkException() {
 
         log.info("-----------------------------------------------");
         log.info("       SNMP Version 3 Sink Test Case           ");
@@ -305,4 +257,58 @@ public class TestCaseOfSNMPSinkV3 {
         log.info(" siddhi manager shutting down ");
         siddhiManager.shutdown();
     }
+
+    // expected fail // invalid port //TODO ->
+    @Test(enabled = false, expectedExceptions = SNMPSinkRuntimeException.class)
+    public void snmpVersion3SinkValidationException() {
+        boolean thrown = false;
+
+        log.info("-----------------------------------------------");
+        log.info("       SNMP Version 3 Sink Test Case           ");
+        log.info("-----------------------------------------------");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String siddhiApp = "@App:name('snmpSink') \n" +
+                "\n" +
+                "@Sink(type='snmp',\n" +
+                "@map(type='keyvalue', @payload('1.3.6.1.2.1.1.4.0' = 'value')),\n" +
+                "host = '" + ip + "',\n" +
+                "version = 'v3',\n" +
+                "agent.port = '" + 1000 + "',\n" +
+                "priv.password = 'privpass',\n" +
+                "auth.protocol = 'AUTHSHA',\n" +
+                "priv.protocol = 'PRIVDES',\n" +
+                "auth.password = 'authpass',\n" +
+                "priv.password = 'privpass',\n" +
+                "security.lvl = 'AUTH_PRIV',\n" +
+                "user.name = 'agent5', \n" +
+                "retries = '1')\n" +
+                "define stream outputStream(value string);";
+
+        SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        InputHandler inputStream = executionPlanRuntime.getInputHandler("outputStream");
+        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+
+                for (Event event : events) {
+                    log.info(event.toString());
+                }
+            }
+        });
+
+
+        try {
+            inputStream.send(new Object[]{"mail@wso2.com"});
+        } catch (SNMPSinkRuntimeException ex) {
+
+        } catch (InterruptedException e) {
+
+        }
+
+        log.info(" siddhi manager shutting down ");
+        siddhiManager.shutdown();
+    }
+
+
 }

@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * SNMP validations
+ * SNMP validations for sink and source
  */
 public class SNMPValidations {
 

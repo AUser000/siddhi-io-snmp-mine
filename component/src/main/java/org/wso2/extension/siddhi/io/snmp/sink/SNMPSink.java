@@ -46,12 +46,10 @@ import java.util.Map;
 @Extension(
         name = "snmp",
         namespace = "sink",
-        description = " SNMP Sink allows user to set oids from the agent as a manager."
-                + " It has ability to make set request and get it's response. ",
+        description = " SNMP Sink allows user to make set request as a manager and make changes on agent",
         parameters = {
                 @Parameter(name = SNMPConstants.HOST,
                         description = "Address or ip of the target.",
-                        optional = false,
                         type = DataType.STRING),
                 @Parameter(name = SNMPConstants.VERSION,
                         description = "Version of the snmp protocol.",
@@ -81,6 +79,37 @@ import java.util.Map;
                         optional = true,
                         type = DataType.INT,
                         defaultValue = SNMPConstants.DEFAULT_TIMEOUT),
+                // v3 parameters
+                @Parameter(name = SNMPConstants.USER_NAME,
+                        description = "Username if user use snmp version 3.",
+                        optional = true,
+                        type = DataType.STRING,
+                        defaultValue = SNMPConstants.DEFAULT_USERNAME),
+                @Parameter(name = SNMPConstants.SECURITY_LVL,
+                        description = "Security level. Acceptance level AUTH_PRIV, AUTH_NO_PRIVE, NO_AUTH_NO_PRIVE.",
+                        optional = true,
+                        type = DataType.INT,
+                        defaultValue = SNMPConstants.DEFAULT_SECURITY_LVL),
+                @Parameter(name = SNMPConstants.PRIV_PROTOCOL,
+                        description = "Encryption protocol if use.",
+                        optional = true,
+                        type = DataType.STRING,
+                        defaultValue = SNMPConstants.DEFAULT_PRIV_PROTOCOL),
+                @Parameter(name = SNMPConstants.PRIV_PASSWORD,
+                        description = "Privacy protocol password.",
+                        optional = true,
+                        type = DataType.STRING,
+                        defaultValue = SNMPConstants.DEFAULT_PRIV_PASSWORD),
+                @Parameter(name = SNMPConstants.AUTH_PROTOCOL,
+                        description = "Authentication protocol if use.",
+                        optional = true,
+                        type = DataType.STRING,
+                        defaultValue = SNMPConstants.DEFAULT_AUTH_PROTOCOL),
+                @Parameter(name = SNMPConstants.AUTH_PASSWORD,
+                        description = "Auth protocol password.",
+                        optional = true,
+                        type = DataType.STRING,
+                        defaultValue = SNMPConstants.DEFAULT_AUT_PASSWORD),
                 @Parameter(name = SNMPConstants.LOCAL_ENGINE_ID,
                         description = "Local engine ID.",
                         optional = true,
@@ -94,7 +123,7 @@ import java.util.Map;
         },
         examples = {
                 @Example(
-                        description = " This example shows how to make set request using snmp " +
+                        description = "This example shows how to make set request using snmp " +
                                 "version v1 ",
 
                         syntax = "@Sink(type='snmp',\n" +
@@ -107,8 +136,8 @@ import java.util.Map;
                                 "define stream outputStream(value string);\n"
                 ),
                 @Example(
-                        description = " This example shows how to make set request using snmp " +
-                                " version v2c ",
+                        description = "This example shows how to make set request using snmp " +
+                                "version v2c ",
 
                         syntax = "@Sink(type='snmp',\n" +
                                 "@map(type='keyvalue', @payload('1.3.6.1.2.1.1.1.0' = 'value')),\n" +
@@ -120,8 +149,8 @@ import java.util.Map;
                                 "define stream outputStream(value string);\n"
                 ),
                 @Example(
-                        description = " This example shows how to make set request using snmp " +
-                                " version v3 ",
+                        description = "This example shows how to make set request using snmp " +
+                                "version v3 ",
 
                         syntax = "@Sink(type='snmp',\n" +
                                 "@map(type='keyvalue', " +
@@ -141,7 +170,6 @@ import java.util.Map;
         }
 )
 
-// siddhi app runtime exception
 // for more information refer https://wso2.github.io/siddhi/documentation/siddhi-4.0/#sinks
 
 public class SNMPSink extends Sink {
@@ -149,7 +177,6 @@ public class SNMPSink extends Sink {
     private static final Logger LOG = Logger.getLogger(SNMPSink.class);
     private SNMPManagerConfig managerConfig;
     private SNMPManager manager;
-    private SNMPValidations validation;
     private StreamDefinition streamDefinition;
 
     @Override
@@ -168,7 +195,7 @@ public class SNMPSink extends Sink {
     protected void init(StreamDefinition streamDefinition, OptionHolder optionHolder, ConfigReader configReader,
                         SiddhiAppContext siddhiAppContext) {
 
-        validation = new SNMPValidations();
+        SNMPValidations validation = new SNMPValidations();
         this.streamDefinition = streamDefinition;
         managerConfig = validation.initSnmpProperties(optionHolder, this.streamDefinition.getId(), false);
         manager = new SNMPManager();
@@ -181,9 +208,11 @@ public class SNMPSink extends Sink {
         try {
             manager.setAndValidate(data);
         } catch (IOException e) {
-            throw new SNMPSinkRuntimeException(this.streamDefinition.getId() + " Error in IO " , e);
+            throw new SNMPSinkRuntimeException("Stream Name : " + this.streamDefinition.getId()
+                    + " : Error in IO ", e);
         } catch (SNMPRuntimeException ex) {
-            throw new SNMPSinkRuntimeException(this.streamDefinition.getId() + "Error in setting on agent " , ex);
+            throw new SNMPSinkRuntimeException("Stream Name : " + this.streamDefinition.getId()
+                    + " : Error in setting on agent ", ex);
         }
         managerConfig.clear();
     }

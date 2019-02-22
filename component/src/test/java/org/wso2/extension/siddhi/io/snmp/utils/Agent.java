@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.extension.siddhi.io.snmp.utils;
 
 import org.snmp4j.MessageDispatcherImpl;
@@ -64,6 +82,10 @@ import java.io.IOException;
  * features (MIB implementations) provided by the SNMP4J-Agent framework.
  *
  * Note, for snmp4s, this code is mostly a copy from snmp4j.
+ *
+ * snmp users, 'user001' & 'agent5' used for test.
+ * And don't remove other snmp users
+ *
  */
 public class Agent extends BaseAgent {
     protected String address;
@@ -118,8 +140,6 @@ public class Agent extends BaseAgent {
                 new OctetString("v3notify"),
                 SecurityLevel.NOAUTH_NOPRIV,
                 StorageType.permanent);
-        /////////////////////////////////////////////////////////////////
-        /////////////////////////////////////////////////////////////////
         notificationMIB.addNotifyEntry(new OctetString("default"),
                 new OctetString("notify"),
                 SnmpNotificationMIB.SnmpNotifyTypeEnum.inform,
@@ -185,7 +205,7 @@ public class Agent extends BaseAgent {
         // user001-auth-no-priv
         vacm.addGroup(SecurityModel.SECURITY_MODEL_USM,
                 new OctetString("user001"),
-                new OctetString("group001"),     // 01 user
+                new OctetString("group001"),
                 StorageType.nonVolatile);
         //===========================================//
 
@@ -197,7 +217,7 @@ public class Agent extends BaseAgent {
         //===========================================//
         // group auth no priv
         vacm.addGroup(SecurityModel.SECURITY_MODEL_USM,
-                new OctetString("v3notify-auth"),          // 02 user group
+                new OctetString("v3notify-auth"),
                 new OctetString("group001"),
                 StorageType.nonVolatile);
         //===========================================//
@@ -210,7 +230,7 @@ public class Agent extends BaseAgent {
                 SecurityLevel.AUTH_NOPRIV,
                 MutableVACM.VACM_MATCH_EXACT,
                 new OctetString("fullReadView"),
-                new OctetString("fullWriteView"),           // 03 group params
+                new OctetString("fullWriteView"),
                 new OctetString("fullNotifyView"),
                 StorageType.nonVolatile);
 

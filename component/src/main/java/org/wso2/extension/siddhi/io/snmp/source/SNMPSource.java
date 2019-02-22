@@ -79,7 +79,8 @@ import java.util.Map;
                         type = DataType.INT,
                         defaultValue = SNMPConstants.DEFAULT_RETRIES),
                 @Parameter(name = SNMPConstants.TIMEOUT,
-                        description = "Timeout for response of the request, default value is 1500 of milliseconds.",
+                        description = "Timeout for response of the request in milliseconds," +
+                                " default value is 1500 of milliseconds.",
                         optional = true,
                         type = DataType.INT,
                         defaultValue = SNMPConstants.DEFAULT_TIMEOUT),
@@ -191,9 +192,6 @@ public class SNMPSource extends Source {
                      String[] requestedTransportPropertyNames, ConfigReader configReader,
                      SiddhiAppContext siddhiAppContext) {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.info("init method triggered ");
-        }
         SNMPValidations validation = new SNMPValidations();
         this.managerConfig = validation.initSnmpProperties(optionHolder,
                 sourceEventListener.getStreamDefinition().getId(),
@@ -213,9 +211,6 @@ public class SNMPSource extends Source {
     @Override
     public void connect(ConnectionCallback connectionCallback) throws ConnectionUnavailableException {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.info("connect method triggered ");
-        }
         try {
             manager.setManagerConfig(managerConfig);
             snmpServer = new SNMPServer();
@@ -234,9 +229,6 @@ public class SNMPSource extends Source {
         if (snmpServer != null) {
             snmpServer.stop();
         }
-        if (LOG.isDebugEnabled()) {
-            LOG.info("disconnect method triggered ");
-        }
     }
 
     @Override
@@ -244,9 +236,6 @@ public class SNMPSource extends Source {
 
         if (manager != null) {
             manager.close();
-        }
-        if (LOG.isDebugEnabled()) {
-            LOG.info("destroy method triggered ");
         }
     }
 

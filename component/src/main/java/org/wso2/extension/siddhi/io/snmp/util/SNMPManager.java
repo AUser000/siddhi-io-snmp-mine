@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Handle SNMP Manager data and request
+ * Handle SNMP and request data
  */
 public class SNMPManager {
 
@@ -111,7 +111,7 @@ public class SNMPManager {
         if (managerConfig.getVersion() == SnmpConstants.version3) {
 
             USM usm = new USM(SecurityProtocols.getInstance().addDefaultProtocols(),
-                    getEngineId(), 0);
+                    getEngineId(), managerConfig.getEngineBoot());
             SecurityModels.getInstance().addSecurityModel(usm);
             snmp.getUSM().addUser(managerConfig.getUserName(), managerConfig.getUser());
             return snmp.get(managerConfig.getPdu(), managerConfig.getUserTarget());
@@ -131,7 +131,7 @@ public class SNMPManager {
                     new Throwable("event response is null"));
         }
         if (event.getResponse().getErrorIndex() != 0) {
-            throw new SNMPRuntimeException(event.getResponse().getErrorStatusText());
+            throw new SNMPRuntimeException(" Error" + event.getResponse().getErrorStatusText());
         }
     }
 

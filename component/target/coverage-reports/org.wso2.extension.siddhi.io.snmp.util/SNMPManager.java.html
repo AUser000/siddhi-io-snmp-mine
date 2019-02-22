@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Handle SNMP Manager data and request
+ * Handle SNMP and request data
  */
 public class SNMPManager {
 
@@ -111,7 +111,7 @@ public class SNMPManager {
 <span class="fc bfc" id="L111" title="All 2 branches covered.">        if (managerConfig.getVersion() == SnmpConstants.version3) {</span>
 
 <span class="fc" id="L113">            USM usm = new USM(SecurityProtocols.getInstance().addDefaultProtocols(),</span>
-<span class="fc" id="L114">                    getEngineId(), 0);</span>
+<span class="fc" id="L114">                    getEngineId(), managerConfig.getEngineBoot());</span>
 <span class="fc" id="L115">            SecurityModels.getInstance().addSecurityModel(usm);</span>
 <span class="fc" id="L116">            snmp.getUSM().addUser(managerConfig.getUserName(), managerConfig.getUser());</span>
 <span class="fc" id="L117">            return snmp.get(managerConfig.getPdu(), managerConfig.getUserTarget());</span>
@@ -131,7 +131,7 @@ public class SNMPManager {
                     new Throwable(&quot;event response is null&quot;));
         }
 <span class="pc bpc" id="L133" title="1 of 2 branches missed.">        if (event.getResponse().getErrorIndex() != 0) {</span>
-<span class="nc" id="L134">            throw new SNMPRuntimeException(event.getResponse().getErrorStatusText());</span>
+<span class="nc" id="L134">            throw new SNMPRuntimeException(&quot; Error&quot; + event.getResponse().getErrorStatusText());</span>
         }
 <span class="fc" id="L136">    }</span>
 

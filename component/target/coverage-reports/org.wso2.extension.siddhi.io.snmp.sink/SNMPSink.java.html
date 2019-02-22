@@ -46,12 +46,10 @@ import java.util.Map;
 @Extension(
         name = &quot;snmp&quot;,
         namespace = &quot;sink&quot;,
-        description = &quot; SNMP Sink allows user to set oids from the agent as a manager.&quot;
-                + &quot; It has ability to make set request and get it's response. &quot;,
+        description = &quot; SNMP Sink allows user to make set request as a manager and make changes on agent&quot;,
         parameters = {
                 @Parameter(name = SNMPConstants.HOST,
                         description = &quot;Address or ip of the target.&quot;,
-                        optional = false,
                         type = DataType.STRING),
                 @Parameter(name = SNMPConstants.VERSION,
                         description = &quot;Version of the snmp protocol.&quot;,
@@ -81,6 +79,37 @@ import java.util.Map;
                         optional = true,
                         type = DataType.INT,
                         defaultValue = SNMPConstants.DEFAULT_TIMEOUT),
+                // v3 parameters
+                @Parameter(name = SNMPConstants.USER_NAME,
+                        description = &quot;Username if user use snmp version 3.&quot;,
+                        optional = true,
+                        type = DataType.STRING,
+                        defaultValue = SNMPConstants.DEFAULT_USERNAME),
+                @Parameter(name = SNMPConstants.SECURITY_LVL,
+                        description = &quot;Security level. Acceptance level AUTH_PRIV, AUTH_NO_PRIVE, NO_AUTH_NO_PRIVE.&quot;,
+                        optional = true,
+                        type = DataType.INT,
+                        defaultValue = SNMPConstants.DEFAULT_SECURITY_LVL),
+                @Parameter(name = SNMPConstants.PRIV_PROTOCOL,
+                        description = &quot;Encryption protocol if use.&quot;,
+                        optional = true,
+                        type = DataType.STRING,
+                        defaultValue = SNMPConstants.DEFAULT_PRIV_PROTOCOL),
+                @Parameter(name = SNMPConstants.PRIV_PASSWORD,
+                        description = &quot;Privacy protocol password.&quot;,
+                        optional = true,
+                        type = DataType.STRING,
+                        defaultValue = SNMPConstants.DEFAULT_PRIV_PASSWORD),
+                @Parameter(name = SNMPConstants.AUTH_PROTOCOL,
+                        description = &quot;Authentication protocol if use.&quot;,
+                        optional = true,
+                        type = DataType.STRING,
+                        defaultValue = SNMPConstants.DEFAULT_AUTH_PROTOCOL),
+                @Parameter(name = SNMPConstants.AUTH_PASSWORD,
+                        description = &quot;Auth protocol password.&quot;,
+                        optional = true,
+                        type = DataType.STRING,
+                        defaultValue = SNMPConstants.DEFAULT_AUT_PASSWORD),
                 @Parameter(name = SNMPConstants.LOCAL_ENGINE_ID,
                         description = &quot;Local engine ID.&quot;,
                         optional = true,
@@ -94,7 +123,7 @@ import java.util.Map;
         },
         examples = {
                 @Example(
-                        description = &quot; This example shows how to make set request using snmp &quot; +
+                        description = &quot;This example shows how to make set request using snmp &quot; +
                                 &quot;version v1 &quot;,
 
                         syntax = &quot;@Sink(type='snmp',\n&quot; +
@@ -107,8 +136,8 @@ import java.util.Map;
                                 &quot;define stream outputStream(value string);\n&quot;
                 ),
                 @Example(
-                        description = &quot; This example shows how to make set request using snmp &quot; +
-                                &quot; version v2c &quot;,
+                        description = &quot;This example shows how to make set request using snmp &quot; +
+                                &quot;version v2c &quot;,
 
                         syntax = &quot;@Sink(type='snmp',\n&quot; +
                                 &quot;@map(type='keyvalue', @payload('1.3.6.1.2.1.1.1.0' = 'value')),\n&quot; +
@@ -120,8 +149,8 @@ import java.util.Map;
                                 &quot;define stream outputStream(value string);\n&quot;
                 ),
                 @Example(
-                        description = &quot; This example shows how to make set request using snmp &quot; +
-                                &quot; version v3 &quot;,
+                        description = &quot;This example shows how to make set request using snmp &quot; +
+                                &quot;version v3 &quot;,
 
                         syntax = &quot;@Sink(type='snmp',\n&quot; +
                                 &quot;@map(type='keyvalue', &quot; +
@@ -141,87 +170,87 @@ import java.util.Map;
         }
 )
 
-// siddhi app runtime exception
 // for more information refer https://wso2.github.io/siddhi/documentation/siddhi-4.0/#sinks
 
-<span class="fc" id="L147">public class SNMPSink extends Sink {</span>
+<span class="fc" id="L175">public class SNMPSink extends Sink {</span>
 
-<span class="fc" id="L149">    private static final Logger LOG = Logger.getLogger(SNMPSink.class);</span>
+<span class="fc" id="L177">    private static final Logger LOG = Logger.getLogger(SNMPSink.class);</span>
     private SNMPManagerConfig managerConfig;
     private SNMPManager manager;
-    private SNMPValidations validation;
     private StreamDefinition streamDefinition;
 
     @Override
     public Class[] getSupportedInputEventClasses() {
 
-<span class="fc" id="L158">        return new Class[]{Map.class};</span>
+<span class="fc" id="L185">        return new Class[]{Map.class};</span>
     }
 
     @Override
     public String[] getSupportedDynamicOptions() {
 
-<span class="fc" id="L164">        return new String[0];</span>
+<span class="fc" id="L191">        return new String[0];</span>
     }
 
     @Override
     protected void init(StreamDefinition streamDefinition, OptionHolder optionHolder, ConfigReader configReader,
                         SiddhiAppContext siddhiAppContext) {
 
-<span class="fc" id="L171">        validation = new SNMPValidations();</span>
-<span class="fc" id="L172">        this.streamDefinition = streamDefinition;</span>
-<span class="fc" id="L173">        managerConfig = validation.initSnmpProperties(optionHolder, this.streamDefinition.getId(), false);</span>
-<span class="fc" id="L174">        manager = new SNMPManager();</span>
-<span class="fc" id="L175">    }</span>
+<span class="fc" id="L198">        SNMPValidations validation = new SNMPValidations();</span>
+<span class="fc" id="L199">        this.streamDefinition = streamDefinition;</span>
+<span class="fc" id="L200">        managerConfig = validation.initSnmpProperties(optionHolder, this.streamDefinition.getId(), false);</span>
+<span class="fc" id="L201">        manager = new SNMPManager();</span>
+<span class="fc" id="L202">    }</span>
 
     @Override
     public void publish(Object payload, DynamicOptions dynamicOptions) {
 
-<span class="fc" id="L180">        Map&lt;String, String&gt; data = (Map) payload;</span>
+<span class="fc" id="L207">        Map&lt;String, String&gt; data = (Map) payload;</span>
         try {
-<span class="fc" id="L182">            manager.setAndValidate(data);</span>
-<span class="nc" id="L183">        } catch (IOException e) {</span>
-<span class="nc" id="L184">            throw new SNMPSinkRuntimeException(this.streamDefinition.getId() + &quot; Error in IO &quot; , e);</span>
-<span class="nc" id="L185">        } catch (SNMPRuntimeException ex) {</span>
-<span class="nc" id="L186">            throw new SNMPSinkRuntimeException(this.streamDefinition.getId() + &quot;Error in setting on agent &quot; , ex);</span>
-<span class="fc" id="L187">        }</span>
-<span class="fc" id="L188">        managerConfig.clear();</span>
-<span class="fc" id="L189">    }</span>
+<span class="fc" id="L209">            manager.setAndValidate(data);</span>
+<span class="nc" id="L210">        } catch (IOException e) {</span>
+<span class="nc" id="L211">            throw new SNMPSinkRuntimeException(&quot;Stream Name : &quot; + this.streamDefinition.getId()</span>
+                    + &quot; : Error in IO &quot;, e);
+<span class="nc" id="L213">        } catch (SNMPRuntimeException ex) {</span>
+<span class="nc" id="L214">            throw new SNMPSinkRuntimeException(&quot;Stream Name : &quot; + this.streamDefinition.getId()</span>
+                    + &quot; : Error in setting on agent &quot;, ex);
+<span class="fc" id="L216">        }</span>
+<span class="fc" id="L217">        managerConfig.clear();</span>
+<span class="fc" id="L218">    }</span>
 
     @Override
     public void connect() throws ConnectionUnavailableException {
 
         try {
-<span class="fc" id="L195">            manager.setManagerConfig(managerConfig);</span>
-<span class="nc" id="L196">        } catch (IOException e) {</span>
-<span class="nc" id="L197">            throw new ConnectionUnavailableException(this.streamDefinition.getId()</span>
+<span class="fc" id="L224">            manager.setManagerConfig(managerConfig);</span>
+<span class="nc" id="L225">        } catch (IOException e) {</span>
+<span class="nc" id="L226">            throw new ConnectionUnavailableException(this.streamDefinition.getId()</span>
                     + &quot; Error in Setting up Connection : &quot; , e);
-<span class="fc" id="L199">        }</span>
-<span class="fc" id="L200">    }</span>
+<span class="fc" id="L228">        }</span>
+<span class="fc" id="L229">    }</span>
 
     @Override
     public void disconnect() {
 
-<span class="pc bpc" id="L205" title="1 of 2 branches missed.">        if (manager != null) {</span>
-<span class="fc" id="L206">            manager.close();</span>
+<span class="pc bpc" id="L234" title="1 of 2 branches missed.">        if (manager != null) {</span>
+<span class="fc" id="L235">            manager.close();</span>
         }
-<span class="fc" id="L208">    }</span>
+<span class="fc" id="L237">    }</span>
 
     @Override
     public void destroy() {
 
-<span class="fc" id="L213">    }</span>
+<span class="fc" id="L242">    }</span>
 
     @Override
     public Map&lt;String, Object&gt; currentState() {
 
-<span class="nc" id="L218">        return null;</span>
+<span class="nc" id="L247">        return null;</span>
     }
 
     @Override
     public void restoreState(Map&lt;String, Object&gt; map) {
 
-<span class="nc" id="L224">    }</span>
+<span class="nc" id="L253">    }</span>
 }
 
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

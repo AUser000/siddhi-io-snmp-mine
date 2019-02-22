@@ -20,7 +20,7 @@ package org.wso2.extension.siddhi.io.snmp.util;
 import org.snmp4j.mp.SnmpConstants;
 
 /**
- * SNMP Connector constants
+ * SNMP-SP Connector constants
  */
 public class SNMPConstants {
 

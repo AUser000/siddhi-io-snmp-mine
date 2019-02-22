@@ -4,11 +4,11 @@
 
 ### snmp *<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#sink">(Sink)</a>*
 
-<p style="word-wrap: break-word"> SNMP Sink allows user to set oids from the agent as a manager. It has ability to make set request and get it's response. </p>
+<p style="word-wrap: break-word"> SNMP Sink allows user to make set request as a manager and make changes on agent</p>
 
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 ```
-@sink(type="snmp", host="<STRING>", version="<STRING>", community="<STRING>", agent.port="<STRING>", istcp="<BOOL>", retries="<INT>", timeout="<INT>", engine.id="<STRING>", engine.boot="<INT>", @map(...)))
+@sink(type="snmp", host="<STRING>", version="<STRING>", community="<STRING>", agent.port="<STRING>", istcp="<BOOL>", retries="<INT>", timeout="<INT>", user.name="<STRING>", security.lvl="<INT>", priv.protocol="<STRING>", priv.password="<STRING>", auth.protocol="<STRING>", auth.password="<STRING>", engine.id="<STRING>", engine.boot="<INT>", @map(...)))
 ```
 
 <span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
@@ -78,6 +78,54 @@
         <td style="vertical-align: top">No</td>
     </tr>
     <tr>
+        <td style="vertical-align: top">user.name</td>
+        <td style="vertical-align: top; word-wrap: break-word">Username if user use snmp version 3.</td>
+        <td style="vertical-align: top">noUser</td>
+        <td style="vertical-align: top">STRING</td>
+        <td style="vertical-align: top">Yes</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">security.lvl</td>
+        <td style="vertical-align: top; word-wrap: break-word">Security level. Acceptance level AUTH_PRIV, AUTH_NO_PRIVE, NO_AUTH_NO_PRIVE.</td>
+        <td style="vertical-align: top">AUTH_PRIVE</td>
+        <td style="vertical-align: top">INT</td>
+        <td style="vertical-align: top">Yes</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">priv.protocol</td>
+        <td style="vertical-align: top; word-wrap: break-word">Encryption protocol if use.</td>
+        <td style="vertical-align: top">NO_PRIV</td>
+        <td style="vertical-align: top">STRING</td>
+        <td style="vertical-align: top">Yes</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">priv.password</td>
+        <td style="vertical-align: top; word-wrap: break-word">Privacy protocol password.</td>
+        <td style="vertical-align: top">privpass</td>
+        <td style="vertical-align: top">STRING</td>
+        <td style="vertical-align: top">Yes</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">auth.protocol</td>
+        <td style="vertical-align: top; word-wrap: break-word">Authentication protocol if use.</td>
+        <td style="vertical-align: top">NO_AUTH</td>
+        <td style="vertical-align: top">STRING</td>
+        <td style="vertical-align: top">Yes</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">auth.password</td>
+        <td style="vertical-align: top; word-wrap: break-word">Auth protocol password.</td>
+        <td style="vertical-align: top">authpass</td>
+        <td style="vertical-align: top">STRING</td>
+        <td style="vertical-align: top">Yes</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
         <td style="vertical-align: top">engine.id</td>
         <td style="vertical-align: top; word-wrap: break-word">Local engine ID.</td>
         <td style="vertical-align: top">Empty</td>
@@ -108,7 +156,7 @@ retries = '5')
 define stream outputStream(value string);
 
 ```
-<p style="word-wrap: break-word"> This example shows how to make set request using snmp version v1 </p>
+<p style="word-wrap: break-word">This example shows how to make set request using snmp version v1 </p>
 
 <span id="example-2" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 2</span>
 ```
@@ -122,7 +170,7 @@ retries = '5')
 define stream outputStream(value string);
 
 ```
-<p style="word-wrap: break-word"> This example shows how to make set request using snmp  version v2c </p>
+<p style="word-wrap: break-word">This example shows how to make set request using snmp version v2c </p>
 
 <span id="example-3" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 3</span>
 ```
@@ -141,7 +189,7 @@ retries = '5')
 define stream outputStream(value string, value2 string);
 
 ```
-<p style="word-wrap: break-word"> This example shows how to make set request using snmp  version v3 </p>
+<p style="word-wrap: break-word">This example shows how to make set request using snmp version v3 </p>
 
 ## Source
 
@@ -230,7 +278,7 @@ define stream outputStream(value string, value2 string);
     </tr>
     <tr>
         <td style="vertical-align: top">timeout</td>
-        <td style="vertical-align: top; word-wrap: break-word">Timeout for response of the request, default value is 1500 of milliseconds.</td>
+        <td style="vertical-align: top; word-wrap: break-word">Timeout for response of the request in milliseconds, default value is 1500 of milliseconds.</td>
         <td style="vertical-align: top">1500</td>
         <td style="vertical-align: top">INT</td>
         <td style="vertical-align: top">Yes</td>

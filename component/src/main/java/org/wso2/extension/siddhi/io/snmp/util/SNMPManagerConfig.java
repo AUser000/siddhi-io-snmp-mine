@@ -33,7 +33,7 @@ import org.snmp4j.smi.VariableBinding;
 import java.util.List;
 
 /**
- * Manager config
+ * this class is used to keep data for manager
  */
 public class SNMPManagerConfig {
 
@@ -56,15 +56,6 @@ public class SNMPManagerConfig {
     private int secLvl;
     private OctetString localEngineID;
     private int engineBoot;
-
-    public void setEngineBoot(int engineBoot) {
-
-        this.engineBoot = engineBoot;
-    }
-
-    public void setLocalEngineID(OctetString localEngineID) {
-        this.localEngineID = localEngineID;
-    }
 
     public void isTcp(boolean b) {
 
@@ -165,12 +156,23 @@ public class SNMPManagerConfig {
     }
 
     public OctetString getLocalEngineID() {
+
         return this.localEngineID;
+    }
+
+    public void setLocalEngineID(OctetString localEngineID) {
+
+        this.localEngineID = localEngineID;
     }
 
     public int getEngineBoot() {
 
         return engineBoot;
+    }
+
+    public void setEngineBoot(int engineBoot) {
+
+        this.engineBoot = engineBoot;
     }
 
     public UsmUser getUser() {
@@ -206,7 +208,7 @@ public class SNMPManagerConfig {
     public void clear() {
 
         if (version == SNMPConstants.V3 && scopedPDU != null) {
-                this.scopedPDU.clear();
+            this.scopedPDU.clear();
         } else {
             if (pdu != null) {
                 this.pdu.clear();

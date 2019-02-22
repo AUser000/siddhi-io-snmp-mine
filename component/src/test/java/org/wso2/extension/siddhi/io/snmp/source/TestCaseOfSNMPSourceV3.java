@@ -104,7 +104,6 @@ public class TestCaseOfSNMPSourceV3 {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    //log.info(event.toString());
                     eventCount.getAndIncrement();
                     eventArrived.set(true);
                 }
@@ -149,7 +148,6 @@ public class TestCaseOfSNMPSourceV3 {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    //log.info(event.toString());
                     eventCount.getAndIncrement();
                     eventArrived.set(true);
                 }
@@ -196,7 +194,6 @@ public class TestCaseOfSNMPSourceV3 {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    //log.info(event.toString());
                     eventCount.getAndIncrement();
                     eventArrived.set(true);
                 }
@@ -243,7 +240,6 @@ public class TestCaseOfSNMPSourceV3 {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    //log.info(event.toString());
                     eventCount.getAndIncrement();
                     eventArrived.set(true);
                 }
@@ -302,7 +298,6 @@ public class TestCaseOfSNMPSourceV3 {
         siddhiManager.shutdown();
     }
 
-    // for text priv protocol
     @Test(expectedExceptions = SiddhiAppValidationException.class)
     public void snmpRuntimeTest() { // for priv protocol
         LOG.info("------------------------------------------------");
@@ -335,7 +330,6 @@ public class TestCaseOfSNMPSourceV3 {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    //log.info(event.toString());
                     eventCount.getAndIncrement();
                     eventArrived.set(true);
                 }
