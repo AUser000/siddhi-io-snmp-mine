@@ -20,11 +20,10 @@ package org.wso2.extension.siddhi.io.snmp.util;
 import org.snmp4j.mp.SnmpConstants;
 
 /**
- *
  * SNMP Connector constants
- *
  */
 public class SNMPConstants {
+
     // static
     public static final String HOST = &quot;host&quot;;
     public static final String VERSION = &quot;version&quot;;
@@ -45,7 +44,8 @@ public class SNMPConstants {
     public static final String PRIV_PASSWORD = &quot;priv.password&quot;;
     public static final String AUTH_PROTOCOL = &quot;auth.protocol&quot;;
     public static final String AUTH_PASSWORD = &quot;auth.password&quot;;
-
+    public static final String LOCAL_ENGINE_ID = &quot;engine.id&quot;;
+    public static final String ENGINE_BOOT = &quot;engine.boot&quot;;
 
     public static final int V1  = SnmpConstants.version1;
     public static final int V2C = SnmpConstants.version2c;
@@ -58,14 +58,17 @@ public class SNMPConstants {
     public static final String DEFAULT_TIMEOUT = &quot;1500&quot;;
 
     public static final String DEFAULT_USERNAME = &quot;noUser&quot;;
-    public static final String DEFAULT_SECURITY_LVL = &quot;1&quot;;
-    public static final String DEFAULT_AUTH_PROTOCOL = &quot;noEnc&quot;;
+    public static final String DEFAULT_SECURITY_LVL = &quot;AUTH_PRIVE&quot;;
+    public static final String DEFAULT_AUTH_PROTOCOL = &quot;NO_AUTH&quot;;
     public static final String DEFAULT_PRIV_PASSWORD = &quot;privpass&quot;;
-    public static final String DEFAULT_PRIV_PROTOCOL = &quot;nopriv&quot;;
+    public static final String DEFAULT_PRIV_PROTOCOL = &quot;NO_PRIV&quot;;
     public static final String DEFAULT_AUT_PASSWORD = &quot;authpass&quot;;
     public static final String DEFAULT_COMMUNITY = &quot;public&quot;;
+    public static final String DEFAULT_LOCAL_ENGINE_ID = &quot;Empty&quot;;
+    public static final String DEFAULT_ENGINE_BOOT = &quot;0&quot;;
 
+<span class="nc" id="L70">    private SNMPConstants() {</span>
 
-<span class="nc" id="L69">    private SNMPConstants(){}</span>
+<span class="nc" id="L72">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

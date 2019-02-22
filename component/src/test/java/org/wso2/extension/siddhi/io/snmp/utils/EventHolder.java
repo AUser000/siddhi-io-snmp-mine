@@ -10,7 +10,7 @@ import java.util.Map;
  * by list of key-value map
  *
  * */
-public class EventHolder { //ToDo ->  fixme ;-)
+public class EventHolder { //TODO ->  check again  ;-)
     private Logger log = Logger.getLogger(EventHolder.class);
     private volatile LinkedList<Map<String, String>> eventList;
     private int listSize = 10;
@@ -48,7 +48,7 @@ public class EventHolder { //ToDo ->  fixme ;-)
         return getEvent(index).toString();
     }
 
-    public boolean assertDataContent(String value, int index) {
+    public synchronized boolean assertDataContent(String value, int index) {
         try {
             log.debug(eventList.get(index).toString());
             if (eventList.get(index).containsValue(value)) {

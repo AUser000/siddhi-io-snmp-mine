@@ -8,7 +8,7 @@
 
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 ```
-@sink(type="snmp", host="<STRING>", version="<STRING>", community="<STRING>", agent.port="<STRING>", istcp="<BOOL>", retries="<INT>", timeout="<INT>", @map(...)))
+@sink(type="snmp", host="<STRING>", version="<STRING>", community="<STRING>", agent.port="<STRING>", istcp="<BOOL>", retries="<INT>", timeout="<INT>", engine.id="<STRING>", engine.boot="<INT>", @map(...)))
 ```
 
 <span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
@@ -77,6 +77,22 @@
         <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>
     </tr>
+    <tr>
+        <td style="vertical-align: top">engine.id</td>
+        <td style="vertical-align: top; word-wrap: break-word">Local engine ID.</td>
+        <td style="vertical-align: top">Empty</td>
+        <td style="vertical-align: top">STRING</td>
+        <td style="vertical-align: top">Yes</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">engine.boot</td>
+        <td style="vertical-align: top; word-wrap: break-word">Engine boot of the snmp engine</td>
+        <td style="vertical-align: top">0</td>
+        <td style="vertical-align: top">INT</td>
+        <td style="vertical-align: top">Yes</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
 </table>
 
 <span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
@@ -135,7 +151,7 @@ define stream outputStream(value string, value2 string);
 
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 ```
-@source(type="snmp", host="<STRING>", version="<STRING>", request.interval="<INT>", oids="<STRING>", community="<STRING>", agent.port="<STRING>", istcp="<BOOL>", retries="<INT>", timeout="<INT>", user.name="<STRING>", security.lvl="<INT>", priv.protocol="<STRING>", priv.password="<STRING>", auth.protocol="<STRING>", auth.password="<STRING>", @map(...)))
+@source(type="snmp", host="<STRING>", version="<STRING>", request.interval="<INT>", oids="<STRING>", community="<STRING>", agent.port="<STRING>", istcp="<BOOL>", retries="<INT>", timeout="<INT>", user.name="<STRING>", security.lvl="<INT>", priv.protocol="<STRING>", priv.password="<STRING>", auth.protocol="<STRING>", auth.password="<STRING>", engine.id="<STRING>", engine.boot="<INT>", @map(...)))
 ```
 
 <span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
@@ -231,7 +247,7 @@ define stream outputStream(value string, value2 string);
     <tr>
         <td style="vertical-align: top">security.lvl</td>
         <td style="vertical-align: top; word-wrap: break-word">Security level. Acceptance level AUTH_PRIV, AUTH_NO_PRIVE, NO_AUTH_NO_PRIVE.</td>
-        <td style="vertical-align: top">1</td>
+        <td style="vertical-align: top">AUTH_PRIVE</td>
         <td style="vertical-align: top">INT</td>
         <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>
@@ -239,7 +255,7 @@ define stream outputStream(value string, value2 string);
     <tr>
         <td style="vertical-align: top">priv.protocol</td>
         <td style="vertical-align: top; word-wrap: break-word">Encryption protocol if use.</td>
-        <td style="vertical-align: top">nopriv</td>
+        <td style="vertical-align: top">NO_PRIV</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>
@@ -255,7 +271,7 @@ define stream outputStream(value string, value2 string);
     <tr>
         <td style="vertical-align: top">auth.protocol</td>
         <td style="vertical-align: top; word-wrap: break-word">Authentication protocol if use.</td>
-        <td style="vertical-align: top">noEnc</td>
+        <td style="vertical-align: top">NO_AUTH</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>
@@ -265,6 +281,22 @@ define stream outputStream(value string, value2 string);
         <td style="vertical-align: top; word-wrap: break-word">Auth protocol password.</td>
         <td style="vertical-align: top">authpass</td>
         <td style="vertical-align: top">STRING</td>
+        <td style="vertical-align: top">Yes</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">engine.id</td>
+        <td style="vertical-align: top; word-wrap: break-word">Local engine ID.</td>
+        <td style="vertical-align: top">Empty</td>
+        <td style="vertical-align: top">STRING</td>
+        <td style="vertical-align: top">Yes</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">engine.boot</td>
+        <td style="vertical-align: top; word-wrap: break-word">Engine boot of the snmp engine</td>
+        <td style="vertical-align: top">0</td>
+        <td style="vertical-align: top">INT</td>
         <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>
     </tr>

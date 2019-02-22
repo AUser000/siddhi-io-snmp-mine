@@ -21,7 +21,6 @@ import org.apache.log4j.Logger;
 import org.snmp4j.CommunityTarget;
 import org.snmp4j.PDU;
 import org.snmp4j.ScopedPDU;
-import org.snmp4j.Target;
 import org.snmp4j.UserTarget;
 import org.snmp4j.mp.SnmpConstants;
 import org.snmp4j.security.UsmUser;
@@ -37,8 +36,10 @@ import java.util.List;
  * Manager config
  */
 public class SNMPManagerConfig {
+
     private static final Logger LOG = Logger.getLogger(SNMPManagerConfig.class);
 
+    // version 2 & 1 properties
     private boolean isTCP = false;
     private PDU pdu;
     private CommunityTarget communityTarget;
@@ -46,34 +47,56 @@ public class SNMPManagerConfig {
 
     // version 3 properties
     private ScopedPDU scopedPDU;
+    private UserTarget userTarget;
     private OctetString userName;
     private OID authProtocol;
     private OctetString authProtocolPass;
     private OID privProtocol;
     private OctetString privProtocolPass;
     private int secLvl;
-    private UserTarget userTarget;
+    private OctetString localEngineID;
+    private int engineBoot;
 
+    public void setEngineBoot(int engineBoot) {
+
+        this.engineBoot = engineBoot;
+    }
+
+    public void setLocalEngineID(OctetString localEngineID) {
+        this.localEngineID = localEngineID;
+    }
+
+    public void isTcp(boolean b) {
+
+        isTCP = b;
+    }
 
     public OctetString getUserName() {
+
         return userName;
     }
 
-    public int getSecLvl() {
-        return secLvl;
-    }
+    public void setVariableBindings(List<VariableBinding> vbs) {
 
-    public int getVersion() {
-        return version;
+        if (vbs == null) {
+            pdu = new PDU();
+            return;
+        }
+        if (version == SnmpConstants.version3) {
+            scopedPDU = new ScopedPDU();
+            scopedPDU.addAll(vbs);
+        } else {
+            pdu = new PDU();
+            pdu.addAll(vbs);
+        }
     }
 
     // for setting user parameters
     public void setUserMatrix(OctetString userName,
-                       OID authProtocol,
-                       OctetString authProtocolPass,
-                       OID privProtocol,
-                       OctetString privProtocolPass,
-                       int secLvl) {
+                              OID authProtocol, OctetString authProtocolPass,
+                              OID privProtocol, OctetString privProtocolPass,
+                              int secLvl) {
+
         this.userName = userName;
         this.authProtocol = authProtocol;
         this.authProtocolPass = authProtocolPass;
@@ -82,23 +105,15 @@ public class SNMPManagerConfig {
         this.secLvl = secLvl;
     }
 
-    public void setVersion(int version) {
-        this.version = version;
-    }
-
     // for setting up community target
-    public void setCommunityTarget(String ip,
-                          String port,
-                          String community,
-                          int retries,
-                          int timeout) {
+    public void setCommunityTarget(String ip, String port, String community, int retries, int timeout) {
+
         communityTarget = new CommunityTarget();
         communityTarget.setCommunity(new OctetString(community));
         Address address;
         if (isTCP) {
             address = GenericAddress.parse("tcp:" + ip + "/" + port);
         } else {
-            //setTransportMappingUDP();
             address = GenericAddress.parse("udp:" + ip + "/" + port);
         }
         communityTarget.setAddress(address);
@@ -111,16 +126,9 @@ public class SNMPManagerConfig {
         }
     }
 
-    public void isTcp(boolean b) {
-        isTCP = b;
-    }
-
-    public boolean isTCP() {
-        return isTCP;
-    }
-
     // for setting up user target
     public void setUserTarget(String ip, String port, int retries, int timeout, int securityLvl) {
+
         userTarget = new UserTarget();
         userTarget.setSecurityLevel(securityLvl);
         userTarget.setVersion(SnmpConstants.version3);
@@ -136,34 +144,53 @@ public class SNMPManagerConfig {
         userTarget.setSecurityName(this.userName);
     }
 
-    public UserTarget getUserTarget() {
-        return this.userTarget;
+    public int getSecLvl() {
+
+        return secLvl;
+    }
+
+    public int getVersion() {
+
+        return version;
+    }
+
+    public void setVersion(int version) {
+
+        this.version = version;
+    }
+
+    public boolean isTCP() {
+
+        return isTCP;
+    }
+
+    public OctetString getLocalEngineID() {
+        return this.localEngineID;
+    }
+
+    public int getEngineBoot() {
+
+        return engineBoot;
     }
 
     public UsmUser getUser() {
+
         return new UsmUser(this.userName, this.authProtocol, this.authProtocolPass,
                 this.privProtocol, this.privProtocolPass);
     }
 
-    public Target getCommunityTarget() {
+    public CommunityTarget getCommunityTarget() {
+
         return this.communityTarget;
     }
 
-    public void setVariableBindings(List<VariableBinding> vbs) {
-        if (vbs == null) {
-            pdu = new PDU();
-            return;
-        }
-        if (version == SnmpConstants.version3) {
-            scopedPDU = new ScopedPDU();
-            scopedPDU.addAll(vbs);
-        } else {
-            pdu = new PDU();
-            pdu.addAll(vbs);
-        }
+    public UserTarget getUserTarget() {
+
+        return this.userTarget;
     }
 
     public PDU getPdu() {
+
         if (version == SnmpConstants.version3) {
             if (scopedPDU == null) {
                 scopedPDU = new ScopedPDU();
@@ -177,10 +204,13 @@ public class SNMPManagerConfig {
     }
 
     public void clear() {
-        if (version == SnmpConstants.version3) {
-            this.scopedPDU.clear();
+
+        if (version == SNMPConstants.V3 && scopedPDU != null) {
+                this.scopedPDU.clear();
         } else {
-            this.pdu.clear();
+            if (pdu != null) {
+                this.pdu.clear();
+            }
         }
     }
 }

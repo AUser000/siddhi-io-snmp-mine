@@ -18,10 +18,12 @@
 package org.wso2.extension.siddhi.io.snmp.sink;
 
 import org.apache.log4j.Logger;
+import org.wso2.extension.siddhi.io.snmp.sink.exceptions.SNMPSinkRuntimeException;
 import org.wso2.extension.siddhi.io.snmp.util.SNMPConstants;
 import org.wso2.extension.siddhi.io.snmp.util.SNMPManager;
 import org.wso2.extension.siddhi.io.snmp.util.SNMPManagerConfig;
 import org.wso2.extension.siddhi.io.snmp.util.SNMPValidations;
+import org.wso2.extension.siddhi.io.snmp.util.exceptions.SNMPRuntimeException;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
@@ -48,10 +50,11 @@ import java.util.Map;
                 + " It has ability to make set request and get it's response. ",
         parameters = {
                 @Parameter(name = SNMPConstants.HOST,
-                        description = "Address or ip of the target." ,
+                        description = "Address or ip of the target.",
+                        optional = false,
                         type = DataType.STRING),
                 @Parameter(name = SNMPConstants.VERSION,
-                        description = "Version of the snmp protocol." ,
+                        description = "Version of the snmp protocol.",
                         type = DataType.STRING),
                 @Parameter(name = SNMPConstants.COMMUNITY,
                         description = "Community string of the network.",
@@ -77,12 +80,22 @@ import java.util.Map;
                         description = "Underline connection protocol.",
                         optional = true,
                         type = DataType.INT,
-                        defaultValue = SNMPConstants.DEFAULT_TIMEOUT)
-                },
+                        defaultValue = SNMPConstants.DEFAULT_TIMEOUT),
+                @Parameter(name = SNMPConstants.LOCAL_ENGINE_ID,
+                        description = "Local engine ID.",
+                        optional = true,
+                        type = DataType.STRING,
+                        defaultValue = SNMPConstants.DEFAULT_LOCAL_ENGINE_ID),
+                @Parameter(name = SNMPConstants.ENGINE_BOOT,
+                        description = "Engine boot of the snmp engine",
+                        optional = true,
+                        type = DataType.INT,
+                        defaultValue = SNMPConstants.DEFAULT_ENGINE_BOOT)
+        },
         examples = {
                 @Example(
                         description = " This example shows how to make set request using snmp " +
-                                "version v1 " ,
+                                "version v1 ",
 
                         syntax = "@Sink(type='snmp',\n" +
                                 "@map(type='keyvalue', @payload('1.3.6.1.2.1.1.1.0' = 'value')),\n" +
@@ -110,7 +123,7 @@ import java.util.Map;
                         description = " This example shows how to make set request using snmp " +
                                 " version v3 ",
 
-                        syntax =  "@Sink(type='snmp',\n" +
+                        syntax = "@Sink(type='snmp',\n" +
                                 "@map(type='keyvalue', " +
                                 "@payload('1.3.6.1.2.1.1.3.0' = 'value', '1.3.6.1.2.1.1.2.0' = 'value2')),\n" +
                                 "host = '127.0.0.1',\n" +
@@ -128,9 +141,11 @@ import java.util.Map;
         }
 )
 
+// siddhi app runtime exception
 // for more information refer https://wso2.github.io/siddhi/documentation/siddhi-4.0/#sinks
 
 public class SNMPSink extends Sink {
+
     private static final Logger LOG = Logger.getLogger(SNMPSink.class);
     private SNMPManagerConfig managerConfig;
     private SNMPManager manager;
@@ -139,17 +154,20 @@ public class SNMPSink extends Sink {
 
     @Override
     public Class[] getSupportedInputEventClasses() {
-            return new Class[] { Map.class };
+
+        return new Class[]{Map.class};
     }
 
     @Override
     public String[] getSupportedDynamicOptions() {
+
         return new String[0];
     }
 
     @Override
     protected void init(StreamDefinition streamDefinition, OptionHolder optionHolder, ConfigReader configReader,
-            SiddhiAppContext siddhiAppContext) {
+                        SiddhiAppContext siddhiAppContext) {
+
         validation = new SNMPValidations();
         this.streamDefinition = streamDefinition;
         managerConfig = validation.initSnmpProperties(optionHolder, this.streamDefinition.getId(), false);
@@ -157,30 +175,33 @@ public class SNMPSink extends Sink {
     }
 
     @Override
-    public void publish(Object payload, DynamicOptions dynamicOptions)  {
+    public void publish(Object payload, DynamicOptions dynamicOptions) {
+
         Map<String, String> data = (Map) payload;
         try {
-            manager.sendAndValidate(data);
+            manager.setAndValidate(data);
         } catch (IOException e) {
-            throw new RuntimeException(this.streamDefinition.getId() + " IO exception error " + e);
-        } catch (RuntimeException ex) {
-            throw new RuntimeException(this.streamDefinition.getId() + " Invalid Authentication " + ex);
+            throw new SNMPSinkRuntimeException(this.streamDefinition.getId() + " Error in IO " , e);
+        } catch (SNMPRuntimeException ex) {
+            throw new SNMPSinkRuntimeException(this.streamDefinition.getId() + "Error in setting on agent " , ex);
         }
         managerConfig.clear();
     }
 
     @Override
     public void connect() throws ConnectionUnavailableException {
+
         try {
             manager.setManagerConfig(managerConfig);
         } catch (IOException e) {
             throw new ConnectionUnavailableException(this.streamDefinition.getId()
-                    + " Error in Setting up Connection : " + e);
+                    + " Error in Setting up Connection : " , e);
         }
     }
 
     @Override
     public void disconnect() {
+
         if (manager != null) {
             manager.close();
         }
@@ -188,11 +209,13 @@ public class SNMPSink extends Sink {
 
     @Override
     public void destroy() {
+
     }
 
     @Override
     public Map<String, Object> currentState() {
-            return null;
+
+        return null;
     }
 
     @Override

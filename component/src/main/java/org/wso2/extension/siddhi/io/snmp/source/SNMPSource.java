@@ -47,10 +47,10 @@ import java.util.Map;
                 " of the request, once in request interval. ",
         parameters = {
                 @Parameter(name = SNMPConstants.HOST,
-                        description = "Address or ip of the target." ,
+                        description = "Address or ip of the target.",
                         type = DataType.STRING),
                 @Parameter(name = SNMPConstants.VERSION,
-                        description = "Version of the snmp protocol." ,
+                        description = "Version of the snmp protocol.",
                         type = DataType.STRING),
                 @Parameter(name = SNMPConstants.REQUEST_INTERVAL,
                         description = "Request interval of the get requests.",
@@ -70,7 +70,7 @@ import java.util.Map;
                         defaultValue = SNMPConstants.DEFAULT_AGENT_PORT),
                 @Parameter(name = SNMPConstants.IS_TCP,
                         description = "Underline protocol default id UDP.",
-                        optional  = true,
+                        optional = true,
                         type = DataType.BOOL,
                         defaultValue = SNMPConstants.DEFAULT_IS_TCP),
                 @Parameter(name = SNMPConstants.RETRIES,
@@ -78,7 +78,7 @@ import java.util.Map;
                         optional = true,
                         type = DataType.INT,
                         defaultValue = SNMPConstants.DEFAULT_RETRIES),
-                @Parameter(name  = SNMPConstants.TIMEOUT,
+                @Parameter(name = SNMPConstants.TIMEOUT,
                         description = "Timeout for response of the request, default value is 1500 of milliseconds.",
                         optional = true,
                         type = DataType.INT,
@@ -113,7 +113,17 @@ import java.util.Map;
                         description = "Auth protocol password.",
                         optional = true,
                         type = DataType.STRING,
-                        defaultValue = SNMPConstants.DEFAULT_AUT_PASSWORD)
+                        defaultValue = SNMPConstants.DEFAULT_AUT_PASSWORD),
+                @Parameter(name = SNMPConstants.LOCAL_ENGINE_ID,
+                        description = "Local engine ID.",
+                        optional = true,
+                        type = DataType.STRING,
+                        defaultValue = SNMPConstants.DEFAULT_LOCAL_ENGINE_ID),
+                @Parameter(name = SNMPConstants.ENGINE_BOOT,
+                        description = "Engine boot of the snmp engine",
+                        optional = true,
+                        type = DataType.INT,
+                        defaultValue = SNMPConstants.DEFAULT_ENGINE_BOOT)
 
         },
         examples = {
@@ -176,11 +186,11 @@ public class SNMPSource extends Source {
     private SNMPServer snmpServer;
     private StreamDefinition streamDefinition;
 
-
     @Override
     public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,
                      String[] requestedTransportPropertyNames, ConfigReader configReader,
                      SiddhiAppContext siddhiAppContext) {
+
         if (LOG.isDebugEnabled()) {
             LOG.info("init method triggered ");
         }
@@ -196,11 +206,13 @@ public class SNMPSource extends Source {
 
     @Override
     public Class[] getOutputEventClasses() {
+
         return new Class[]{Map.class};
     }
 
     @Override
     public void connect(ConnectionCallback connectionCallback) throws ConnectionUnavailableException {
+
         if (LOG.isDebugEnabled()) {
             LOG.info("connect method triggered ");
         }
@@ -212,12 +224,13 @@ public class SNMPSource extends Source {
             snmpServer.start();
         } catch (IOException e) {
             throw new ConnectionUnavailableException(streamDefinition.getId()
-                    + " Exception in starting the snmp for stream: ");
+                    + " Exception in starting the snmp for stream: ", e);
         }
     }
 
     @Override
     public void disconnect() {
+
         if (snmpServer != null) {
             snmpServer.stop();
         }
@@ -228,6 +241,7 @@ public class SNMPSource extends Source {
 
     @Override
     public void destroy() {
+
         if (manager != null) {
             manager.close();
         }
@@ -238,19 +252,23 @@ public class SNMPSource extends Source {
 
     @Override
     public void pause() {
+
     }
 
     @Override
     public void resume() {
+
     }
 
     @Override
     public Map<String, Object> currentState() {
+
         return null;
     }
 
     @Override
     public void restoreState(Map<String, Object> map) {
+
     }
 }
 

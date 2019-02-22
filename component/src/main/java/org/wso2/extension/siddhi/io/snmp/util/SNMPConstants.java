@@ -20,11 +20,10 @@ package org.wso2.extension.siddhi.io.snmp.util;
 import org.snmp4j.mp.SnmpConstants;
 
 /**
- *
  * SNMP Connector constants
- *
  */
 public class SNMPConstants {
+
     // static
     public static final String HOST = "host";
     public static final String VERSION = "version";
@@ -45,7 +44,8 @@ public class SNMPConstants {
     public static final String PRIV_PASSWORD = "priv.password";
     public static final String AUTH_PROTOCOL = "auth.protocol";
     public static final String AUTH_PASSWORD = "auth.password";
-
+    public static final String LOCAL_ENGINE_ID = "engine.id";
+    public static final String ENGINE_BOOT = "engine.boot";
 
     public static final int V1  = SnmpConstants.version1;
     public static final int V2C = SnmpConstants.version2c;
@@ -58,13 +58,16 @@ public class SNMPConstants {
     public static final String DEFAULT_TIMEOUT = "1500";
 
     public static final String DEFAULT_USERNAME = "noUser";
-    public static final String DEFAULT_SECURITY_LVL = "1";
-    public static final String DEFAULT_AUTH_PROTOCOL = "noEnc";
+    public static final String DEFAULT_SECURITY_LVL = "AUTH_PRIVE";
+    public static final String DEFAULT_AUTH_PROTOCOL = "NO_AUTH";
     public static final String DEFAULT_PRIV_PASSWORD = "privpass";
-    public static final String DEFAULT_PRIV_PROTOCOL = "nopriv";
+    public static final String DEFAULT_PRIV_PROTOCOL = "NO_PRIV";
     public static final String DEFAULT_AUT_PASSWORD = "authpass";
     public static final String DEFAULT_COMMUNITY = "public";
+    public static final String DEFAULT_LOCAL_ENGINE_ID = "Empty";
+    public static final String DEFAULT_ENGINE_BOOT = "0";
 
+    private SNMPConstants() {
 
-    private SNMPConstants(){}
+    }
 }

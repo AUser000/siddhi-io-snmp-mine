@@ -29,8 +29,7 @@ import java.util.concurrent.Future;
  * This class will help to make set request
  * continuously once withing request interval time
  * in a different thread
- *
- * */
+ */
 public class SNMPServer implements Runnable {
 
     private static final Logger log = Logger.getLogger(SNMPServer.class);
@@ -38,32 +37,36 @@ public class SNMPServer implements Runnable {
     private int requestInterval;
     private boolean running = false;
     private ExecutorService executorService;
-    private Future<?> thread;
 
     public SNMPServer() {
+
         this.executorService = Executors.newSingleThreadExecutor();
     }
 
     public void setManager(SNMPManager snmpManager) {
+
         this.snmpManager = snmpManager;
     }
 
     public void setRequestInterval(int requestInterval) {
+
         this.requestInterval = requestInterval;
     }
 
-    public synchronized  void start() {
+    public synchronized void start() {
+
         if (!isRunning()) {
             running = true;
-            this.thread = executorService.submit(this);
+            Future<?> thread = executorService.submit(this);
         }
     }
 
     @Override
     public void run() {
+
         while (isRunning()) {
             try {
-                snmpManager.sendAndNotify();
+                snmpManager.getAndNotify();
                 Thread.sleep(requestInterval);
             } catch (IOException | InterruptedException e) {
                 log.error("Error in sending request" + e);
@@ -72,12 +75,14 @@ public class SNMPServer implements Runnable {
     }
 
     public synchronized void stop() {
+
         if (isRunning()) {
             running = false;
         }
     }
 
     private synchronized boolean isRunning() {
+
         return running;
     }
 

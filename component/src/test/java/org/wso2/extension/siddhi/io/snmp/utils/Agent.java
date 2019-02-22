@@ -185,7 +185,7 @@ public class Agent extends BaseAgent {
         // user001-auth-no-priv
         vacm.addGroup(SecurityModel.SECURITY_MODEL_USM,
                 new OctetString("user001"),
-                new OctetString("customGroup01"),     // 01 user
+                new OctetString("group001"),     // 01 user
                 StorageType.nonVolatile);
         //===========================================//
 
@@ -198,15 +198,15 @@ public class Agent extends BaseAgent {
         // group auth no priv
         vacm.addGroup(SecurityModel.SECURITY_MODEL_USM,
                 new OctetString("v3notify-auth"),          // 02 user group
-                new OctetString("v3auth_nopriv_group"),
+                new OctetString("group001"),
                 StorageType.nonVolatile);
         //===========================================//
 
 
 
         // my conf
-        vacm.addAccess(new OctetString("v3auth_nopriv_group"), new OctetString("public"),
-                SecurityModel.SECURITY_MODEL_ANY,
+        vacm.addAccess(new OctetString("group001"), new OctetString("public"),
+                SecurityModel.SECURITY_MODEL_USM,
                 SecurityLevel.AUTH_NOPRIV,
                 MutableVACM.VACM_MATCH_EXACT,
                 new OctetString("fullReadView"),

@@ -47,10 +47,10 @@ import java.util.Map;
                 &quot; of the request, once in request interval. &quot;,
         parameters = {
                 @Parameter(name = SNMPConstants.HOST,
-                        description = &quot;Address or ip of the target.&quot; ,
+                        description = &quot;Address or ip of the target.&quot;,
                         type = DataType.STRING),
                 @Parameter(name = SNMPConstants.VERSION,
-                        description = &quot;Version of the snmp protocol.&quot; ,
+                        description = &quot;Version of the snmp protocol.&quot;,
                         type = DataType.STRING),
                 @Parameter(name = SNMPConstants.REQUEST_INTERVAL,
                         description = &quot;Request interval of the get requests.&quot;,
@@ -70,7 +70,7 @@ import java.util.Map;
                         defaultValue = SNMPConstants.DEFAULT_AGENT_PORT),
                 @Parameter(name = SNMPConstants.IS_TCP,
                         description = &quot;Underline protocol default id UDP.&quot;,
-                        optional  = true,
+                        optional = true,
                         type = DataType.BOOL,
                         defaultValue = SNMPConstants.DEFAULT_IS_TCP),
                 @Parameter(name = SNMPConstants.RETRIES,
@@ -78,7 +78,7 @@ import java.util.Map;
                         optional = true,
                         type = DataType.INT,
                         defaultValue = SNMPConstants.DEFAULT_RETRIES),
-                @Parameter(name  = SNMPConstants.TIMEOUT,
+                @Parameter(name = SNMPConstants.TIMEOUT,
                         description = &quot;Timeout for response of the request, default value is 1500 of milliseconds.&quot;,
                         optional = true,
                         type = DataType.INT,
@@ -113,7 +113,17 @@ import java.util.Map;
                         description = &quot;Auth protocol password.&quot;,
                         optional = true,
                         type = DataType.STRING,
-                        defaultValue = SNMPConstants.DEFAULT_AUT_PASSWORD)
+                        defaultValue = SNMPConstants.DEFAULT_AUT_PASSWORD),
+                @Parameter(name = SNMPConstants.LOCAL_ENGINE_ID,
+                        description = &quot;Local engine ID.&quot;,
+                        optional = true,
+                        type = DataType.STRING,
+                        defaultValue = SNMPConstants.DEFAULT_LOCAL_ENGINE_ID),
+                @Parameter(name = SNMPConstants.ENGINE_BOOT,
+                        description = &quot;Engine boot of the snmp engine&quot;,
+                        optional = true,
+                        type = DataType.INT,
+                        defaultValue = SNMPConstants.DEFAULT_ENGINE_BOOT)
 
         },
         examples = {
@@ -167,91 +177,99 @@ import java.util.Map;
         }
 )
 
-<span class="fc" id="L170">public class SNMPSource extends Source {</span>
+<span class="fc" id="L180">public class SNMPSource extends Source {</span>
 
-<span class="fc" id="L172">    private static final Logger LOG = Logger.getLogger(SNMPSource.class);</span>
+<span class="fc" id="L182">    private static final Logger LOG = Logger.getLogger(SNMPSource.class);</span>
     private int requestInterval;
     private SNMPManagerConfig managerConfig;
     private SNMPManager manager;
     private SNMPServer snmpServer;
     private StreamDefinition streamDefinition;
 
-
     @Override
     public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,
                      String[] requestedTransportPropertyNames, ConfigReader configReader,
                      SiddhiAppContext siddhiAppContext) {
-<span class="pc bpc" id="L184" title="1 of 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
-<span class="nc" id="L185">            LOG.info(&quot;init method triggered &quot;);</span>
+
+<span class="pc bpc" id="L194" title="1 of 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L195">            LOG.info(&quot;init method triggered &quot;);</span>
         }
-<span class="fc" id="L187">        SNMPValidations validation = new SNMPValidations();</span>
-<span class="fc" id="L188">        this.managerConfig = validation.initSnmpProperties(optionHolder,</span>
-<span class="fc" id="L189">                sourceEventListener.getStreamDefinition().getId(),</span>
+<span class="fc" id="L197">        SNMPValidations validation = new SNMPValidations();</span>
+<span class="fc" id="L198">        this.managerConfig = validation.initSnmpProperties(optionHolder,</span>
+<span class="fc" id="L199">                sourceEventListener.getStreamDefinition().getId(),</span>
                 true);
-<span class="fc" id="L191">        this.manager = new SNMPManager();</span>
-<span class="fc" id="L192">        this.manager.setSourceEventListener(sourceEventListener);</span>
-<span class="fc" id="L193">        this.requestInterval = Integer.parseInt(optionHolder.validateAndGetStaticValue(SNMPConstants.REQUEST_INTERVAL));</span>
-<span class="fc" id="L194">        this.streamDefinition = sourceEventListener.getStreamDefinition();</span>
-<span class="fc" id="L195">    }</span>
+<span class="fc" id="L201">        this.manager = new SNMPManager();</span>
+<span class="fc" id="L202">        this.manager.setSourceEventListener(sourceEventListener);</span>
+<span class="fc" id="L203">        this.requestInterval = Integer.parseInt(optionHolder.validateAndGetStaticValue(SNMPConstants.REQUEST_INTERVAL));</span>
+<span class="fc" id="L204">        this.streamDefinition = sourceEventListener.getStreamDefinition();</span>
+<span class="fc" id="L205">    }</span>
 
     @Override
     public Class[] getOutputEventClasses() {
-<span class="fc" id="L199">        return new Class[]{Map.class};</span>
+
+<span class="fc" id="L210">        return new Class[]{Map.class};</span>
     }
 
     @Override
     public void connect(ConnectionCallback connectionCallback) throws ConnectionUnavailableException {
-<span class="pc bpc" id="L204" title="1 of 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
-<span class="nc" id="L205">            LOG.info(&quot;connect method triggered &quot;);</span>
+
+<span class="pc bpc" id="L216" title="1 of 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L217">            LOG.info(&quot;connect method triggered &quot;);</span>
         }
         try {
-<span class="fc" id="L208">            manager.setManagerConfig(managerConfig);</span>
-<span class="fc" id="L209">            snmpServer = new SNMPServer();</span>
-<span class="fc" id="L210">            snmpServer.setManager(manager);</span>
-<span class="fc" id="L211">            snmpServer.setRequestInterval(requestInterval);</span>
-<span class="fc" id="L212">            snmpServer.start();</span>
-<span class="nc" id="L213">        } catch (IOException e) {</span>
-<span class="nc" id="L214">            throw new ConnectionUnavailableException(streamDefinition.getId()</span>
-                    + &quot; Exception in starting the snmp for stream: &quot;);
-<span class="fc" id="L216">        }</span>
-<span class="fc" id="L217">    }</span>
+<span class="fc" id="L220">            manager.setManagerConfig(managerConfig);</span>
+<span class="fc" id="L221">            snmpServer = new SNMPServer();</span>
+<span class="fc" id="L222">            snmpServer.setManager(manager);</span>
+<span class="fc" id="L223">            snmpServer.setRequestInterval(requestInterval);</span>
+<span class="fc" id="L224">            snmpServer.start();</span>
+<span class="nc" id="L225">        } catch (IOException e) {</span>
+<span class="nc" id="L226">            throw new ConnectionUnavailableException(streamDefinition.getId()</span>
+                    + &quot; Exception in starting the snmp for stream: &quot;, e);
+<span class="fc" id="L228">        }</span>
+<span class="fc" id="L229">    }</span>
 
     @Override
     public void disconnect() {
-<span class="pc bpc" id="L221" title="1 of 2 branches missed.">        if (snmpServer != null) {</span>
-<span class="fc" id="L222">            snmpServer.stop();</span>
+
+<span class="pc bpc" id="L234" title="1 of 2 branches missed.">        if (snmpServer != null) {</span>
+<span class="fc" id="L235">            snmpServer.stop();</span>
         }
-<span class="pc bpc" id="L224" title="1 of 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
-<span class="nc" id="L225">            LOG.info(&quot;disconnect method triggered &quot;);</span>
+<span class="pc bpc" id="L237" title="1 of 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L238">            LOG.info(&quot;disconnect method triggered &quot;);</span>
         }
-<span class="fc" id="L227">    }</span>
+<span class="fc" id="L240">    }</span>
 
     @Override
     public void destroy() {
-<span class="pc bpc" id="L231" title="1 of 2 branches missed.">        if (manager != null) {</span>
-<span class="fc" id="L232">            manager.close();</span>
+
+<span class="pc bpc" id="L245" title="1 of 2 branches missed.">        if (manager != null) {</span>
+<span class="fc" id="L246">            manager.close();</span>
         }
-<span class="pc bpc" id="L234" title="1 of 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
-<span class="nc" id="L235">            LOG.info(&quot;destroy method triggered &quot;);</span>
+<span class="pc bpc" id="L248" title="1 of 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L249">            LOG.info(&quot;destroy method triggered &quot;);</span>
         }
-<span class="fc" id="L237">    }</span>
+<span class="fc" id="L251">    }</span>
 
     @Override
     public void pause() {
-<span class="nc" id="L241">    }</span>
+
+<span class="nc" id="L256">    }</span>
 
     @Override
     public void resume() {
-<span class="nc" id="L245">    }</span>
+
+<span class="nc" id="L261">    }</span>
 
     @Override
     public Map&lt;String, Object&gt; currentState() {
-<span class="nc" id="L249">        return null;</span>
+
+<span class="nc" id="L266">        return null;</span>
     }
 
     @Override
     public void restoreState(Map&lt;String, Object&gt; map) {
-<span class="nc" id="L254">    }</span>
+
+<span class="nc" id="L272">    }</span>
 }
 
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

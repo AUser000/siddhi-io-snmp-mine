@@ -31,6 +31,7 @@ import org.snmp4j.smi.OctetString;
 import org.snmp4j.smi.VariableBinding;
 import org.snmp4j.transport.DefaultTcpTransportMapping;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
+import org.wso2.extension.siddhi.io.snmp.util.exceptions.SNMPRuntimeException;
 import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 
 import java.io.IOException;
@@ -39,7 +40,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *  Handle SNMP Manager data and request
+ * Handle SNMP Manager data and request
  */
 public class SNMPManager {
 
@@ -50,57 +51,53 @@ public class SNMPManager {
     private SourceEventListener sourceEventListener;
 
     public SNMPManager() {
+
     }
 
     public void setSourceEventListener(SourceEventListener sourceEventListener) {
+
         this.sourceEventListener = sourceEventListener;
     }
 
-    public void setUDPTransportMapping() throws IOException {
-        this.transportMapping = new DefaultUdpTransportMapping();
-    }
+    private OctetString getEngineId() {
 
-    public void setTCPTransportMapping() throws IOException {
-        this.transportMapping = new DefaultTcpTransportMapping();
+        OctetString engineId;
+        if (managerConfig.getLocalEngineID() == null) {
+            engineId = new OctetString(MPv3.createLocalEngineID()).substring(0, 9);
+        } else {
+            engineId = managerConfig.getLocalEngineID();
+        }
+        return engineId;
     }
 
     public void setManagerConfig(SNMPManagerConfig managerConfig) throws IOException {
-        if (managerConfig.isTCP()) {
-            setTCPTransportMapping();
-        } else {
-            setUDPTransportMapping();
-        }
+
         this.managerConfig = managerConfig;
+        if (managerConfig.isTCP()) {
+            transportMapping = new DefaultTcpTransportMapping();
+        } else {
+            transportMapping = new DefaultUdpTransportMapping();
+        }
         snmp = new Snmp(this.transportMapping);
 
         if (managerConfig.getVersion() == SnmpConstants.version3) {
-            USM usm = new USM(SecurityProtocols.getInstance(), null, 0);
+            USM usm = new USM(SecurityProtocols.getInstance(),
+                    managerConfig.getLocalEngineID(),
+                    managerConfig.getEngineBoot());
             SecurityModels.getInstance().addSecurityModel(usm);
             snmp.getUSM().addUser(managerConfig.getUserName(), managerConfig.getUser());
         }
         snmp.listen();
     }
 
-    public void close() {
-        try {
-            if (snmp != null) {
-                snmp.close();
-            }
-            if (managerConfig != null) {
-                managerConfig.clear();
-            }
-        } catch (IOException e) {
-            log.info("  ");
-        }
-    }
-
     // get snmp event, rearrange data and notify to siddhi
     private void validateResponseAndNotify(ResponseEvent event) {
+
         if (event != null) {
             if (event.getResponse() != null) {
                 List<VariableBinding> vbs = (List<VariableBinding>) event.getResponse().getVariableBindings();
                 Map<String, String> map = new HashMap<>();
-                for (VariableBinding vb: vbs) {
+                for (VariableBinding vb : vbs) {
                     map.put(vb.getOid().toString(), vb.getVariable().toString());
                 }
                 sourceEventListener.onEvent(map, null);
@@ -109,10 +106,12 @@ public class SNMPManager {
     }
 
     // make get-request
-    private ResponseEvent send() throws IOException {
+    private ResponseEvent get() throws IOException {
+
         if (managerConfig.getVersion() == SnmpConstants.version3) {
+
             USM usm = new USM(SecurityProtocols.getInstance().addDefaultProtocols(),
-                    new OctetString(MPv3.createLocalEngineID()).substring(0, 9), 0);
+                    getEngineId(), 0);
             SecurityModels.getInstance().addSecurityModel(usm);
             snmp.getUSM().addUser(managerConfig.getUserName(), managerConfig.getUser());
             return snmp.get(managerConfig.getPdu(), managerConfig.getUserTarget());
@@ -120,31 +119,32 @@ public class SNMPManager {
         return snmp.get(managerConfig.getPdu(), managerConfig.getCommunityTarget());
     }
 
-    public void sendAndNotify() throws IOException {
-        validateResponseAndNotify(send());
-    }
-
     // set snmp event validation
     private void validateResponse(ResponseEvent event) {
+
         if (event == null) {
-            throw new RuntimeException(" No such target or invalid authentication ");
+            throw new SNMPRuntimeException(" No such target / Invalid authentication / Timeout error ",
+                    new Throwable("event is null"));
         }
         if (event.getResponse() == null) {
-            throw new RuntimeException(" No such target ");
+            throw new SNMPRuntimeException(" No such target / Invalid authentication / Timeout error ",
+                    new Throwable("event response is null"));
         }
         if (event.getResponse().getErrorIndex() != 0) {
-            throw new RuntimeException(" Target has no privilege to write ");
+            throw new SNMPRuntimeException(event.getResponse().getErrorStatusText());
         }
     }
+
     // make set-request
-    private ResponseEvent send(Map<String, String> map) throws IOException {
-        for (Map.Entry<String, String> entry: map.entrySet()) {
+    private ResponseEvent set(Map<String, String> map) throws IOException {
+
+        for (Map.Entry<String, String> entry : map.entrySet()) {
             this.managerConfig.getPdu()
                     .add(new VariableBinding(new OID(entry.getKey()), new OctetString(entry.getValue())));
         }
         if (managerConfig.getVersion() == SnmpConstants.version3) {
             USM usm = new USM(SecurityProtocols.getInstance().addDefaultProtocols(),
-                    new OctetString(MPv3.createLocalEngineID()).substring(0, 9), 0);
+                    getEngineId(), 0);
             SecurityModels.getInstance().addSecurityModel(usm);
             snmp.getUSM().addUser(managerConfig.getUserName(), managerConfig.getUser());
 
@@ -153,7 +153,27 @@ public class SNMPManager {
         return snmp.set(managerConfig.getPdu(), managerConfig.getCommunityTarget());
     }
 
-    public void sendAndValidate(Map<String, String> map) throws IOException {
-        validateResponse(send(map));
+    public void getAndNotify() throws IOException {
+
+        validateResponseAndNotify(get());
+    }
+
+    public void setAndValidate(Map<String, String> map) throws IOException {
+
+        validateResponse(set(map));
+    }
+
+    public void close() {
+
+        try {
+            if (snmp != null) {
+                snmp.close();
+            }
+            if (managerConfig != null) {
+                managerConfig.clear();
+            }
+        } catch (IOException e) {
+            throw new SNMPRuntimeException("Exception in closing SNMP listening ", e);
+        }
     }
 }
