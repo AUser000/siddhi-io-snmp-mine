@@ -54,20 +54,8 @@ under the License. <version>1.0.17</version>
             <artifactId>testng</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.extension.siddhi.map.xml</groupId>
-            <artifactId>siddhi-map-xml</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.extension.siddhi.map.json</groupId>
-            <artifactId>siddhi-map-json</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.wso2.extension.siddhi.map.keyvalue</groupId>
             <artifactId>siddhi-map-keyvalue</artifactId>
-            <version>1.0.17</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.snmp4j</groupId>

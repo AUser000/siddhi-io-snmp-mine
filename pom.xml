@@ -79,19 +79,7 @@ under the License. <version>1.0.17</version>
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>org.wso2.extension.siddhi.map.xml</groupId>
-        <artifactId>siddhi-map-xml</artifactId>
-        <version>${siddhi.map.xml.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.wso2.extension.siddhi.map.json</groupId>
-        <artifactId>siddhi-map-json</artifactId>
-        <version>${siddhi.map.json.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.wso2.extension.siddhi.map.keyvalue.xml</groupId>
+        <groupId>org.wso2.extension.siddhi.map.keyvalue</groupId>
         <artifactId>siddhi-map-keyvalue</artifactId>
         <version>${siddhi.map.keyvalue.version}</version>
         <scope>test</scope>
@@ -99,7 +87,7 @@ under the License. <version>1.0.17</version>
       <dependency>
         <groupId>org.testng</groupId>
         <artifactId>testng</artifactId>
-        <version>6.11</version>
+        <version>${testng.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -150,10 +138,9 @@ under the License. <version>1.0.17</version>
     <snmp4j.agent.version>2.5.0</snmp4j.agent.version>
     <log4j.version>1.2.17.wso2v1</log4j.version>
     <carbon.transport.version>4.4.15</carbon.transport.version>
-    <siddhi.map.json.version>4.0.15</siddhi.map.json.version>
-    <siddhi.map.xml.version>4.0.11</siddhi.map.xml.version>
     <jacoco.plugin.version>0.7.9</jacoco.plugin.version>
     <carbon.feature.plugin.version>3.0.0</carbon.feature.plugin.version>
     <siddhi.map.keyvalue.version>1.0.17</siddhi.map.keyvalue.version>
+    <testng.version>6.11</testng.version>
   </properties>
 </project>

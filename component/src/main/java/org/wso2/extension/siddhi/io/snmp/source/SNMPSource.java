@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
 import org.wso2.extension.siddhi.io.snmp.util.SNMPConstants;
 import org.wso2.extension.siddhi.io.snmp.util.SNMPManager;
 import org.wso2.extension.siddhi.io.snmp.util.SNMPManagerConfig;
-import org.wso2.extension.siddhi.io.snmp.util.SNMPValidations;
+import org.wso2.extension.siddhi.io.snmp.util.SNMPValidator;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
@@ -36,6 +36,9 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * SNMP Source implementation
@@ -125,7 +128,6 @@ import java.util.Map;
                         optional = true,
                         type = DataType.INT,
                         defaultValue = SNMPConstants.DEFAULT_ENGINE_BOOT)
-
         },
         examples = {
                 @Example(
@@ -133,35 +135,44 @@ import java.util.Map;
 
                         syntax = "@source(type='snmp', \n" +
                                 "@map(type='keyvalue', " +
-                                "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
+                                "   @attributes(" +
+                                        "'value1' = '1.3.6.1.2.1.1.3.0', " +
+                                        "'sysLocation' = '1.3.6.1.2.1.1.6.0') " +
+                                        "),\n" +
                                 "host ='127.0.0.1',\n" +
                                 "version = 'v1',\n" +
                                 "agent.port = '161',\n" +
                                 "request.interval = '60000',\n" +
-                                "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
+                                "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.6.0',\n" +
                                 "community = 'public') \n" +
-                                " define stream inputStream(value1 string, value2 string);\n"
+                                " define stream inputStream(sysUpTime string, sysLocation string);\n"
                 ),
                 @Example(
                         description = "This example shows how to make get request for snmp version 2c ",
 
                         syntax = "@source(type='snmp', \n" +
                                 "@map(type='keyvalue', " +
-                                "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
+                                "   @attributes(" +
+                                        "'sysUpTime' = '1.3.6.1.2.1.1.3.0', " +
+                                        "'sysLocation' = '1.3.6.1.2.1.1.6.0') " +
+                                        "),\n" +
                                 "host ='127.0.0.1',\n" +
                                 "version = 'v2c',\n" +
                                 "agent.port = '161',\n" +
                                 "request.interval = '60000',\n" +
-                                "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
+                                "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.6.0',\n" +
                                 "community = 'public') \n" +
-                                " define stream inputStream(value1 string, value2 string);\n"
+                                " define stream inputStream(sysUpTime string, sysLocation string);\n"
                 ),
                 @Example(
                         description = "This example shows how to make get request for snmp version 3 ",
 
                         syntax = "@source(type ='snmp', \n" +
                                 "@map(type='keyvalue', " +
-                                "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
+                                "   @attributes(" +
+                                        "'sysUpTime' = '1.3.6.1.2.1.1.3.0', " +
+                                        "'sysDescr' = '1.3.6.1.2.1.1.1.0') " +
+                                    "),\n" +
                                 "host ='127.0.0.1',\n" +
                                 "version = 'v3',\n" +
                                 "timeout = '1500',\n" +
@@ -173,7 +184,7 @@ import java.util.Map;
                                 "priv.password = 'privpass',\n" +
                                 "auth.password = 'authpass',\n" +
                                 "user.name = 'agent5') \n" +
-                                "define stream inputStream(value1 string, value2 string);\n"
+                                "define stream inputStream(sysUpTime string, sysDescr string);\n"
                 ),
         }
 )
@@ -182,24 +193,27 @@ public class SNMPSource extends Source {
 
     private static final Logger LOG = Logger.getLogger(SNMPSource.class);
     private int requestInterval;
-    private SNMPManagerConfig managerConfig;
     private SNMPManager manager;
-    private SNMPServer snmpServer;
+    private SourceEventListener sourceEventListener;
     private StreamDefinition streamDefinition;
+    private ScheduledFuture future;
+    private ScheduledExecutorService scheduledExecutorService;
+    private SNMPPoller poller;
 
     @Override
     public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,
                      String[] requestedTransportPropertyNames, ConfigReader configReader,
                      SiddhiAppContext siddhiAppContext) {
 
-        SNMPValidations validation = new SNMPValidations();
-        this.managerConfig = validation.initSnmpProperties(optionHolder,
+        SNMPManagerConfig managerConfig = SNMPValidator.validateSnmpProperties(optionHolder,
                 sourceEventListener.getStreamDefinition().getId(),
                 true);
+        this.sourceEventListener = sourceEventListener;
         this.manager = new SNMPManager();
-        this.manager.setSourceEventListener(sourceEventListener);
+        manager.setManagerConfig(managerConfig);
         this.requestInterval = Integer.parseInt(optionHolder.validateAndGetStaticValue(SNMPConstants.REQUEST_INTERVAL));
         this.streamDefinition = sourceEventListener.getStreamDefinition();
+        scheduledExecutorService = siddhiAppContext.getScheduledExecutorService();
     }
 
     @Override
@@ -212,31 +226,26 @@ public class SNMPSource extends Source {
     public void connect(ConnectionCallback connectionCallback) throws ConnectionUnavailableException {
 
         try {
-            manager.setManagerConfig(managerConfig);
-            snmpServer = new SNMPServer();
-            snmpServer.setManager(manager);
-            snmpServer.setRequestInterval(requestInterval);
-            snmpServer.start();
+            manager.listen();
         } catch (IOException e) {
-            throw new ConnectionUnavailableException(streamDefinition.getId()
-                    + " Exception in starting the snmp for stream: ", e);
+            throw new ConnectionUnavailableException("Exception in starting the snmp for stream: "
+                    + streamDefinition.getId(), e);
         }
+        poller = new SNMPPoller(manager, sourceEventListener);
+        future = scheduledExecutorService.scheduleAtFixedRate(poller, 0, requestInterval, TimeUnit.MILLISECONDS);
+
     }
 
     @Override
     public void disconnect() {
 
-        if (snmpServer != null) {
-            snmpServer.stop();
-        }
     }
 
     @Override
     public void destroy() {
-
-        if (manager != null) {
-            manager.close();
-        }
+        future.cancel(true);
+        poller.kill();
+        manager.close();
     }
 
     @Override

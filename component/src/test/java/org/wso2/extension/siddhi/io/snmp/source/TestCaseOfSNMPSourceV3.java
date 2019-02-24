@@ -114,8 +114,9 @@ public class TestCaseOfSNMPSourceV3 {
         SiddhiTestHelper.waitForEvents(sleepTime, 5, eventCount, timeout);
         Assert.assertTrue(eventArrived.get());
 
-        LOG.info("[TestCaseOfSNMPSource.class] Siddhi manager shutting down");
+        LOG.info("Siddhi manager shutting down");
         siddhiManager.shutdown();
+        LOG.info("Siddhi manager down");
     }
 
     @Test

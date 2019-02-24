@@ -40,11 +40,13 @@ import java.util.Locale;
 /**
  * SNMP validations for sink and source
  */
-public class SNMPValidations {
+public class SNMPValidator {
 
-    private static final Logger log = Logger.getLogger(SNMPValidations.class);
+    private SNMPValidator() {}
 
-    private int validateVersion(String versionString, String streamName) {
+    private static final Logger log = Logger.getLogger(SNMPValidator.class);
+
+    private static int validateVersion(String versionString, String streamName) {
 
         versionString = versionString.toLowerCase(Locale.ENGLISH);
         switch (versionString) {
@@ -60,7 +62,7 @@ public class SNMPValidations {
         }
     }
 
-    private List<VariableBinding> validateAndGetOidList(String oidListString, String streamName) {
+    private static List<VariableBinding> validateAndGetOidList(String oidListString, String streamName) {
 
         oidListString = oidListString.replace(" ", "");
         if (oidListString.equals("")) {
@@ -74,7 +76,7 @@ public class SNMPValidations {
         return list;
     }
 
-    private OID validateAndGetPriv(String priv, String streamName) {
+    private static OID validateAndGetPriv(String priv, String streamName) {
 
         priv = priv.toUpperCase(Locale.ENGLISH);
         switch (priv) {
@@ -98,7 +100,7 @@ public class SNMPValidations {
 
     }
 
-    private OID validateAndGetAuth(String auth, String streamName) {
+    private static OID validateAndGetAuth(String auth, String streamName) {
 
         auth = auth.toUpperCase(Locale.ENGLISH);
         switch (auth) {
@@ -119,7 +121,7 @@ public class SNMPValidations {
         }
     }
 
-    private int validateSecLvl(String seclvl, String streamName) {
+    private static int validateSecLvl(String seclvl, String streamName) {
 
         seclvl = seclvl.toUpperCase(Locale.ENGLISH);
         switch (seclvl) {
@@ -135,7 +137,7 @@ public class SNMPValidations {
         }
     }
 
-    private OctetString validateEngineId(String engineId, String streamName) {
+    private static OctetString validateEngineId(String engineId, String streamName) {
 
         if (engineId.equals("Empty")) {
             return null;
@@ -144,7 +146,7 @@ public class SNMPValidations {
     }
 
     //for validation
-    public SNMPManagerConfig initSnmpProperties(OptionHolder optionHolder,
+    public static SNMPManagerConfig validateSnmpProperties(OptionHolder optionHolder,
                                                 String streamName,
                                                 boolean includeOids) {
 

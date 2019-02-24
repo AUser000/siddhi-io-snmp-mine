@@ -22,7 +22,7 @@ import org.wso2.extension.siddhi.io.snmp.sink.exceptions.SNMPSinkRuntimeExceptio
 import org.wso2.extension.siddhi.io.snmp.util.SNMPConstants;
 import org.wso2.extension.siddhi.io.snmp.util.SNMPManager;
 import org.wso2.extension.siddhi.io.snmp.util.SNMPManagerConfig;
-import org.wso2.extension.siddhi.io.snmp.util.SNMPValidations;
+import org.wso2.extension.siddhi.io.snmp.util.SNMPValidator;
 import org.wso2.extension.siddhi.io.snmp.util.exceptions.SNMPRuntimeException;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
@@ -127,26 +127,26 @@ import java.util.Map;
                                 &quot;version v1 &quot;,
 
                         syntax = &quot;@Sink(type='snmp',\n&quot; +
-                                &quot;@map(type='keyvalue', @payload('1.3.6.1.2.1.1.1.0' = 'value')),\n&quot; +
+                                &quot;@map(type='keyvalue', @payload('1.3.6.1.2.1.1.1.0' = 'sysDscr')),\n&quot; +
                                 &quot;host = '127.0.0.1',\n&quot; +
                                 &quot;version = 'v1',\n&quot; +
                                 &quot;community = 'public',\n&quot; +
                                 &quot;agent.port = '161',\n&quot; +
                                 &quot;retries = '5')\n&quot; +
-                                &quot;define stream outputStream(value string);\n&quot;
+                                &quot;define stream outputStream(sysDscr string);\n&quot;
                 ),
                 @Example(
                         description = &quot;This example shows how to make set request using snmp &quot; +
                                 &quot;version v2c &quot;,
 
                         syntax = &quot;@Sink(type='snmp',\n&quot; +
-                                &quot;@map(type='keyvalue', @payload('1.3.6.1.2.1.1.1.0' = 'value')),\n&quot; +
+                                &quot;@map(type='keyvalue', @payload('1.3.6.1.2.1.1.6.0' = 'sysLocation')),\n&quot; +
                                 &quot;host = '127.0.0.1',\n&quot; +
                                 &quot;version = 'v2c',\n&quot; +
                                 &quot;community = 'public',\n&quot; +
                                 &quot;agent.port = '161',\n&quot; +
                                 &quot;retries = '5')\n&quot; +
-                                &quot;define stream outputStream(value string);\n&quot;
+                                &quot;define stream outputStream(sysLocation string);\n&quot;
                 ),
                 @Example(
                         description = &quot;This example shows how to make set request using snmp &quot; +
@@ -154,7 +154,7 @@ import java.util.Map;
 
                         syntax = &quot;@Sink(type='snmp',\n&quot; +
                                 &quot;@map(type='keyvalue', &quot; +
-                                &quot;@payload('1.3.6.1.2.1.1.3.0' = 'value', '1.3.6.1.2.1.1.2.0' = 'value2')),\n&quot; +
+                                &quot;@payload('1.3.6.1.2.1.1.4.0' = 'sysLocation', '1.3.6.1.2.1.1.1.0' = 'sysDscr')),\n&quot; +
                                 &quot;host = '127.0.0.1',\n&quot; +
                                 &quot;version = 'v3',\n&quot; +
                                 &quot;agent.port = '161',\n&quot; +
@@ -165,7 +165,7 @@ import java.util.Map;
                                 &quot;priv.password = 'privpass',\n&quot; +
                                 &quot;user.name = 'agent5', \n&quot; +
                                 &quot;retries = '5')\n&quot; +
-                                &quot;define stream outputStream(value string, value2 string);\n&quot;
+                                &quot;define stream outputStream(sysLocation string, sysDscr string);\n&quot;
                 ),
         }
 )
@@ -195,10 +195,10 @@ import java.util.Map;
     protected void init(StreamDefinition streamDefinition, OptionHolder optionHolder, ConfigReader configReader,
                         SiddhiAppContext siddhiAppContext) {
 
-<span class="fc" id="L198">        SNMPValidations validation = new SNMPValidations();</span>
-<span class="fc" id="L199">        this.streamDefinition = streamDefinition;</span>
-<span class="fc" id="L200">        managerConfig = validation.initSnmpProperties(optionHolder, this.streamDefinition.getId(), false);</span>
-<span class="fc" id="L201">        manager = new SNMPManager();</span>
+<span class="fc" id="L198">        this.streamDefinition = streamDefinition;</span>
+<span class="fc" id="L199">        managerConfig = SNMPValidator.validateSnmpProperties(optionHolder, this.streamDefinition.getId(), false);</span>
+<span class="fc" id="L200">        manager = new SNMPManager();</span>
+<span class="fc" id="L201">        manager.setManagerConfig(managerConfig);</span>
 <span class="fc" id="L202">    }</span>
 
     @Override
@@ -206,7 +206,7 @@ import java.util.Map;
 
 <span class="fc" id="L207">        Map&lt;String, String&gt; data = (Map) payload;</span>
         try {
-<span class="fc" id="L209">            manager.setAndValidate(data);</span>
+<span class="fc" id="L209">            manager.setRequestAndValidate(data);</span>
 <span class="nc" id="L210">        } catch (IOException e) {</span>
 <span class="nc" id="L211">            throw new SNMPSinkRuntimeException(&quot;Stream Name : &quot; + this.streamDefinition.getId()</span>
                     + &quot; : Error in IO &quot;, e);
@@ -222,35 +222,36 @@ import java.util.Map;
 
         try {
 <span class="fc" id="L224">            manager.setManagerConfig(managerConfig);</span>
-<span class="nc" id="L225">        } catch (IOException e) {</span>
-<span class="nc" id="L226">            throw new ConnectionUnavailableException(this.streamDefinition.getId()</span>
+<span class="fc" id="L225">            manager.listen();</span>
+<span class="nc" id="L226">        } catch (IOException e) {</span>
+<span class="nc" id="L227">            throw new ConnectionUnavailableException(this.streamDefinition.getId()</span>
                     + &quot; Error in Setting up Connection : &quot; , e);
-<span class="fc" id="L228">        }</span>
-<span class="fc" id="L229">    }</span>
+<span class="fc" id="L229">        }</span>
+<span class="fc" id="L230">    }</span>
 
     @Override
     public void disconnect() {
 
-<span class="pc bpc" id="L234" title="1 of 2 branches missed.">        if (manager != null) {</span>
-<span class="fc" id="L235">            manager.close();</span>
+<span class="pc bpc" id="L235" title="1 of 2 branches missed.">        if (manager != null) {</span>
+<span class="fc" id="L236">            manager.close();</span>
         }
-<span class="fc" id="L237">    }</span>
+<span class="fc" id="L238">    }</span>
 
     @Override
     public void destroy() {
 
-<span class="fc" id="L242">    }</span>
+<span class="fc" id="L243">    }</span>
 
     @Override
     public Map&lt;String, Object&gt; currentState() {
 
-<span class="nc" id="L247">        return null;</span>
+<span class="nc" id="L248">        return null;</span>
     }
 
     @Override
     public void restoreState(Map&lt;String, Object&gt; map) {
 
-<span class="nc" id="L253">    }</span>
+<span class="nc" id="L254">    }</span>
 }
 
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

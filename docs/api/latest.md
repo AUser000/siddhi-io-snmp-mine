@@ -147,13 +147,13 @@
 <span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
 ```
 @Sink(type='snmp',
-@map(type='keyvalue', @payload('1.3.6.1.2.1.1.1.0' = 'value')),
+@map(type='keyvalue', @payload('1.3.6.1.2.1.1.1.0' = 'sysDscr')),
 host = '127.0.0.1',
 version = 'v1',
 community = 'public',
 agent.port = '161',
 retries = '5')
-define stream outputStream(value string);
+define stream outputStream(sysDscr string);
 
 ```
 <p style="word-wrap: break-word">This example shows how to make set request using snmp version v1 </p>
@@ -161,13 +161,13 @@ define stream outputStream(value string);
 <span id="example-2" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 2</span>
 ```
 @Sink(type='snmp',
-@map(type='keyvalue', @payload('1.3.6.1.2.1.1.1.0' = 'value')),
+@map(type='keyvalue', @payload('1.3.6.1.2.1.1.6.0' = 'sysLocation')),
 host = '127.0.0.1',
 version = 'v2c',
 community = 'public',
 agent.port = '161',
 retries = '5')
-define stream outputStream(value string);
+define stream outputStream(sysLocation string);
 
 ```
 <p style="word-wrap: break-word">This example shows how to make set request using snmp version v2c </p>
@@ -175,7 +175,7 @@ define stream outputStream(value string);
 <span id="example-3" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 3</span>
 ```
 @Sink(type='snmp',
-@map(type='keyvalue', @payload('1.3.6.1.2.1.1.3.0' = 'value', '1.3.6.1.2.1.1.2.0' = 'value2')),
+@map(type='keyvalue', @payload('1.3.6.1.2.1.1.4.0' = 'sysLocation', '1.3.6.1.2.1.1.1.0' = 'sysDscr')),
 host = '127.0.0.1',
 version = 'v3',
 agent.port = '161',
@@ -186,7 +186,7 @@ auth.password = 'authpass',
 priv.password = 'privpass',
 user.name = 'agent5', 
 retries = '5')
-define stream outputStream(value string, value2 string);
+define stream outputStream(sysLocation string, sysDscr string);
 
 ```
 <p style="word-wrap: break-word">This example shows how to make set request using snmp version v3 </p>
@@ -354,14 +354,14 @@ define stream outputStream(value string, value2 string);
 <span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
 ```
 @source(type='snmp', 
-@map(type='keyvalue',    @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),
+@map(type='keyvalue',    @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'sysLocation' = '1.3.6.1.2.1.1.6.0') ),
 host ='127.0.0.1',
 version = 'v1',
 agent.port = '161',
 request.interval = '60000',
-oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',
+oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.6.0',
 community = 'public') 
- define stream inputStream(value1 string, value2 string);
+ define stream inputStream(sysUpTime string, sysLocation string);
 
 ```
 <p style="word-wrap: break-word">This example shows how to make get request for snmp version 1 </p>
@@ -369,14 +369,14 @@ community = 'public')
 <span id="example-2" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 2</span>
 ```
 @source(type='snmp', 
-@map(type='keyvalue',    @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),
+@map(type='keyvalue',    @attributes('sysUpTime' = '1.3.6.1.2.1.1.3.0', 'sysLocation' = '1.3.6.1.2.1.1.6.0') ),
 host ='127.0.0.1',
 version = 'v2c',
 agent.port = '161',
 request.interval = '60000',
-oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',
+oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.6.0',
 community = 'public') 
- define stream inputStream(value1 string, value2 string);
+ define stream inputStream(sysUpTime string, sysLocation string);
 
 ```
 <p style="word-wrap: break-word">This example shows how to make get request for snmp version 2c </p>
@@ -384,7 +384,7 @@ community = 'public')
 <span id="example-3" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 3</span>
 ```
 @source(type ='snmp', 
-@map(type='keyvalue',    @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),
+@map(type='keyvalue',    @attributes('sysUpTime' = '1.3.6.1.2.1.1.3.0', 'sysDescr' = '1.3.6.1.2.1.1.1.0') ),
 host ='127.0.0.1',
 version = 'v3',
 timeout = '1500',
@@ -396,7 +396,7 @@ priv.protocol = 'PRIVDES',
 priv.password = 'privpass',
 auth.password = 'authpass',
 user.name = 'agent5') 
-define stream inputStream(value1 string, value2 string);
+define stream inputStream(sysUpTime string, sysDescr string);
 
 ```
 <p style="word-wrap: break-word">This example shows how to make get request for snmp version 3 </p>

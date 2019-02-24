@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1550827334780
+Bnd-LastModified: 1550979822468
 Build-Jdk: 1.8.0_191
 Built-By: dhanushka
 Bundle-Contributors: WSO2 Inc
@@ -29,9 +29,9 @@ Export-Package: org.wso2.extension.siddhi.io.snmp.sink;uses:="org.wso2.s
  ,org.wso2.siddhi.core.exception,org.wso2.siddhi.core.stream.input.sourc
  e,org.wso2.siddhi.core.util.config,org.wso2.siddhi.core.util.transport"
  ;version="1.0.0",org.wso2.extension.siddhi.io.snmp.util;uses:="org.wso2
- .siddhi.core.stream.input.source,org.wso2.siddhi.core.util.transport";v
- ersion="1.0.0",org.wso2.extension.siddhi.io.snmp.util.exceptions;versio
- n="1.0.0",org.wso2.extension.siddhi.io.snmp;version="1.0.0"
+ .siddhi.core.util.transport";version="1.0.0",org.wso2.extension.siddhi.
+ io.snmp.util.exceptions;version="1.0.0",org.wso2.extension.siddhi.io.sn
+ mp;version="1.0.0"
 Import-Package: javax.crypto;resolution:=optional,javax.crypto.interface
  s;resolution:=optional,javax.crypto.spec;resolution:=optional,javax.net
  .ssl;resolution:=optional,javax.security.auth.x500;resolution:=optional
@@ -50,5 +50,5 @@ Import-Package: javax.crypto;resolution:=optional,javax.crypto.interface
  hi.query.api.definition;resolution:=optional;version="[4.3,5)",org.wso2
  .siddhi.query.api.exception;resolution:=optional;version="[4.3,5)"
 Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"
-SCM-Revision: e9f81f8eb272cc3a9a69571d97988a3818cc296b
+SCM-Revision: 75ff4de72de84441a7ace7c12c75175bde841372
 Tool: Bnd-3.0.0.201509101326

@@ -22,7 +22,7 @@ import org.wso2.extension.siddhi.io.snmp.sink.exceptions.SNMPSinkRuntimeExceptio
 import org.wso2.extension.siddhi.io.snmp.util.SNMPConstants;
 import org.wso2.extension.siddhi.io.snmp.util.SNMPManager;
 import org.wso2.extension.siddhi.io.snmp.util.SNMPManagerConfig;
-import org.wso2.extension.siddhi.io.snmp.util.SNMPValidations;
+import org.wso2.extension.siddhi.io.snmp.util.SNMPValidator;
 import org.wso2.extension.siddhi.io.snmp.util.exceptions.SNMPRuntimeException;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
@@ -127,26 +127,26 @@ import java.util.Map;
                                 "version v1 ",
 
                         syntax = "@Sink(type='snmp',\n" +
-                                "@map(type='keyvalue', @payload('1.3.6.1.2.1.1.1.0' = 'value')),\n" +
+                                "@map(type='keyvalue', @payload('1.3.6.1.2.1.1.1.0' = 'sysDscr')),\n" +
                                 "host = '127.0.0.1',\n" +
                                 "version = 'v1',\n" +
                                 "community = 'public',\n" +
                                 "agent.port = '161',\n" +
                                 "retries = '5')\n" +
-                                "define stream outputStream(value string);\n"
+                                "define stream outputStream(sysDscr string);\n"
                 ),
                 @Example(
                         description = "This example shows how to make set request using snmp " +
                                 "version v2c ",
 
                         syntax = "@Sink(type='snmp',\n" +
-                                "@map(type='keyvalue', @payload('1.3.6.1.2.1.1.1.0' = 'value')),\n" +
+                                "@map(type='keyvalue', @payload('1.3.6.1.2.1.1.6.0' = 'sysLocation')),\n" +
                                 "host = '127.0.0.1',\n" +
                                 "version = 'v2c',\n" +
                                 "community = 'public',\n" +
                                 "agent.port = '161',\n" +
                                 "retries = '5')\n" +
-                                "define stream outputStream(value string);\n"
+                                "define stream outputStream(sysLocation string);\n"
                 ),
                 @Example(
                         description = "This example shows how to make set request using snmp " +
@@ -154,7 +154,7 @@ import java.util.Map;
 
                         syntax = "@Sink(type='snmp',\n" +
                                 "@map(type='keyvalue', " +
-                                "@payload('1.3.6.1.2.1.1.3.0' = 'value', '1.3.6.1.2.1.1.2.0' = 'value2')),\n" +
+                                "@payload('1.3.6.1.2.1.1.4.0' = 'sysLocation', '1.3.6.1.2.1.1.1.0' = 'sysDscr')),\n" +
                                 "host = '127.0.0.1',\n" +
                                 "version = 'v3',\n" +
                                 "agent.port = '161',\n" +
@@ -165,7 +165,7 @@ import java.util.Map;
                                 "priv.password = 'privpass',\n" +
                                 "user.name = 'agent5', \n" +
                                 "retries = '5')\n" +
-                                "define stream outputStream(value string, value2 string);\n"
+                                "define stream outputStream(sysLocation string, sysDscr string);\n"
                 ),
         }
 )
@@ -195,10 +195,10 @@ public class SNMPSink extends Sink {
     protected void init(StreamDefinition streamDefinition, OptionHolder optionHolder, ConfigReader configReader,
                         SiddhiAppContext siddhiAppContext) {
 
-        SNMPValidations validation = new SNMPValidations();
         this.streamDefinition = streamDefinition;
-        managerConfig = validation.initSnmpProperties(optionHolder, this.streamDefinition.getId(), false);
+        managerConfig = SNMPValidator.validateSnmpProperties(optionHolder, this.streamDefinition.getId(), false);
         manager = new SNMPManager();
+        manager.setManagerConfig(managerConfig);
     }
 
     @Override
@@ -206,7 +206,7 @@ public class SNMPSink extends Sink {
 
         Map<String, String> data = (Map) payload;
         try {
-            manager.setAndValidate(data);
+            manager.setRequestAndValidate(data);
         } catch (IOException e) {
             throw new SNMPSinkRuntimeException("Stream Name : " + this.streamDefinition.getId()
                     + " : Error in IO ", e);
@@ -222,6 +222,7 @@ public class SNMPSink extends Sink {
 
         try {
             manager.setManagerConfig(managerConfig);
+            manager.listen();
         } catch (IOException e) {
             throw new ConnectionUnavailableException(this.streamDefinition.getId()
                     + " Error in Setting up Connection : " , e);

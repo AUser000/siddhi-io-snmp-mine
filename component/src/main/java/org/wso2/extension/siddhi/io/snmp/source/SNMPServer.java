@@ -31,7 +31,6 @@ import java.util.concurrent.Future;
  * in a different thread
  */
 public class SNMPServer implements Runnable {
-
     private static final Logger log = Logger.getLogger(SNMPServer.class);
     private SNMPManager snmpManager;
     private int requestInterval;
@@ -39,22 +38,18 @@ public class SNMPServer implements Runnable {
     private ExecutorService executorService;
 
     public SNMPServer() {
-
         this.executorService = Executors.newSingleThreadExecutor();
     }
 
     public void setManager(SNMPManager snmpManager) {
-
         this.snmpManager = snmpManager;
     }
 
     public void setRequestInterval(int requestInterval) {
-
         this.requestInterval = requestInterval;
     }
 
     public synchronized void start() {
-
         if (!isRunning()) {
             running = true;
             Future<?> thread = executorService.submit(this);
@@ -63,10 +58,9 @@ public class SNMPServer implements Runnable {
 
     @Override
     public void run() {
-
         while (isRunning()) {
             try {
-                snmpManager.getAndNotify();
+                snmpManager.getRequestValidateAndReturn();
                 Thread.sleep(requestInterval);
             } catch (IOException | InterruptedException e) {
                 log.error("Error in sending request" + e);
@@ -75,14 +69,12 @@ public class SNMPServer implements Runnable {
     }
 
     public synchronized void stop() {
-
         if (isRunning()) {
             running = false;
         }
     }
 
     private synchronized boolean isRunning() {
-
         return running;
     }
 

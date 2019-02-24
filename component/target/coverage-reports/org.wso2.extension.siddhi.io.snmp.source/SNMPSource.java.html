@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
 import org.wso2.extension.siddhi.io.snmp.util.SNMPConstants;
 import org.wso2.extension.siddhi.io.snmp.util.SNMPManager;
 import org.wso2.extension.siddhi.io.snmp.util.SNMPManagerConfig;
-import org.wso2.extension.siddhi.io.snmp.util.SNMPValidations;
+import org.wso2.extension.siddhi.io.snmp.util.SNMPValidator;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
@@ -36,6 +36,9 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * SNMP Source implementation
@@ -125,7 +128,6 @@ import java.util.Map;
                         optional = true,
                         type = DataType.INT,
                         defaultValue = SNMPConstants.DEFAULT_ENGINE_BOOT)
-
         },
         examples = {
                 @Example(
@@ -133,35 +135,44 @@ import java.util.Map;
 
                         syntax = &quot;@source(type='snmp', \n&quot; +
                                 &quot;@map(type='keyvalue', &quot; +
-                                &quot;   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n&quot; +
+                                &quot;   @attributes(&quot; +
+                                        &quot;'value1' = '1.3.6.1.2.1.1.3.0', &quot; +
+                                        &quot;'sysLocation' = '1.3.6.1.2.1.1.6.0') &quot; +
+                                        &quot;),\n&quot; +
                                 &quot;host ='127.0.0.1',\n&quot; +
                                 &quot;version = 'v1',\n&quot; +
                                 &quot;agent.port = '161',\n&quot; +
                                 &quot;request.interval = '60000',\n&quot; +
-                                &quot;oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n&quot; +
+                                &quot;oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.6.0',\n&quot; +
                                 &quot;community = 'public') \n&quot; +
-                                &quot; define stream inputStream(value1 string, value2 string);\n&quot;
+                                &quot; define stream inputStream(sysUpTime string, sysLocation string);\n&quot;
                 ),
                 @Example(
                         description = &quot;This example shows how to make get request for snmp version 2c &quot;,
 
                         syntax = &quot;@source(type='snmp', \n&quot; +
                                 &quot;@map(type='keyvalue', &quot; +
-                                &quot;   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n&quot; +
+                                &quot;   @attributes(&quot; +
+                                        &quot;'sysUpTime' = '1.3.6.1.2.1.1.3.0', &quot; +
+                                        &quot;'sysLocation' = '1.3.6.1.2.1.1.6.0') &quot; +
+                                        &quot;),\n&quot; +
                                 &quot;host ='127.0.0.1',\n&quot; +
                                 &quot;version = 'v2c',\n&quot; +
                                 &quot;agent.port = '161',\n&quot; +
                                 &quot;request.interval = '60000',\n&quot; +
-                                &quot;oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n&quot; +
+                                &quot;oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.6.0',\n&quot; +
                                 &quot;community = 'public') \n&quot; +
-                                &quot; define stream inputStream(value1 string, value2 string);\n&quot;
+                                &quot; define stream inputStream(sysUpTime string, sysLocation string);\n&quot;
                 ),
                 @Example(
                         description = &quot;This example shows how to make get request for snmp version 3 &quot;,
 
                         syntax = &quot;@source(type ='snmp', \n&quot; +
                                 &quot;@map(type='keyvalue', &quot; +
-                                &quot;   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n&quot; +
+                                &quot;   @attributes(&quot; +
+                                        &quot;'sysUpTime' = '1.3.6.1.2.1.1.3.0', &quot; +
+                                        &quot;'sysDescr' = '1.3.6.1.2.1.1.1.0') &quot; +
+                                    &quot;),\n&quot; +
                                 &quot;host ='127.0.0.1',\n&quot; +
                                 &quot;version = 'v3',\n&quot; +
                                 &quot;timeout = '1500',\n&quot; +
@@ -173,92 +184,90 @@ import java.util.Map;
                                 &quot;priv.password = 'privpass',\n&quot; +
                                 &quot;auth.password = 'authpass',\n&quot; +
                                 &quot;user.name = 'agent5') \n&quot; +
-                                &quot;define stream inputStream(value1 string, value2 string);\n&quot;
+                                &quot;define stream inputStream(sysUpTime string, sysDescr string);\n&quot;
                 ),
         }
 )
 
-<span class="fc" id="L181">public class SNMPSource extends Source {</span>
+<span class="fc" id="L192">public class SNMPSource extends Source {</span>
 
-<span class="fc" id="L183">    private static final Logger LOG = Logger.getLogger(SNMPSource.class);</span>
+<span class="fc" id="L194">    private static final Logger LOG = Logger.getLogger(SNMPSource.class);</span>
     private int requestInterval;
-    private SNMPManagerConfig managerConfig;
     private SNMPManager manager;
-    private SNMPServer snmpServer;
+    private SourceEventListener sourceEventListener;
     private StreamDefinition streamDefinition;
+    private ScheduledFuture future;
+    private ScheduledExecutorService scheduledExecutorService;
+    private SNMPPoller poller;
 
     @Override
     public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,
                      String[] requestedTransportPropertyNames, ConfigReader configReader,
                      SiddhiAppContext siddhiAppContext) {
 
-<span class="fc" id="L195">        SNMPValidations validation = new SNMPValidations();</span>
-<span class="fc" id="L196">        this.managerConfig = validation.initSnmpProperties(optionHolder,</span>
-<span class="fc" id="L197">                sourceEventListener.getStreamDefinition().getId(),</span>
+<span class="fc" id="L208">        SNMPManagerConfig managerConfig = SNMPValidator.validateSnmpProperties(optionHolder,</span>
+<span class="fc" id="L209">                sourceEventListener.getStreamDefinition().getId(),</span>
                 true);
-<span class="fc" id="L199">        this.manager = new SNMPManager();</span>
-<span class="fc" id="L200">        this.manager.setSourceEventListener(sourceEventListener);</span>
-<span class="fc" id="L201">        this.requestInterval = Integer.parseInt(optionHolder.validateAndGetStaticValue(SNMPConstants.REQUEST_INTERVAL));</span>
-<span class="fc" id="L202">        this.streamDefinition = sourceEventListener.getStreamDefinition();</span>
-<span class="fc" id="L203">    }</span>
+<span class="fc" id="L211">        this.sourceEventListener = sourceEventListener;</span>
+<span class="fc" id="L212">        this.manager = new SNMPManager();</span>
+<span class="fc" id="L213">        manager.setManagerConfig(managerConfig);</span>
+<span class="fc" id="L214">        this.requestInterval = Integer.parseInt(optionHolder.validateAndGetStaticValue(SNMPConstants.REQUEST_INTERVAL));</span>
+<span class="fc" id="L215">        this.streamDefinition = sourceEventListener.getStreamDefinition();</span>
+<span class="fc" id="L216">        scheduledExecutorService = siddhiAppContext.getScheduledExecutorService();</span>
+<span class="fc" id="L217">    }</span>
 
     @Override
     public Class[] getOutputEventClasses() {
 
-<span class="fc" id="L208">        return new Class[]{Map.class};</span>
+<span class="fc" id="L222">        return new Class[]{Map.class};</span>
     }
 
     @Override
     public void connect(ConnectionCallback connectionCallback) throws ConnectionUnavailableException {
 
         try {
-<span class="fc" id="L215">            manager.setManagerConfig(managerConfig);</span>
-<span class="fc" id="L216">            snmpServer = new SNMPServer();</span>
-<span class="fc" id="L217">            snmpServer.setManager(manager);</span>
-<span class="fc" id="L218">            snmpServer.setRequestInterval(requestInterval);</span>
-<span class="fc" id="L219">            snmpServer.start();</span>
-<span class="nc" id="L220">        } catch (IOException e) {</span>
-<span class="nc" id="L221">            throw new ConnectionUnavailableException(streamDefinition.getId()</span>
-                    + &quot; Exception in starting the snmp for stream: &quot;, e);
-<span class="fc" id="L223">        }</span>
-<span class="fc" id="L224">    }</span>
+<span class="fc" id="L229">            manager.listen();</span>
+<span class="nc" id="L230">        } catch (IOException e) {</span>
+<span class="nc" id="L231">            throw new ConnectionUnavailableException(&quot;Exception in starting the snmp for stream: &quot;</span>
+<span class="nc" id="L232">                    + streamDefinition.getId(), e);</span>
+<span class="fc" id="L233">        }</span>
+<span class="fc" id="L234">        poller = new SNMPPoller(manager, sourceEventListener);</span>
+<span class="fc" id="L235">        future = scheduledExecutorService.scheduleAtFixedRate(poller, 0, requestInterval, TimeUnit.MILLISECONDS);</span>
+
+<span class="fc" id="L237">    }</span>
 
     @Override
     public void disconnect() {
 
-<span class="pc bpc" id="L229" title="1 of 2 branches missed.">        if (snmpServer != null) {</span>
-<span class="fc" id="L230">            snmpServer.stop();</span>
-        }
-<span class="fc" id="L232">    }</span>
+<span class="fc" id="L242">    }</span>
 
     @Override
     public void destroy() {
-
-<span class="pc bpc" id="L237" title="1 of 2 branches missed.">        if (manager != null) {</span>
-<span class="fc" id="L238">            manager.close();</span>
-        }
-<span class="fc" id="L240">    }</span>
+<span class="fc" id="L246">        future.cancel(true);</span>
+<span class="fc" id="L247">        poller.kill();</span>
+<span class="fc" id="L248">        manager.close();</span>
+<span class="fc" id="L249">    }</span>
 
     @Override
     public void pause() {
 
-<span class="nc" id="L245">    }</span>
+<span class="nc" id="L254">    }</span>
 
     @Override
     public void resume() {
 
-<span class="nc" id="L250">    }</span>
+<span class="nc" id="L259">    }</span>
 
     @Override
     public Map&lt;String, Object&gt; currentState() {
 
-<span class="nc" id="L255">        return null;</span>
+<span class="nc" id="L264">        return null;</span>
     }
 
     @Override
     public void restoreState(Map&lt;String, Object&gt; map) {
 
-<span class="nc" id="L261">    }</span>
+<span class="nc" id="L270">    }</span>
 }
 
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

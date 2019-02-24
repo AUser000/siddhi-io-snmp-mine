@@ -32,7 +32,6 @@ import org.snmp4j.smi.VariableBinding;
 import org.snmp4j.transport.DefaultTcpTransportMapping;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
 import org.wso2.extension.siddhi.io.snmp.util.exceptions.SNMPRuntimeException;
-import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -44,137 +43,111 @@ import java.util.Map;
  */
 public class SNMPManager {
 
-<span class="fc" id="L47">    private Logger log = Logger.getLogger(SNMPManager.class);</span>
+<span class="fc" id="L46">    private Logger log = Logger.getLogger(SNMPManager.class);</span>
     private Snmp snmp;
     private TransportMapping transportMapping;
     private SNMPManagerConfig managerConfig;
-    private SourceEventListener sourceEventListener;
 
-<span class="fc" id="L53">    public SNMPManager() {</span>
+<span class="fc" id="L51">    public SNMPManager() {</span>
 
-<span class="fc" id="L55">    }</span>
-
-    public void setSourceEventListener(SourceEventListener sourceEventListener) {
-
-<span class="fc" id="L59">        this.sourceEventListener = sourceEventListener;</span>
-<span class="fc" id="L60">    }</span>
+<span class="fc" id="L53">    }</span>
 
     private OctetString getEngineId() {
 
         OctetString engineId;
-<span class="pc bpc" id="L65" title="1 of 2 branches missed.">        if (managerConfig.getLocalEngineID() == null) {</span>
-<span class="fc" id="L66">            engineId = new OctetString(MPv3.createLocalEngineID()).substring(0, 9);</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">        if (managerConfig.getLocalEngineID() == null) {</span>
+<span class="fc" id="L59">            engineId = new OctetString(MPv3.createLocalEngineID()).substring(0, 9);</span>
         } else {
-<span class="nc" id="L68">            engineId = managerConfig.getLocalEngineID();</span>
+<span class="nc" id="L61">            engineId = managerConfig.getLocalEngineID();</span>
         }
-<span class="fc" id="L70">        return engineId;</span>
+<span class="fc" id="L63">        return engineId;</span>
     }
 
-    public void setManagerConfig(SNMPManagerConfig managerConfig) throws IOException {
+    public void setManagerConfig(SNMPManagerConfig managerConfig) {
+<span class="fc" id="L67">        this.managerConfig = managerConfig;</span>
+<span class="fc" id="L68">    }</span>
 
-<span class="fc" id="L75">        this.managerConfig = managerConfig;</span>
-<span class="fc bfc" id="L76" title="All 2 branches covered.">        if (managerConfig.isTCP()) {</span>
-<span class="fc" id="L77">            transportMapping = new DefaultTcpTransportMapping();</span>
+    public void listen() throws IOException {
+
+<span class="fc bfc" id="L72" title="All 2 branches covered.">        if (managerConfig.isTCP()) {</span>
+<span class="fc" id="L73">            transportMapping = new DefaultTcpTransportMapping();</span>
         } else {
-<span class="fc" id="L79">            transportMapping = new DefaultUdpTransportMapping();</span>
+<span class="fc" id="L75">            transportMapping = new DefaultUdpTransportMapping();</span>
         }
-<span class="fc" id="L81">        snmp = new Snmp(this.transportMapping);</span>
+<span class="fc" id="L77">        snmp = new Snmp(this.transportMapping);</span>
 
-<span class="fc bfc" id="L83" title="All 2 branches covered.">        if (managerConfig.getVersion() == SnmpConstants.version3) {</span>
-<span class="fc" id="L84">            USM usm = new USM(SecurityProtocols.getInstance(),</span>
-<span class="fc" id="L85">                    managerConfig.getLocalEngineID(),</span>
-<span class="fc" id="L86">                    managerConfig.getEngineBoot());</span>
-<span class="fc" id="L87">            SecurityModels.getInstance().addSecurityModel(usm);</span>
-<span class="fc" id="L88">            snmp.getUSM().addUser(managerConfig.getUserName(), managerConfig.getUser());</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">        if (managerConfig.getVersion() == SnmpConstants.version3) {</span>
+<span class="fc" id="L80">            USM usm = new USM(SecurityProtocols.getInstance().addDefaultProtocols(),</span>
+<span class="fc" id="L81">                            getEngineId(),</span>
+<span class="fc" id="L82">                            managerConfig.getEngineBoot());</span>
+<span class="fc" id="L83">            SecurityModels.getInstance().addSecurityModel(usm);</span>
+<span class="fc" id="L84">            snmp.getUSM().addUser(managerConfig.getUserName(), managerConfig.getUser());</span>
         }
-<span class="fc" id="L90">        snmp.listen();</span>
-<span class="fc" id="L91">    }</span>
+<span class="fc" id="L86">        snmp.listen();</span>
+<span class="fc" id="L87">    }</span>
 
-    // get snmp event, rearrange data and notify to siddhi
-    private void validateResponseAndNotify(ResponseEvent event) {
+    // make get request validate and return map
+    public Map&lt;String, String&gt; getRequestValidateAndReturn() throws IOException {
 
-<span class="pc bpc" id="L96" title="1 of 2 branches missed.">        if (event != null) {</span>
-<span class="pc bpc" id="L97" title="1 of 2 branches missed.">            if (event.getResponse() != null) {</span>
-<span class="fc" id="L98">                List&lt;VariableBinding&gt; vbs = (List&lt;VariableBinding&gt;) event.getResponse().getVariableBindings();</span>
-<span class="fc" id="L99">                Map&lt;String, String&gt; map = new HashMap&lt;&gt;();</span>
-<span class="fc bfc" id="L100" title="All 2 branches covered.">                for (VariableBinding vb : vbs) {</span>
-<span class="fc" id="L101">                    map.put(vb.getOid().toString(), vb.getVariable().toString());</span>
-<span class="fc" id="L102">                }</span>
-<span class="fc" id="L103">                sourceEventListener.onEvent(map, null);</span>
-            }
+        // make request
+        ResponseEvent event;
+<span class="fc bfc" id="L94" title="All 2 branches covered.">        if (managerConfig.getVersion() == SnmpConstants.version3) {</span>
+<span class="fc" id="L95">            event = snmp.get(managerConfig.getPdu(), managerConfig.getUserTarget());</span>
+        } else {
+<span class="fc" id="L97">            event = snmp.get(managerConfig.getPdu(), managerConfig.getCommunityTarget());</span>
         }
-<span class="fc" id="L106">    }</span>
 
-    // make get-request
-    private ResponseEvent get() throws IOException {
-
-<span class="fc bfc" id="L111" title="All 2 branches covered.">        if (managerConfig.getVersion() == SnmpConstants.version3) {</span>
-
-<span class="fc" id="L113">            USM usm = new USM(SecurityProtocols.getInstance().addDefaultProtocols(),</span>
-<span class="fc" id="L114">                    getEngineId(), managerConfig.getEngineBoot());</span>
-<span class="fc" id="L115">            SecurityModels.getInstance().addSecurityModel(usm);</span>
-<span class="fc" id="L116">            snmp.getUSM().addUser(managerConfig.getUserName(), managerConfig.getUser());</span>
-<span class="fc" id="L117">            return snmp.get(managerConfig.getPdu(), managerConfig.getUserTarget());</span>
+        // validate
+<span class="pc bpc" id="L101" title="1 of 4 branches missed.">        if (event != null &amp;&amp; event.getResponse() != null) {</span>
+<span class="fc" id="L102">            List&lt;VariableBinding&gt; vbs = (List&lt;VariableBinding&gt;) event.getResponse().getVariableBindings();</span>
+<span class="fc" id="L103">            Map&lt;String, String&gt; map = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">            for (VariableBinding vb : vbs) {</span>
+<span class="fc" id="L105">                map.put(vb.getOid().toString(), vb.getVariable().toString());</span>
+<span class="fc" id="L106">            }</span>
+<span class="fc" id="L107">            return map;</span>
         }
-<span class="fc" id="L119">        return snmp.get(managerConfig.getPdu(), managerConfig.getCommunityTarget());</span>
+<span class="fc" id="L109">        throw new NullPointerException(&quot;=============================== hell&quot;);</span>
     }
 
-    // set snmp event validation
-    private void validateResponse(ResponseEvent event) {
+    // mske set request and validation
+    public void setRequestAndValidate(Map&lt;String, String&gt; map) throws IOException {
+<span class="fc bfc" id="L114" title="All 2 branches covered.">        for (Map.Entry&lt;String, String&gt; entry : map.entrySet()) {</span>
+<span class="fc" id="L115">            this.managerConfig.getPdu().add(new VariableBinding(new OID(entry.getKey()),</span>
+<span class="fc" id="L116">                    new OctetString(entry.getValue())));</span>
+<span class="fc" id="L117">        }</span>
 
-<span class="pc bpc" id="L125" title="1 of 2 branches missed.">        if (event == null) {</span>
-<span class="nc" id="L126">            throw new SNMPRuntimeException(&quot; No such target / Invalid authentication / Timeout error &quot;,</span>
+        ResponseEvent event;
+<span class="fc bfc" id="L120" title="All 2 branches covered.">        if (managerConfig.getVersion() == SnmpConstants.version3) {</span>
+<span class="fc" id="L121">            event = snmp.set(managerConfig.getPdu(), managerConfig.getUserTarget());</span>
+        } else {
+<span class="fc" id="L123">            event = snmp.set(managerConfig.getPdu(), managerConfig.getCommunityTarget());</span>
+        }
+
+<span class="pc bpc" id="L126" title="1 of 2 branches missed.">        if (event == null) {</span>
+<span class="nc" id="L127">            throw new SNMPRuntimeException(&quot; No such target / Invalid authentication / Timeout error &quot;,</span>
                     new Throwable(&quot;event is null&quot;));
         }
-<span class="pc bpc" id="L129" title="1 of 2 branches missed.">        if (event.getResponse() == null) {</span>
-<span class="nc" id="L130">            throw new SNMPRuntimeException(&quot; No such target / Invalid authentication / Timeout error &quot;,</span>
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">        if (event.getResponse() == null) {</span>
+<span class="nc" id="L131">            throw new SNMPRuntimeException(&quot; No such target / Invalid authentication / Timeout error &quot;,</span>
                     new Throwable(&quot;event response is null&quot;));
         }
-<span class="pc bpc" id="L133" title="1 of 2 branches missed.">        if (event.getResponse().getErrorIndex() != 0) {</span>
-<span class="nc" id="L134">            throw new SNMPRuntimeException(&quot; Error&quot; + event.getResponse().getErrorStatusText());</span>
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">        if (event.getResponse().getErrorIndex() != 0) { // Error = 0 is no error</span>
+<span class="nc" id="L135">            throw new SNMPRuntimeException(&quot; Error&quot; + event.getResponse().getErrorStatusText());</span>
         }
-<span class="fc" id="L136">    }</span>
-
-    // make set-request
-    private ResponseEvent set(Map&lt;String, String&gt; map) throws IOException {
-
-<span class="fc bfc" id="L141" title="All 2 branches covered.">        for (Map.Entry&lt;String, String&gt; entry : map.entrySet()) {</span>
-<span class="fc" id="L142">            this.managerConfig.getPdu()</span>
-<span class="fc" id="L143">                    .add(new VariableBinding(new OID(entry.getKey()), new OctetString(entry.getValue())));</span>
-<span class="fc" id="L144">        }</span>
-<span class="fc bfc" id="L145" title="All 2 branches covered.">        if (managerConfig.getVersion() == SnmpConstants.version3) {</span>
-<span class="fc" id="L146">            USM usm = new USM(SecurityProtocols.getInstance().addDefaultProtocols(),</span>
-<span class="fc" id="L147">                    getEngineId(), 0);</span>
-<span class="fc" id="L148">            SecurityModels.getInstance().addSecurityModel(usm);</span>
-<span class="fc" id="L149">            snmp.getUSM().addUser(managerConfig.getUserName(), managerConfig.getUser());</span>
-
-<span class="fc" id="L151">            return snmp.set(managerConfig.getPdu(), managerConfig.getUserTarget());</span>
-        }
-<span class="fc" id="L153">        return snmp.set(managerConfig.getPdu(), managerConfig.getCommunityTarget());</span>
-    }
-
-    public void getAndNotify() throws IOException {
-
-<span class="fc" id="L158">        validateResponseAndNotify(get());</span>
-<span class="fc" id="L159">    }</span>
-
-    public void setAndValidate(Map&lt;String, String&gt; map) throws IOException {
-
-<span class="fc" id="L163">        validateResponse(set(map));</span>
-<span class="fc" id="L164">    }</span>
+<span class="fc" id="L137">    }</span>
 
     public void close() {
 
         try {
-<span class="pc bpc" id="L169" title="1 of 2 branches missed.">            if (snmp != null) {</span>
-<span class="fc" id="L170">                snmp.close();</span>
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">            if (snmp != null) {</span>
+<span class="fc" id="L143">                snmp.close();</span>
             }
-<span class="pc bpc" id="L172" title="1 of 2 branches missed.">            if (managerConfig != null) {</span>
-<span class="fc" id="L173">                managerConfig.clear();</span>
+<span class="pc bpc" id="L145" title="1 of 2 branches missed.">            if (managerConfig != null) {</span>
+<span class="fc" id="L146">                managerConfig.clear();</span>
             }
-<span class="nc" id="L175">        } catch (IOException e) {</span>
-<span class="nc" id="L176">            throw new SNMPRuntimeException(&quot;Exception in closing SNMP listening &quot;, e);</span>
-<span class="fc" id="L177">        }</span>
-<span class="fc" id="L178">    }</span>
+<span class="nc" id="L148">        } catch (IOException e) {</span>
+<span class="nc" id="L149">            throw new SNMPRuntimeException(&quot;Exception in closing SNMP listening &quot;, e);</span>
+<span class="fc" id="L150">        }</span>
+<span class="fc" id="L151">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

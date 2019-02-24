@@ -32,7 +32,6 @@ import org.snmp4j.smi.VariableBinding;
 import org.snmp4j.transport.DefaultTcpTransportMapping;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
 import org.wso2.extension.siddhi.io.snmp.util.exceptions.SNMPRuntimeException;
-import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -48,15 +47,9 @@ public class SNMPManager {
     private Snmp snmp;
     private TransportMapping transportMapping;
     private SNMPManagerConfig managerConfig;
-    private SourceEventListener sourceEventListener;
 
     public SNMPManager() {
 
-    }
-
-    public void setSourceEventListener(SourceEventListener sourceEventListener) {
-
-        this.sourceEventListener = sourceEventListener;
     }
 
     private OctetString getEngineId() {
@@ -70,9 +63,12 @@ public class SNMPManager {
         return engineId;
     }
 
-    public void setManagerConfig(SNMPManagerConfig managerConfig) throws IOException {
-
+    public void setManagerConfig(SNMPManagerConfig managerConfig) {
         this.managerConfig = managerConfig;
+    }
+
+    public void listen() throws IOException {
+
         if (managerConfig.isTCP()) {
             transportMapping = new DefaultTcpTransportMapping();
         } else {
@@ -81,46 +77,51 @@ public class SNMPManager {
         snmp = new Snmp(this.transportMapping);
 
         if (managerConfig.getVersion() == SnmpConstants.version3) {
-            USM usm = new USM(SecurityProtocols.getInstance(),
-                    managerConfig.getLocalEngineID(),
-                    managerConfig.getEngineBoot());
+            USM usm = new USM(SecurityProtocols.getInstance().addDefaultProtocols(),
+                            getEngineId(),
+                            managerConfig.getEngineBoot());
             SecurityModels.getInstance().addSecurityModel(usm);
             snmp.getUSM().addUser(managerConfig.getUserName(), managerConfig.getUser());
         }
         snmp.listen();
     }
 
-    // get snmp event, rearrange data and notify to siddhi
-    private void validateResponseAndNotify(ResponseEvent event) {
+    // make get request validate and return map
+    public Map<String, String> getRequestValidateAndReturn() throws IOException {
 
-        if (event != null) {
-            if (event.getResponse() != null) {
-                List<VariableBinding> vbs = (List<VariableBinding>) event.getResponse().getVariableBindings();
-                Map<String, String> map = new HashMap<>();
-                for (VariableBinding vb : vbs) {
-                    map.put(vb.getOid().toString(), vb.getVariable().toString());
-                }
-                sourceEventListener.onEvent(map, null);
-            }
-        }
-    }
-
-    // make get-request
-    private ResponseEvent get() throws IOException {
-
+        // make request
+        ResponseEvent event;
         if (managerConfig.getVersion() == SnmpConstants.version3) {
-
-            USM usm = new USM(SecurityProtocols.getInstance().addDefaultProtocols(),
-                    getEngineId(), managerConfig.getEngineBoot());
-            SecurityModels.getInstance().addSecurityModel(usm);
-            snmp.getUSM().addUser(managerConfig.getUserName(), managerConfig.getUser());
-            return snmp.get(managerConfig.getPdu(), managerConfig.getUserTarget());
+            event = snmp.get(managerConfig.getPdu(), managerConfig.getUserTarget());
+        } else {
+            event = snmp.get(managerConfig.getPdu(), managerConfig.getCommunityTarget());
         }
-        return snmp.get(managerConfig.getPdu(), managerConfig.getCommunityTarget());
+
+        // validate
+        if (event != null && event.getResponse() != null) {
+            List<VariableBinding> vbs = (List<VariableBinding>) event.getResponse().getVariableBindings();
+            Map<String, String> map = new HashMap<>();
+            for (VariableBinding vb : vbs) {
+                map.put(vb.getOid().toString(), vb.getVariable().toString());
+            }
+            return map;
+        }
+        throw new NullPointerException("=============================== hell");
     }
 
-    // set snmp event validation
-    private void validateResponse(ResponseEvent event) {
+    // mske set request and validation
+    public void setRequestAndValidate(Map<String, String> map) throws IOException {
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            this.managerConfig.getPdu().add(new VariableBinding(new OID(entry.getKey()),
+                    new OctetString(entry.getValue())));
+        }
+
+        ResponseEvent event;
+        if (managerConfig.getVersion() == SnmpConstants.version3) {
+            event = snmp.set(managerConfig.getPdu(), managerConfig.getUserTarget());
+        } else {
+            event = snmp.set(managerConfig.getPdu(), managerConfig.getCommunityTarget());
+        }
 
         if (event == null) {
             throw new SNMPRuntimeException(" No such target / Invalid authentication / Timeout error ",
@@ -130,37 +131,9 @@ public class SNMPManager {
             throw new SNMPRuntimeException(" No such target / Invalid authentication / Timeout error ",
                     new Throwable("event response is null"));
         }
-        if (event.getResponse().getErrorIndex() != 0) {
+        if (event.getResponse().getErrorIndex() != 0) { // Error = 0 is no error
             throw new SNMPRuntimeException(" Error" + event.getResponse().getErrorStatusText());
         }
-    }
-
-    // make set-request
-    private ResponseEvent set(Map<String, String> map) throws IOException {
-
-        for (Map.Entry<String, String> entry : map.entrySet()) {
-            this.managerConfig.getPdu()
-                    .add(new VariableBinding(new OID(entry.getKey()), new OctetString(entry.getValue())));
-        }
-        if (managerConfig.getVersion() == SnmpConstants.version3) {
-            USM usm = new USM(SecurityProtocols.getInstance().addDefaultProtocols(),
-                    getEngineId(), 0);
-            SecurityModels.getInstance().addSecurityModel(usm);
-            snmp.getUSM().addUser(managerConfig.getUserName(), managerConfig.getUser());
-
-            return snmp.set(managerConfig.getPdu(), managerConfig.getUserTarget());
-        }
-        return snmp.set(managerConfig.getPdu(), managerConfig.getCommunityTarget());
-    }
-
-    public void getAndNotify() throws IOException {
-
-        validateResponseAndNotify(get());
-    }
-
-    public void setAndValidate(Map<String, String> map) throws IOException {
-
-        validateResponse(set(map));
     }
 
     public void close() {
