@@ -33,7 +33,7 @@ public class SNMPConstants {
 
     // optional
     public static final String AGENT_PORT = "agent.port";
-    public static final String IS_TCP = "istcp";
+    public static final String TRANSPORT_PROTOCOL = "transport.protocol";
     public static final String RETRIES = "retries";
     public static final String TIMEOUT = "timeout";
 
@@ -66,6 +66,8 @@ public class SNMPConstants {
     public static final String DEFAULT_COMMUNITY = "public";
     public static final String DEFAULT_LOCAL_ENGINE_ID = "Empty";
     public static final String DEFAULT_ENGINE_BOOT = "0";
+    public static final String DEFAULT_REQUEST_INTERVAL = "5000";
+    public static final String DEFAULT_TRANSPORT_PROTOCOL = "udp";
 
     private SNMPConstants() {
 

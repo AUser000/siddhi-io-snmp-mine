@@ -82,6 +82,11 @@ public class SNMPManagerConfig {
         }
     }
 
+    public void setEngineBoot(int engineBoot) {
+
+        this.engineBoot = engineBoot;
+    }
+
     // for setting user parameters
     public void setUserMatrix(OctetString userName,
                               OID authProtocol, OctetString authProtocolPass,
@@ -168,11 +173,6 @@ public class SNMPManagerConfig {
     public int getEngineBoot() {
 
         return engineBoot;
-    }
-
-    public void setEngineBoot(int engineBoot) {
-
-        this.engineBoot = engineBoot;
     }
 
     public UsmUser getUser() {

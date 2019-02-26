@@ -145,64 +145,75 @@ public class SNMPValidator {
 <span class="nc" id="L145">        return new OctetString(engineId);</span>
     }
 
+    private static boolean validateTransportProtocol(String transportProtocol, String streamName) {
+<span class="fc" id="L149">        transportProtocol = transportProtocol.toUpperCase(Locale.ENGLISH);</span>
+<span class="pc bpc" id="L150" title="4 of 10 branches missed.">        switch (transportProtocol) {</span>
+<span class="fc" id="L151">            case &quot;TCP&quot; : return true;</span>
+<span class="fc" id="L152">            case &quot;UDP&quot; : return false;</span>
+<span class="nc" id="L153">            default: throw new SiddhiAppValidationException(streamName + &quot; transportProtocol not acceptable! &quot; +</span>
+                    &quot;only acceptable for TCP, UDP&quot;);
+        }
+    }
+
     //for validation
     public static SNMPManagerConfig validateSnmpProperties(OptionHolder optionHolder,
                                                 String streamName,
                                                 boolean includeOids) {
 
-<span class="fc" id="L153">        SNMPManagerConfig managerConfig = new SNMPManagerConfig();</span>
-<span class="fc" id="L154">        String host = optionHolder.validateAndGetStaticValue(SNMPConstants.HOST);</span>
-<span class="fc" id="L155">        String port = optionHolder.validateAndGetStaticValue(SNMPConstants.AGENT_PORT);</span>
-<span class="fc" id="L156">        boolean isTcp = Boolean.parseBoolean(optionHolder.validateAndGetStaticValue(SNMPConstants.IS_TCP,</span>
-                SNMPConstants.DEFAULT_IS_TCP));
-<span class="fc" id="L158">        int timeout = Integer.parseInt(optionHolder.validateAndGetStaticValue(SNMPConstants.TIMEOUT,</span>
+<span class="fc" id="L163">        SNMPManagerConfig managerConfig = new SNMPManagerConfig();</span>
+<span class="fc" id="L164">        String host = optionHolder.validateAndGetStaticValue(SNMPConstants.HOST);</span>
+<span class="fc" id="L165">        String port = optionHolder.validateAndGetStaticValue(SNMPConstants.AGENT_PORT);</span>
+<span class="fc" id="L166">        int timeout = Integer.parseInt(optionHolder.validateAndGetStaticValue(SNMPConstants.TIMEOUT,</span>
                 SNMPConstants.DEFAULT_TIMEOUT));
-<span class="fc" id="L160">        int retries = Integer.parseInt(optionHolder.validateAndGetStaticValue(SNMPConstants.RETRIES,</span>
+<span class="fc" id="L168">        int retries = Integer.parseInt(optionHolder.validateAndGetStaticValue(SNMPConstants.RETRIES,</span>
                 SNMPConstants.DEFAULT_RETRIES));
-<span class="fc" id="L162">        managerConfig.isTcp(isTcp);</span>
-<span class="fc" id="L163">        managerConfig.setVersion(validateVersion(optionHolder.validateAndGetStaticValue(SNMPConstants.VERSION),</span>
+
+<span class="fc" id="L171">        boolean isTcp = validateTransportProtocol(optionHolder.validateAndGetStaticValue(</span>
+                SNMPConstants.TRANSPORT_PROTOCOL, SNMPConstants.DEFAULT_TRANSPORT_PROTOCOL), streamName);
+<span class="fc" id="L173">        managerConfig.isTcp(isTcp);</span>
+<span class="fc" id="L174">        managerConfig.setVersion(validateVersion(optionHolder.validateAndGetStaticValue(SNMPConstants.VERSION),</span>
                 streamName));
-<span class="fc bfc" id="L165" title="All 2 branches covered.">        if (includeOids) {</span>
-<span class="fc" id="L166">            managerConfig.setVariableBindings(validateAndGetOidList(</span>
-<span class="fc" id="L167">                    optionHolder.validateAndGetStaticValue(SNMPConstants.OIDS),</span>
+<span class="fc bfc" id="L176" title="All 2 branches covered.">        if (includeOids) {</span>
+<span class="fc" id="L177">            managerConfig.setVariableBindings(validateAndGetOidList(</span>
+<span class="fc" id="L178">                    optionHolder.validateAndGetStaticValue(SNMPConstants.OIDS),</span>
                     streamName));
         }
-<span class="fc bfc" id="L170" title="All 2 branches covered.">        if (managerConfig.getVersion() == SNMPConstants.V3) {</span>
-<span class="fc" id="L171">            String userName = optionHolder.validateAndGetStaticValue(SNMPConstants.USER_NAME,</span>
+<span class="fc bfc" id="L181" title="All 2 branches covered.">        if (managerConfig.getVersion() == SNMPConstants.V3) {</span>
+<span class="fc" id="L182">            String userName = optionHolder.validateAndGetStaticValue(SNMPConstants.USER_NAME,</span>
                     SNMPConstants.DEFAULT_USERNAME);
-<span class="fc" id="L173">            String authpass = optionHolder.validateAndGetStaticValue(SNMPConstants.AUTH_PASSWORD,</span>
+<span class="fc" id="L184">            String authpass = optionHolder.validateAndGetStaticValue(SNMPConstants.AUTH_PASSWORD,</span>
                     SNMPConstants.DEFAULT_AUT_PASSWORD);
-<span class="fc" id="L175">            String privpass = optionHolder.validateAndGetStaticValue(SNMPConstants.PRIV_PASSWORD,</span>
+<span class="fc" id="L186">            String privpass = optionHolder.validateAndGetStaticValue(SNMPConstants.PRIV_PASSWORD,</span>
                     SNMPConstants.DEFAULT_PRIV_PASSWORD);
-<span class="fc" id="L177">            OID priv = validateAndGetPriv(optionHolder.validateAndGetStaticValue(SNMPConstants.PRIV_PROTOCOL,</span>
+<span class="fc" id="L188">            OID priv = validateAndGetPriv(optionHolder.validateAndGetStaticValue(SNMPConstants.PRIV_PROTOCOL,</span>
                     SNMPConstants.DEFAULT_PRIV_PROTOCOL),
                     streamName);
-<span class="fc" id="L180">            OID auth = validateAndGetAuth(optionHolder.validateAndGetStaticValue(SNMPConstants.AUTH_PROTOCOL,</span>
+<span class="fc" id="L191">            OID auth = validateAndGetAuth(optionHolder.validateAndGetStaticValue(SNMPConstants.AUTH_PROTOCOL,</span>
                     SNMPConstants.DEFAULT_AUTH_PROTOCOL),
                     streamName);
-<span class="fc" id="L183">            int secLvl = validateSecLvl(optionHolder.validateAndGetStaticValue(SNMPConstants.SECURITY_LVL,</span>
+<span class="fc" id="L194">            int secLvl = validateSecLvl(optionHolder.validateAndGetStaticValue(SNMPConstants.SECURITY_LVL,</span>
                     SNMPConstants.DEFAULT_SECURITY_LVL),
                     streamName);
-<span class="fc" id="L186">            managerConfig.setUserMatrix(new OctetString(userName), auth, new OctetString(authpass),</span>
+<span class="fc" id="L197">            managerConfig.setUserMatrix(new OctetString(userName), auth, new OctetString(authpass),</span>
                     priv, new OctetString(privpass), secLvl);
 
-<span class="fc" id="L189">            managerConfig.setUserTarget(host, port, retries, timeout, managerConfig.getSecLvl());</span>
-<span class="fc" id="L190">            managerConfig.setLocalEngineID(validateEngineId(optionHolder.validateAndGetStaticValue(</span>
+<span class="fc" id="L200">            managerConfig.setUserTarget(host, port, retries, timeout, managerConfig.getSecLvl());</span>
+<span class="fc" id="L201">            managerConfig.setLocalEngineID(validateEngineId(optionHolder.validateAndGetStaticValue(</span>
                     SNMPConstants.LOCAL_ENGINE_ID, SNMPConstants.DEFAULT_LOCAL_ENGINE_ID), streamName));
-<span class="fc" id="L192">            managerConfig.setEngineBoot(Integer.parseInt(optionHolder.validateAndGetStaticValue(</span>
+<span class="fc" id="L203">            managerConfig.setEngineBoot(Integer.parseInt(optionHolder.validateAndGetStaticValue(</span>
                     SNMPConstants.ENGINE_BOOT,
                     SNMPConstants.DEFAULT_ENGINE_BOOT)));
-<span class="fc" id="L195">        } else {</span>
-<span class="fc" id="L196">            String community = optionHolder.validateAndGetStaticValue(SNMPConstants.COMMUNITY,</span>
+<span class="fc" id="L206">        } else {</span>
+<span class="fc" id="L207">            String community = optionHolder.validateAndGetStaticValue(SNMPConstants.COMMUNITY,</span>
                     SNMPConstants.DEFAULT_COMMUNITY);
-<span class="fc" id="L198">            managerConfig.setCommunityTarget(host,</span>
+<span class="fc" id="L209">            managerConfig.setCommunityTarget(host,</span>
                     port,
                     community,
                     retries,
                     timeout);
         }
 
-<span class="fc" id="L205">        return managerConfig;</span>
+<span class="fc" id="L216">        return managerConfig;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

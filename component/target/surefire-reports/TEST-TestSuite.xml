@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="TestSuite" time="31.489" tests="17" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="TestSuite" time="34.106" tests="17" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
     <property name="sun.boot.library.path" value="/usr/lib/jvm/java-8-oracle/jre/lib/amd64"/>
@@ -59,21 +59,21 @@
     <property name="sun.desktop" value="gnome"/>
     <property name="sun.cpu.isalist" value=""/>
   </properties>
-  <testcase name="snmpVersion1BasicSink" classname="org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSinkV1V2" time="1.14"/>
-  <testcase name="snmpVersion1TCPSink" classname="org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSinkV1V2" time="1.021"/>
-  <testcase name="snmpVersion2BasicSink" classname="org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSinkV1V2" time="0.216"/>
-  <testcase name="snmpVersion3BasicSink" classname="org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSinkV3" time="1.268"/>
-  <testcase name="snmpVersion3SinkCreationException" classname="org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSinkV3" time="0.017"/>
-  <testcase name="snmpVersion3SinkException" classname="org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSinkV3" time="0.008"/>
-  <testcase name="snmpVersion3TCPSink" classname="org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSinkV3" time="1.076"/>
+  <testcase name="snmpVersion1BasicSink" classname="org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSinkV1V2" time="1.44"/>
+  <testcase name="snmpVersion1TCPSink" classname="org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSinkV1V2" time="1.058"/>
+  <testcase name="snmpVersion2BasicSink" classname="org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSinkV1V2" time="0.213"/>
+  <testcase name="snmpVersion3BasicSink" classname="org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSinkV3" time="1.591"/>
+  <testcase name="snmpVersion3SinkCreationException" classname="org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSinkV3" time="0.011"/>
+  <testcase name="snmpVersion3SinkException" classname="org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSinkV3" time="0.009"/>
+  <testcase name="snmpVersion3TCPSink" classname="org.wso2.extension.siddhi.io.snmp.sink.TestCaseOfSNMPSinkV3" time="1.071"/>
   <testcase name="snmpVersion1Source" classname="org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSourceV1V2" time="3.018"/>
-  <testcase name="snmpVersion1TCPSource" classname="org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSourceV1V2" time="3.011"/>
-  <testcase name="snmpVersion2Source" classname="org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSourceV1V2" time="3.024"/>
-  <testcase name="snmpVersion2TCPSource" classname="org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSourceV1V2" time="3.011"/>
+  <testcase name="snmpVersion1TCPSource" classname="org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSourceV1V2" time="3.022"/>
+  <testcase name="snmpVersion2Source" classname="org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSourceV1V2" time="3.021"/>
+  <testcase name="snmpVersion2TCPSource" classname="org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSourceV1V2" time="3.016"/>
   <testcase name="snmpRuntimeTest" classname="org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSourceV3" time="0.006"/>
   <testcase name="snmpValidationTest" classname="org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSourceV3" time="0.005"/>
-  <testcase name="snmpVersion3TCP" classname="org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSourceV3" time="3.032"/>
-  <testcase name="snmpVersion3TestWithAllValues" classname="org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSourceV3" time="3.009"/>
-  <testcase name="snmpVersionAuthPriv" classname="org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSourceV3" time="3.012"/>
-  <testcase name="snmpVersionSecLevel" classname="org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSourceV3" time="3.015"/>
+  <testcase name="snmpVersion3TCP" classname="org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSourceV3" time="3.01"/>
+  <testcase name="snmpVersion3TestWithAllValues" classname="org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSourceV3" time="3.011"/>
+  <testcase name="snmpVersionAuthPriv" classname="org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSourceV3" time="3.01"/>
+  <testcase name="snmpVersionSecLevel" classname="org.wso2.extension.siddhi.io.snmp.source.TestCaseOfSNMPSourceV3" time="3.011"/>
 </testsuite>

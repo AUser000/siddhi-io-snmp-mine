@@ -35,7 +35,6 @@ import org.wso2.extension.siddhi.io.snmp.util.exceptions.SNMPRuntimeException;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -64,6 +63,7 @@ public class SNMPManager {
     }
 
     public void setManagerConfig(SNMPManagerConfig managerConfig) {
+
         this.managerConfig = managerConfig;
     }
 
@@ -78,15 +78,15 @@ public class SNMPManager {
 
         if (managerConfig.getVersion() == SnmpConstants.version3) {
             USM usm = new USM(SecurityProtocols.getInstance().addDefaultProtocols(),
-                            getEngineId(),
-                            managerConfig.getEngineBoot());
+                    getEngineId(),
+                    managerConfig.getEngineBoot());
             SecurityModels.getInstance().addSecurityModel(usm);
             snmp.getUSM().addUser(managerConfig.getUserName(), managerConfig.getUser());
         }
         snmp.listen();
     }
 
-    // make get request validate and return map
+    // make get request, validate and return map object
     public Map<String, String> getRequestValidateAndReturn() throws IOException {
 
         // make request
@@ -96,21 +96,23 @@ public class SNMPManager {
         } else {
             event = snmp.get(managerConfig.getPdu(), managerConfig.getCommunityTarget());
         }
-
         // validate
         if (event != null && event.getResponse() != null) {
-            List<VariableBinding> vbs = (List<VariableBinding>) event.getResponse().getVariableBindings();
             Map<String, String> map = new HashMap<>();
-            for (VariableBinding vb : vbs) {
+            for (VariableBinding vb : event.getResponse().getVariableBindings()) {
                 map.put(vb.getOid().toString(), vb.getVariable().toString());
             }
             return map;
         }
-        throw new NullPointerException("=============================== hell");
+        if (event != null && event.getResponse() == null) {
+            throw new NullPointerException("response event is null");
+        }
+        throw new NullPointerException("response event is null");
     }
 
-    // mske set request and validation
+    // get map object, make set request and validate
     public void setRequestAndValidate(Map<String, String> map) throws IOException {
+
         for (Map.Entry<String, String> entry : map.entrySet()) {
             this.managerConfig.getPdu().add(new VariableBinding(new OID(entry.getKey()),
                     new OctetString(entry.getValue())));

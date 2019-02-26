@@ -64,11 +64,11 @@ import java.util.Map;
                         optional = true,
                         type = DataType.STRING,
                         defaultValue = SNMPConstants.DEFAULT_AGENT_PORT),
-                @Parameter(name = SNMPConstants.IS_TCP,
+                @Parameter(name = SNMPConstants.TRANSPORT_PROTOCOL,
                         description = &quot;Underline connection protocol.&quot;,
                         optional = true,
-                        type = DataType.BOOL,
-                        defaultValue = SNMPConstants.DEFAULT_IS_TCP),
+                        type = DataType.STRING,
+                        defaultValue = SNMPConstants.DEFAULT_TRANSPORT_PROTOCOL),
                 @Parameter(name = SNMPConstants.RETRIES,
                         description = &quot;Underline connection protocol.&quot;,
                         optional = true,
@@ -221,37 +221,36 @@ import java.util.Map;
     public void connect() throws ConnectionUnavailableException {
 
         try {
-<span class="fc" id="L224">            manager.setManagerConfig(managerConfig);</span>
-<span class="fc" id="L225">            manager.listen();</span>
-<span class="nc" id="L226">        } catch (IOException e) {</span>
-<span class="nc" id="L227">            throw new ConnectionUnavailableException(this.streamDefinition.getId()</span>
+<span class="fc" id="L224">            manager.listen();</span>
+<span class="nc" id="L225">        } catch (IOException e) {</span>
+<span class="nc" id="L226">            throw new ConnectionUnavailableException(this.streamDefinition.getId()</span>
                     + &quot; Error in Setting up Connection : &quot; , e);
-<span class="fc" id="L229">        }</span>
-<span class="fc" id="L230">    }</span>
+<span class="fc" id="L228">        }</span>
+<span class="fc" id="L229">    }</span>
 
     @Override
     public void disconnect() {
 
-<span class="pc bpc" id="L235" title="1 of 2 branches missed.">        if (manager != null) {</span>
-<span class="fc" id="L236">            manager.close();</span>
+<span class="pc bpc" id="L234" title="1 of 2 branches missed.">        if (manager != null) {</span>
+<span class="fc" id="L235">            manager.close();</span>
         }
-<span class="fc" id="L238">    }</span>
+<span class="fc" id="L237">    }</span>
 
     @Override
     public void destroy() {
 
-<span class="fc" id="L243">    }</span>
+<span class="fc" id="L242">    }</span>
 
     @Override
     public Map&lt;String, Object&gt; currentState() {
 
-<span class="nc" id="L248">        return null;</span>
+<span class="nc" id="L247">        return null;</span>
     }
 
     @Override
     public void restoreState(Map&lt;String, Object&gt; map) {
 
-<span class="nc" id="L254">    }</span>
+<span class="nc" id="L253">    }</span>
 }
 
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

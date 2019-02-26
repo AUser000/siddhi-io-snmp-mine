@@ -8,24 +8,24 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * Doc ;-)
+ * SNMP Listener thread
  **/
-public class SNMPPoller implements Runnable {
+public class SNMPListener implements Runnable {
 
     private boolean kiled = false;
 
-    private Logger log = Logger.getLogger(SNMPPoller.class);
+    private Logger log = Logger.getLogger(SNMPListener.class);
     private SNMPManager manager;
     private SourceEventListener sourceEventListener;
 
-    public SNMPPoller(SNMPManager manager, SourceEventListener sourceEventListener) {
+    public SNMPListener(SNMPManager manager, SourceEventListener sourceEventListener) {
         this.manager = manager;
         this.sourceEventListener = sourceEventListener;
     }
 
     @Override
     public void run() {
-        if(isKilled()) {
+        if (!isKilled()) {
             try {
                 Map<String, String> map = manager.getRequestValidateAndReturn();
                 sourceEventListener.onEvent(map, null);

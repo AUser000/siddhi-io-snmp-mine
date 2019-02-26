@@ -64,11 +64,11 @@ import java.util.Map;
                         optional = true,
                         type = DataType.STRING,
                         defaultValue = SNMPConstants.DEFAULT_AGENT_PORT),
-                @Parameter(name = SNMPConstants.IS_TCP,
+                @Parameter(name = SNMPConstants.TRANSPORT_PROTOCOL,
                         description = "Underline connection protocol.",
                         optional = true,
-                        type = DataType.BOOL,
-                        defaultValue = SNMPConstants.DEFAULT_IS_TCP),
+                        type = DataType.STRING,
+                        defaultValue = SNMPConstants.DEFAULT_TRANSPORT_PROTOCOL),
                 @Parameter(name = SNMPConstants.RETRIES,
                         description = "Underline connection protocol.",
                         optional = true,
@@ -221,7 +221,6 @@ public class SNMPSink extends Sink {
     public void connect() throws ConnectionUnavailableException {
 
         try {
-            manager.setManagerConfig(managerConfig);
             manager.listen();
         } catch (IOException e) {
             throw new ConnectionUnavailableException(this.streamDefinition.getId()

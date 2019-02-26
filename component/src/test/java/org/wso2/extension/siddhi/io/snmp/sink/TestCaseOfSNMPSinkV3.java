@@ -133,7 +133,7 @@ public class TestCaseOfSNMPSinkV3 {
                 "@map(type='keyvalue', @payload('1.3.6.1.2.1.1.4.0' = 'value')),\n" +
                 "host = '" + ip + "',\n" +
                 "version = 'v3',\n" +
-                "istcp = 'true',\n" +
+                "transport.protocol = 'tcp',\n" +
                 "agent.port = '" + port + "',\n" +
                 "priv.password = 'privpass',\n" +
                 "auth.protocol = 'AUTHSHA',\n" +

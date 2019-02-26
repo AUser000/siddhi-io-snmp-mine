@@ -4,11 +4,9 @@
 </file>
 <file name="/home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/main/java/org/wso2/extension/siddhi/io/snmp/sink/SNMPSink.java">
 </file>
-<file name="/home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/main/java/org/wso2/extension/siddhi/io/snmp/source/SNMPServer.java">
+<file name="/home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/main/java/org/wso2/extension/siddhi/io/snmp/source/SNMPListener.java">
 </file>
 <file name="/home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/main/java/org/wso2/extension/siddhi/io/snmp/source/SNMPSource.java">
-</file>
-<file name="/home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/main/java/org/wso2/extension/siddhi/io/snmp/source/SNMPPoller.java">
 </file>
 <file name="/home/dhanushka/my/siddhi-io-snmp/siddhi-io-snmp/component/src/main/java/org/wso2/extension/siddhi/io/snmp/util/exceptions/SNMPRuntimeException.java">
 </file>

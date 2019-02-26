@@ -177,7 +177,7 @@ public class TestCaseOfSNMPSourceV3 {
                 "host ='" + ip + "',\n" +
                 "version = 'v3',\n" +
                 "timeout = '100',\n" +
-                "istcp = 'true',\n" +
+                "transport.protocol = 'tcp',\n" +
                 "request.interval = '500',\n" +
                 "agent.port = '" + port + "',\n" +
                 "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +

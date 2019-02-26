@@ -170,7 +170,7 @@ public class TestCaseOfSNMPSinkV1V2 {
                 "host = '" + ip + "',\n" +
                 "version = 'v2c',\n" +
                 "community = 'public',\n" +
-                "istcp = 'true',\n" +
+                "transport.protocol = 'tcp',\n" +
                 "agent.port = '" + port + "',\n" +
                 "retries = '5')\n" +
                 "define stream outputStream(value string);";

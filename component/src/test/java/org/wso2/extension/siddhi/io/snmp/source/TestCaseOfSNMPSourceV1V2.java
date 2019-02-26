@@ -137,7 +137,7 @@ public class TestCaseOfSNMPSourceV1V2 {
                 "version = 'v1',\n" +
                 "agent.port = '" + port + "',\n" +
                 "request.interval = '500',\n" +
-                "istcp = 'true',\n" +
+                "transport.protocol = 'udp',\n" +
                 "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
                 "community = 'public') \n" +
                 " define stream inputStream(value1 string, value2 string);\n";

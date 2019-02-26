@@ -82,98 +82,98 @@ import java.util.List;
         }
 <span class="fc" id="L83">    }</span>
 
+    public void setEngineBoot(int engineBoot) {
+
+<span class="fc" id="L87">        this.engineBoot = engineBoot;</span>
+<span class="fc" id="L88">    }</span>
+
     // for setting user parameters
     public void setUserMatrix(OctetString userName,
                               OID authProtocol, OctetString authProtocolPass,
                               OID privProtocol, OctetString privProtocolPass,
                               int secLvl) {
 
-<span class="fc" id="L91">        this.userName = userName;</span>
-<span class="fc" id="L92">        this.authProtocol = authProtocol;</span>
-<span class="fc" id="L93">        this.authProtocolPass = authProtocolPass;</span>
-<span class="fc" id="L94">        this.privProtocol = privProtocol;</span>
-<span class="fc" id="L95">        this.privProtocolPass = privProtocolPass;</span>
-<span class="fc" id="L96">        this.secLvl = secLvl;</span>
-<span class="fc" id="L97">    }</span>
+<span class="fc" id="L96">        this.userName = userName;</span>
+<span class="fc" id="L97">        this.authProtocol = authProtocol;</span>
+<span class="fc" id="L98">        this.authProtocolPass = authProtocolPass;</span>
+<span class="fc" id="L99">        this.privProtocol = privProtocol;</span>
+<span class="fc" id="L100">        this.privProtocolPass = privProtocolPass;</span>
+<span class="fc" id="L101">        this.secLvl = secLvl;</span>
+<span class="fc" id="L102">    }</span>
 
     // for setting up community target
     public void setCommunityTarget(String ip, String port, String community, int retries, int timeout) {
 
-<span class="fc" id="L102">        communityTarget = new CommunityTarget();</span>
-<span class="fc" id="L103">        communityTarget.setCommunity(new OctetString(community));</span>
+<span class="fc" id="L107">        communityTarget = new CommunityTarget();</span>
+<span class="fc" id="L108">        communityTarget.setCommunity(new OctetString(community));</span>
         Address address;
-<span class="fc bfc" id="L105" title="All 2 branches covered.">        if (isTCP) {</span>
-<span class="fc" id="L106">            address = GenericAddress.parse(&quot;tcp:&quot; + ip + &quot;/&quot; + port);</span>
+<span class="fc bfc" id="L110" title="All 2 branches covered.">        if (isTCP) {</span>
+<span class="fc" id="L111">            address = GenericAddress.parse(&quot;tcp:&quot; + ip + &quot;/&quot; + port);</span>
         } else {
-<span class="fc" id="L108">            address = GenericAddress.parse(&quot;udp:&quot; + ip + &quot;/&quot; + port);</span>
+<span class="fc" id="L113">            address = GenericAddress.parse(&quot;udp:&quot; + ip + &quot;/&quot; + port);</span>
         }
-<span class="fc" id="L110">        communityTarget.setAddress(address);</span>
-<span class="fc" id="L111">        communityTarget.setRetries(retries);</span>
-<span class="fc" id="L112">        communityTarget.setTimeout(timeout);</span>
-<span class="fc bfc" id="L113" title="All 2 branches covered.">        if (this.version == SNMPConstants.V2C) {</span>
-<span class="fc" id="L114">            communityTarget.setVersion(SNMPConstants.V2C);</span>
+<span class="fc" id="L115">        communityTarget.setAddress(address);</span>
+<span class="fc" id="L116">        communityTarget.setRetries(retries);</span>
+<span class="fc" id="L117">        communityTarget.setTimeout(timeout);</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">        if (this.version == SNMPConstants.V2C) {</span>
+<span class="fc" id="L119">            communityTarget.setVersion(SNMPConstants.V2C);</span>
         } else {
-<span class="fc" id="L116">            communityTarget.setVersion(SNMPConstants.V1);</span>
+<span class="fc" id="L121">            communityTarget.setVersion(SNMPConstants.V1);</span>
         }
-<span class="fc" id="L118">    }</span>
+<span class="fc" id="L123">    }</span>
 
     // for setting up user target
     public void setUserTarget(String ip, String port, int retries, int timeout, int securityLvl) {
 
-<span class="fc" id="L123">        userTarget = new UserTarget();</span>
-<span class="fc" id="L124">        userTarget.setSecurityLevel(securityLvl);</span>
-<span class="fc" id="L125">        userTarget.setVersion(SnmpConstants.version3);</span>
-<span class="fc" id="L126">        userTarget.setTimeout(timeout);</span>
-<span class="fc" id="L127">        userTarget.setRetries(retries);</span>
+<span class="fc" id="L128">        userTarget = new UserTarget();</span>
+<span class="fc" id="L129">        userTarget.setSecurityLevel(securityLvl);</span>
+<span class="fc" id="L130">        userTarget.setVersion(SnmpConstants.version3);</span>
+<span class="fc" id="L131">        userTarget.setTimeout(timeout);</span>
+<span class="fc" id="L132">        userTarget.setRetries(retries);</span>
         Address address;
-<span class="fc bfc" id="L129" title="All 2 branches covered.">        if (isTCP) {</span>
-<span class="fc" id="L130">            address = GenericAddress.parse(&quot;tcp:&quot; + ip + &quot;/&quot; + port);</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">        if (isTCP) {</span>
+<span class="fc" id="L135">            address = GenericAddress.parse(&quot;tcp:&quot; + ip + &quot;/&quot; + port);</span>
         } else {
-<span class="fc" id="L132">            address = GenericAddress.parse(&quot;udp:&quot; + ip + &quot;/&quot; + port);</span>
+<span class="fc" id="L137">            address = GenericAddress.parse(&quot;udp:&quot; + ip + &quot;/&quot; + port);</span>
         }
-<span class="fc" id="L134">        userTarget.setAddress(address);</span>
-<span class="fc" id="L135">        userTarget.setSecurityName(this.userName);</span>
-<span class="fc" id="L136">    }</span>
+<span class="fc" id="L139">        userTarget.setAddress(address);</span>
+<span class="fc" id="L140">        userTarget.setSecurityName(this.userName);</span>
+<span class="fc" id="L141">    }</span>
 
     public int getSecLvl() {
 
-<span class="fc" id="L140">        return secLvl;</span>
+<span class="fc" id="L145">        return secLvl;</span>
     }
 
     public int getVersion() {
 
-<span class="fc" id="L145">        return version;</span>
+<span class="fc" id="L150">        return version;</span>
     }
 
     public void setVersion(int version) {
 
-<span class="fc" id="L150">        this.version = version;</span>
-<span class="fc" id="L151">    }</span>
+<span class="fc" id="L155">        this.version = version;</span>
+<span class="fc" id="L156">    }</span>
 
     public boolean isTCP() {
 
-<span class="fc" id="L155">        return isTCP;</span>
+<span class="fc" id="L160">        return isTCP;</span>
     }
 
     public OctetString getLocalEngineID() {
 
-<span class="fc" id="L160">        return this.localEngineID;</span>
+<span class="fc" id="L165">        return this.localEngineID;</span>
     }
 
     public void setLocalEngineID(OctetString localEngineID) {
 
-<span class="fc" id="L165">        this.localEngineID = localEngineID;</span>
-<span class="fc" id="L166">    }</span>
+<span class="fc" id="L170">        this.localEngineID = localEngineID;</span>
+<span class="fc" id="L171">    }</span>
 
     public int getEngineBoot() {
 
-<span class="fc" id="L170">        return engineBoot;</span>
+<span class="fc" id="L175">        return engineBoot;</span>
     }
-
-    public void setEngineBoot(int engineBoot) {
-
-<span class="fc" id="L175">        this.engineBoot = engineBoot;</span>
-<span class="fc" id="L176">    }</span>
 
     public UsmUser getUser() {
 

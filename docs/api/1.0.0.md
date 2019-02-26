@@ -8,7 +8,7 @@
 
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 ```
-@sink(type="snmp", host="<STRING>", version="<STRING>", community="<STRING>", agent.port="<STRING>", istcp="<BOOL>", retries="<INT>", timeout="<INT>", user.name="<STRING>", security.lvl="<INT>", priv.protocol="<STRING>", priv.password="<STRING>", auth.protocol="<STRING>", auth.password="<STRING>", engine.id="<STRING>", engine.boot="<INT>", @map(...)))
+@sink(type="snmp", host="<STRING>", version="<STRING>", community="<STRING>", agent.port="<STRING>", transport.protocol="<STRING>", retries="<INT>", timeout="<INT>", user.name="<STRING>", security.lvl="<INT>", priv.protocol="<STRING>", priv.password="<STRING>", auth.protocol="<STRING>", auth.password="<STRING>", engine.id="<STRING>", engine.boot="<INT>", @map(...)))
 ```
 
 <span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
@@ -54,10 +54,10 @@
         <td style="vertical-align: top">No</td>
     </tr>
     <tr>
-        <td style="vertical-align: top">istcp</td>
+        <td style="vertical-align: top">transport.protocol</td>
         <td style="vertical-align: top; word-wrap: break-word">Underline connection protocol.</td>
-        <td style="vertical-align: top">false</td>
-        <td style="vertical-align: top">BOOL</td>
+        <td style="vertical-align: top">udp</td>
+        <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>
     </tr>
@@ -195,11 +195,11 @@ define stream outputStream(sysLocation string, sysDscr string);
 
 ### snmp *<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#source">(Source)</a>*
 
-<p style="word-wrap: break-word"> SNMP Source allows user to make get request and get the response of the request, once in request interval. </p>
+<p style="word-wrap: break-word"> SNMP Source allows user to make get request and get the response</p>
 
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 ```
-@source(type="snmp", host="<STRING>", version="<STRING>", request.interval="<INT>", oids="<STRING>", community="<STRING>", agent.port="<STRING>", istcp="<BOOL>", retries="<INT>", timeout="<INT>", user.name="<STRING>", security.lvl="<INT>", priv.protocol="<STRING>", priv.password="<STRING>", auth.protocol="<STRING>", auth.password="<STRING>", engine.id="<STRING>", engine.boot="<INT>", @map(...)))
+@source(type="snmp", host="<STRING>", version="<STRING>", oids="<STRING>", request.interval="<INT>", community="<STRING>", agent.port="<STRING>", transport.protocol="<STRING>", timeout="<INT>", retries="<INT>", user.name="<STRING>", security.lvl="<INT>", priv.protocol="<STRING>", priv.password="<STRING>", auth.protocol="<STRING>", auth.password="<STRING>", engine.id="<STRING>", engine.boot="<INT>", @map(...)))
 ```
 
 <span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
@@ -214,7 +214,7 @@ define stream outputStream(sysLocation string, sysDscr string);
     </tr>
     <tr>
         <td style="vertical-align: top">host</td>
-        <td style="vertical-align: top; word-wrap: break-word">Address or ip of the target.</td>
+        <td style="vertical-align: top; word-wrap: break-word">Address or ip of the target SNMP agent.</td>
         <td style="vertical-align: top"></td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">No</td>
@@ -222,7 +222,15 @@ define stream outputStream(sysLocation string, sysDscr string);
     </tr>
     <tr>
         <td style="vertical-align: top">version</td>
-        <td style="vertical-align: top; word-wrap: break-word">Version of the snmp protocol.</td>
+        <td style="vertical-align: top; word-wrap: break-word">Version of the snmp protocol. Acceptance parameters 'V1' - version1, 'V2C' - versionv2c, 'V3' - versionv3. </td>
+        <td style="vertical-align: top"></td>
+        <td style="vertical-align: top">STRING</td>
+        <td style="vertical-align: top">No</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">oids</td>
+        <td style="vertical-align: top; word-wrap: break-word">list of the OIDs separated by comma. ex :- '1.3.6.1.2.1.1.1.0, 1.3.6.1.2.1.1.6.0' </td>
         <td style="vertical-align: top"></td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">No</td>
@@ -230,23 +238,15 @@ define stream outputStream(sysLocation string, sysDscr string);
     </tr>
     <tr>
         <td style="vertical-align: top">request.interval</td>
-        <td style="vertical-align: top; word-wrap: break-word">Request interval of the get requests.</td>
-        <td style="vertical-align: top"></td>
+        <td style="vertical-align: top; word-wrap: break-word">Request interval of two request.</td>
+        <td style="vertical-align: top">5000</td>
         <td style="vertical-align: top">INT</td>
-        <td style="vertical-align: top">No</td>
-        <td style="vertical-align: top">No</td>
-    </tr>
-    <tr>
-        <td style="vertical-align: top">oids</td>
-        <td style="vertical-align: top; word-wrap: break-word">list of the OIDs separated by comma.</td>
-        <td style="vertical-align: top"></td>
-        <td style="vertical-align: top">STRING</td>
-        <td style="vertical-align: top">No</td>
+        <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>
     </tr>
     <tr>
         <td style="vertical-align: top">community</td>
-        <td style="vertical-align: top; word-wrap: break-word">Community string of the network.</td>
+        <td style="vertical-align: top; word-wrap: break-word">Community string of the target SNMP agent. Default value is 'public'. </td>
         <td style="vertical-align: top">public</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
@@ -254,39 +254,39 @@ define stream outputStream(sysLocation string, sysDscr string);
     </tr>
     <tr>
         <td style="vertical-align: top">agent.port</td>
-        <td style="vertical-align: top; word-wrap: break-word">Port of the agent.</td>
+        <td style="vertical-align: top; word-wrap: break-word">Port number of the target SNMP agent.</td>
         <td style="vertical-align: top">161</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>
     </tr>
     <tr>
-        <td style="vertical-align: top">istcp</td>
+        <td style="vertical-align: top">transport.protocol</td>
         <td style="vertical-align: top; word-wrap: break-word">Underline protocol default id UDP.</td>
-        <td style="vertical-align: top">false</td>
-        <td style="vertical-align: top">BOOL</td>
-        <td style="vertical-align: top">Yes</td>
-        <td style="vertical-align: top">No</td>
-    </tr>
-    <tr>
-        <td style="vertical-align: top">retries</td>
-        <td style="vertical-align: top; word-wrap: break-word">Number of retries of if request fails.</td>
-        <td style="vertical-align: top">5</td>
-        <td style="vertical-align: top">INT</td>
+        <td style="vertical-align: top">udp</td>
+        <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>
     </tr>
     <tr>
         <td style="vertical-align: top">timeout</td>
-        <td style="vertical-align: top; word-wrap: break-word">Timeout for response of the request in milliseconds, default value is 1500 of milliseconds.</td>
+        <td style="vertical-align: top; word-wrap: break-word">Waiting time for response of the request in milliseconds.</td>
         <td style="vertical-align: top">1500</td>
         <td style="vertical-align: top">INT</td>
         <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>
     </tr>
     <tr>
+        <td style="vertical-align: top">retries</td>
+        <td style="vertical-align: top; word-wrap: break-word">Number of retries of when a request fails.</td>
+        <td style="vertical-align: top">5</td>
+        <td style="vertical-align: top">INT</td>
+        <td style="vertical-align: top">Yes</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
         <td style="vertical-align: top">user.name</td>
-        <td style="vertical-align: top; word-wrap: break-word">Username if user use snmp version 3.</td>
+        <td style="vertical-align: top; word-wrap: break-word">User Name of the user that configured on target agent. This property only use for SNMP version 3, Do not need to provide this if use other versions(v2c, v1).</td>
         <td style="vertical-align: top">noUser</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
@@ -294,7 +294,7 @@ define stream outputStream(sysLocation string, sysDscr string);
     </tr>
     <tr>
         <td style="vertical-align: top">security.lvl</td>
-        <td style="vertical-align: top; word-wrap: break-word">Security level. Acceptance level AUTH_PRIV, AUTH_NO_PRIVE, NO_AUTH_NO_PRIVE.</td>
+        <td style="vertical-align: top; word-wrap: break-word">Security level. Acceptance parameters AUTH_PRIV, AUTH_NO_PRIVE, NO_AUTH_NO_PRIVE. This property only use for SNMP version 3, Do not need to provide this if use other versions(v2c, v1).</td>
         <td style="vertical-align: top">AUTH_PRIVE</td>
         <td style="vertical-align: top">INT</td>
         <td style="vertical-align: top">Yes</td>
@@ -302,7 +302,7 @@ define stream outputStream(sysLocation string, sysDscr string);
     </tr>
     <tr>
         <td style="vertical-align: top">priv.protocol</td>
-        <td style="vertical-align: top; word-wrap: break-word">Encryption protocol if use.</td>
+        <td style="vertical-align: top; word-wrap: break-word">Privacy protocol of the target SNMP agent. Acceptance parameters NO_PRIV, PRIVDES, PRIVDES128, PRIVAES192, PRIVAES256, PRIV3DES. This property only use for SNMP version 3, Do not need to provide this if use other versions(v2c, v1).</td>
         <td style="vertical-align: top">NO_PRIV</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
@@ -310,7 +310,7 @@ define stream outputStream(sysLocation string, sysDscr string);
     </tr>
     <tr>
         <td style="vertical-align: top">priv.password</td>
-        <td style="vertical-align: top; word-wrap: break-word">Privacy protocol password.</td>
+        <td style="vertical-align: top; word-wrap: break-word">Privacy protocol passphrase of the target SNMP agent. Passphrase should have more than 8 characters. This property only use for SNMP version 3, Do not need to provide this if use other versions(v2c, v1). </td>
         <td style="vertical-align: top">privpass</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
@@ -318,7 +318,7 @@ define stream outputStream(sysLocation string, sysDscr string);
     </tr>
     <tr>
         <td style="vertical-align: top">auth.protocol</td>
-        <td style="vertical-align: top; word-wrap: break-word">Authentication protocol if use.</td>
+        <td style="vertical-align: top; word-wrap: break-word">Authentication protocol of the target SNMP agent. Can use NO_AUTH, AUTHMD5, AUTHSHA, AUTHHMAC192SHA256, AUTHHMAC192SHA512. This property only use for SNMP version 3, Do not need to provide this if use other versions(v2c, v1).</td>
         <td style="vertical-align: top">NO_AUTH</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
@@ -326,7 +326,7 @@ define stream outputStream(sysLocation string, sysDscr string);
     </tr>
     <tr>
         <td style="vertical-align: top">auth.password</td>
-        <td style="vertical-align: top; word-wrap: break-word">Auth protocol password.</td>
+        <td style="vertical-align: top; word-wrap: break-word">Authentication protocol passphrase of the target SNMP agent.Passphrase should have more than 8 characters. This property only use for SNMP version 3, Do not need to provide this if use other versions(v2c, v1). </td>
         <td style="vertical-align: top">authpass</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
@@ -334,7 +334,7 @@ define stream outputStream(sysLocation string, sysDscr string);
     </tr>
     <tr>
         <td style="vertical-align: top">engine.id</td>
-        <td style="vertical-align: top; word-wrap: break-word">Local engine ID.</td>
+        <td style="vertical-align: top; word-wrap: break-word">Local engine ID of the target SNMP agent. Default value is device-generated ID, based on the local IP address and additional four random bytes. This property only use for SNMP version 3, Do not need to provide this if use other versions(v2c, v1).</td>
         <td style="vertical-align: top">Empty</td>
         <td style="vertical-align: top">STRING</td>
         <td style="vertical-align: top">Yes</td>
@@ -342,7 +342,7 @@ define stream outputStream(sysLocation string, sysDscr string);
     </tr>
     <tr>
         <td style="vertical-align: top">engine.boot</td>
-        <td style="vertical-align: top; word-wrap: break-word">Engine boot of the snmp engine</td>
+        <td style="vertical-align: top; word-wrap: break-word">Engine boot of the snmp engine of the target SNMP agent. Default value is 0. This property only use for SNMP version 3, Do not need to provide this if use other versions(v2c, v1).</td>
         <td style="vertical-align: top">0</td>
         <td style="vertical-align: top">INT</td>
         <td style="vertical-align: top">Yes</td>

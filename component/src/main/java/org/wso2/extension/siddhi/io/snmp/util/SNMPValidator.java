@@ -145,6 +145,16 @@ public class SNMPValidator {
         return new OctetString(engineId);
     }
 
+    private static boolean validateTransportProtocol(String transportProtocol, String streamName) {
+        transportProtocol = transportProtocol.toUpperCase(Locale.ENGLISH);
+        switch (transportProtocol) {
+            case "TCP" : return true;
+            case "UDP" : return false;
+            default: throw new SiddhiAppValidationException(streamName + " transportProtocol not acceptable! " +
+                    "only acceptable for TCP, UDP");
+        }
+    }
+
     //for validation
     public static SNMPManagerConfig validateSnmpProperties(OptionHolder optionHolder,
                                                 String streamName,
@@ -153,12 +163,13 @@ public class SNMPValidator {
         SNMPManagerConfig managerConfig = new SNMPManagerConfig();
         String host = optionHolder.validateAndGetStaticValue(SNMPConstants.HOST);
         String port = optionHolder.validateAndGetStaticValue(SNMPConstants.AGENT_PORT);
-        boolean isTcp = Boolean.parseBoolean(optionHolder.validateAndGetStaticValue(SNMPConstants.IS_TCP,
-                SNMPConstants.DEFAULT_IS_TCP));
         int timeout = Integer.parseInt(optionHolder.validateAndGetStaticValue(SNMPConstants.TIMEOUT,
                 SNMPConstants.DEFAULT_TIMEOUT));
         int retries = Integer.parseInt(optionHolder.validateAndGetStaticValue(SNMPConstants.RETRIES,
                 SNMPConstants.DEFAULT_RETRIES));
+
+        boolean isTcp = validateTransportProtocol(optionHolder.validateAndGetStaticValue(
+                SNMPConstants.TRANSPORT_PROTOCOL, SNMPConstants.DEFAULT_TRANSPORT_PROTOCOL), streamName);
         managerConfig.isTcp(isTcp);
         managerConfig.setVersion(validateVersion(optionHolder.validateAndGetStaticValue(SNMPConstants.VERSION),
                 streamName));

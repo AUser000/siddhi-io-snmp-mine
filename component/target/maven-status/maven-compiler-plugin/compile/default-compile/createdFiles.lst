@@ -1,11 +1,10 @@
-org/wso2/extension/siddhi/io/snmp/source/SNMPServer.class
 org/wso2/extension/siddhi/io/snmp/util/SNMPConstants.class
 org/wso2/extension/siddhi/io/snmp/sink/exceptions/SNMPSinkRuntimeException.class
 org/wso2/extension/siddhi/io/snmp/util/SNMPManagerConfig.class
 META-INF/annotations/org.wso2.siddhi.annotation.Extension
 org/wso2/extension/siddhi/io/snmp/util/SNMPManager.class
 org/wso2/extension/siddhi/io/snmp/util/SNMPValidator.class
+org/wso2/extension/siddhi/io/snmp/source/SNMPListener.class
 org/wso2/extension/siddhi/io/snmp/sink/SNMPSink.class
 org/wso2/extension/siddhi/io/snmp/source/SNMPSource.class
-org/wso2/extension/siddhi/io/snmp/source/SNMPPoller.class
 org/wso2/extension/siddhi/io/snmp/util/exceptions/SNMPRuntimeException.class
