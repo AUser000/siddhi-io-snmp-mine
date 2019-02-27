@@ -44,7 +44,6 @@ public class SNMPManager {
 
     private Logger log = Logger.getLogger(SNMPManager.class);
     private Snmp snmp;
-    private TransportMapping transportMapping;
     private SNMPManagerConfig managerConfig;
 
     public SNMPManager() {
@@ -69,12 +68,13 @@ public class SNMPManager {
 
     public void listen() throws IOException {
 
+        TransportMapping transportMapping;
         if (managerConfig.isTCP()) {
             transportMapping = new DefaultTcpTransportMapping();
         } else {
             transportMapping = new DefaultUdpTransportMapping();
         }
-        snmp = new Snmp(this.transportMapping);
+        snmp = new Snmp(transportMapping);
 
         if (managerConfig.getVersion() == SnmpConstants.version3) {
             USM usm = new USM(SecurityProtocols.getInstance().addDefaultProtocols(),
