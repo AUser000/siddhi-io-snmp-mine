@@ -115,15 +115,15 @@ public class TestCaseOfSNMPSourceV1V2 {
         SiddhiTestHelper.waitForEvents(sleepTime, 5, eventCount, timeout);
         Assert.assertTrue(eventArrived.get());
 
-        LOG.info("[TestCaseOfSNMPSource.class] Siddhi shutting down");
+        LOG.info("Siddhi shutting down");
         siddhiManager.shutdown();
     }
 
     @Test
-    public void snmpVersion1TCPSource() throws InterruptedException {
+    public void snmpVersion1UDPSource() throws InterruptedException {
 
         LOG.info("-----------------------------------------------");
-        LOG.info("    SNMP Version 1 Basic Source Test Case      ");
+        LOG.info("    SNMP Version 1 UDP Source Test Case      ");
         LOG.info("-----------------------------------------------");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -160,7 +160,7 @@ public class TestCaseOfSNMPSourceV1V2 {
         SiddhiTestHelper.waitForEvents(sleepTime, 5, eventCount, timeout);
         Assert.assertTrue(eventArrived.get());
 
-        LOG.info("[TestCaseOfSNMPSource.class] Siddhi shutting down");
+        LOG.info("Siddhi shutting down");
         siddhiManager.shutdown();
     }
 
