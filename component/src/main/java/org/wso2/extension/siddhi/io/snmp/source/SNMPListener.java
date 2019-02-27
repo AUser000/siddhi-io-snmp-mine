@@ -25,22 +25,24 @@ public class SNMPListener implements Runnable {
 
     @Override
     public void run() {
-        if (!isKilled()) {
-            try {
-                Map<String, String> map = manager.getRequestValidateAndReturn();
-                sourceEventListener.onEvent(map, null);
-            } catch (IOException e) {
-                log.info("exception IO");
+        try {
+            Map<String, String> map = manager.getRequestValidateAndReturn();
+            if (kiled) {
+                Thread.currentThread().interrupt();
             }
+            sourceEventListener.onEvent(map, null);
+        } catch (IOException e) {
+            Thread.currentThread().interrupt();
+            log.info(" Thread was interrupted due to IO ");
         }
     }
 
-    public synchronized boolean isKilled() {
+    public boolean isKilled() {
         return kiled;
     }
 
-    public synchronized void kill() {
-        if (!isKilled()) {
+    public void kill() {
+        if (!kiled) {
             kiled = true;
         }
     }
