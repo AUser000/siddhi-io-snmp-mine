@@ -91,7 +91,7 @@ public class TestCaseOfSNMPSinkV3 {
                 "define stream outputStream(value string);";
 
         SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
-        InputHandler inputStream = executionPlanRuntime.getInputHandler("outputStream");
+        InputHandler outputStream = executionPlanRuntime.getInputHandler("outputStream");
         executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
@@ -105,8 +105,8 @@ public class TestCaseOfSNMPSinkV3 {
         log.info(" Siddhi manager started ");
         executionPlanRuntime.start();
 
-        inputStream.send(new Object[]{"mail@wso2.com"});
-        inputStream.send(new Object[]{"mail@wso2.com"});
+        outputStream.send(new Object[]{"mail@wso2.com"});
+        outputStream.send(new Object[]{"mail@wso2.com"});
 
         Thread.sleep(1000);
 

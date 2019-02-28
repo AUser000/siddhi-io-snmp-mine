@@ -171,7 +171,7 @@ public class TestCaseOfSNMPSourceV3 {
         SiddhiTestHelper.waitForEvents(sleepTime, 5, eventCount, timeout);
         Assert.assertTrue(eventArrived.get());
 
-        log.info("[TestCaseOfSNMPSource.class] Siddhi manager shutting down");
+        log.info("Siddhi manager shutting down");
         siddhiManager.shutdown();
     }
 
@@ -549,7 +549,7 @@ public class TestCaseOfSNMPSourceV3 {
 
         SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
         executionPlanRuntime.start();
-        log.info("[TestCaseOfSNMPSource.class] Siddhi manager shutting down");
+        log.info("Siddhi manager shutting down");
         siddhiManager.shutdown();
     }
 
@@ -617,7 +617,7 @@ public class TestCaseOfSNMPSourceV3 {
 
         SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
         executionPlanRuntime.start();
-        log.info("[TestCaseOfSNMPSource.class] Siddhi manager shutting down");
+        log.info("Siddhi manager shutting down");
         siddhiManager.shutdown();
     }
 
