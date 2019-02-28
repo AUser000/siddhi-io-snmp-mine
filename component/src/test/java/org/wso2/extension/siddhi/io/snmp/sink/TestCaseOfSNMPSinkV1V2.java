@@ -202,6 +202,8 @@ public class TestCaseOfSNMPSinkV1V2 {
         siddhiManager.shutdown();
     }
 
+
+
     @Test(enabled = false)
     public void snmpVersion2SinkSNMPSinkRuntimeException() throws InterruptedException {
 
