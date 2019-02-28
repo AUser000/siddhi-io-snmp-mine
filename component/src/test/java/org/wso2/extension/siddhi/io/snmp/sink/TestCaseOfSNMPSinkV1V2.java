@@ -23,7 +23,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.wso2.extension.siddhi.io.snmp.sink.exceptions.SNMPSinkRuntimeException;
 import org.wso2.extension.siddhi.io.snmp.utils.AdvancedCommandProcessor;
 import org.wso2.extension.siddhi.io.snmp.utils.Agent;
 import org.wso2.extension.siddhi.io.snmp.utils.EventHolder;
@@ -37,12 +36,12 @@ import java.io.IOException;
 
 public class TestCaseOfSNMPSinkV1V2 {
 
-    private static final Logger log = Logger.getLogger(TestCaseOfSNMPSinkV1V2.class);
     String port = "2019";
     String ip = "127.0.0.1";
     Agent agent;
     AdvancedCommandProcessor processor;
     EventHolder eventHolder;
+    private Logger log = Logger.getLogger(TestCaseOfSNMPSinkV1V2.class);
 
     @BeforeClass
     public void startAgent() throws IOException {
@@ -161,7 +160,7 @@ public class TestCaseOfSNMPSinkV1V2 {
         log.info("-----------------------------------------------");
         log.info("      SNMP Version 1 TCP Sink Test Case       ");
         log.info("-----------------------------------------------");
-
+        log = Logger.getLogger(SNMPSink.class);
         SiddhiManager siddhiManager = new SiddhiManager();
         String siddhiApp = "@App:name('snmpSink') \n" +
                 "\n" +
@@ -203,9 +202,9 @@ public class TestCaseOfSNMPSinkV1V2 {
         siddhiManager.shutdown();
     }
 
-    // TODO -> does not catch exception // with invalid community string
-    @Test(enabled = false, expectedExceptions = SNMPSinkRuntimeException.class)
+    @Test(enabled = false)
     public void snmpVersion2SinkSNMPSinkRuntimeException() throws InterruptedException {
+
         log.info("-----------------------------------------------");
         log.info("        SNMP Version 2 Sink Test Case          ");
         log.info("-----------------------------------------------");
@@ -219,17 +218,17 @@ public class TestCaseOfSNMPSinkV1V2 {
                 "version = 'v2c',\n" +
                 "community = 'publi',\n" +
                 "agent.port = '" + port + "',\n" +
-                "retries = '5')\n" +
+                "retries = '1')\n" +
                 "define stream outputStream(value string);";
 
-
         SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+
         InputHandler inputStream = executionPlanRuntime.getInputHandler("outputStream");
         executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
+
                 for (Event event : events) {
-                    log.info(event.toString());
                 }
             }
         });
@@ -237,10 +236,15 @@ public class TestCaseOfSNMPSinkV1V2 {
         log.info("Siddhi manager started ");
         executionPlanRuntime.start();
 
-        inputStream.send(new Object[]{"mail@wso2.com"});
-        Thread.sleep(200);
+        try {
+            inputStream.send(new Object[]{"mail@wso2.com"});
+            log.info("try block");
+        } catch (InterruptedException e) {
+            log.info("catch block");
+            Assert.fail();
+        }
 
-        Assert.assertTrue(eventHolder.assertDataContent("mail@wso2.com", 0));
+        Thread.sleep(200);
 
         log.info("Siddhi manager shutting down ");
         siddhiManager.shutdown();

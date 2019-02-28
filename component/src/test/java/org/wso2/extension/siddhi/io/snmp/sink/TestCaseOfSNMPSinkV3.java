@@ -259,9 +259,8 @@ public class TestCaseOfSNMPSinkV3 {
     }
 
     // expected fail // invalid port //TODO ->
-    @Test(enabled = false, expectedExceptions = SNMPSinkRuntimeException.class)
+    @Test(enabled = false)
     public void snmpVersion3SinkValidationException() {
-        boolean thrown = false;
 
         log.info("-----------------------------------------------");
         log.info("       SNMP Version 3 Sink Test Case           ");
