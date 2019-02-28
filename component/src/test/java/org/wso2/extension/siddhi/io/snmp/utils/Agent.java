@@ -47,6 +47,7 @@ import org.snmp4j.mp.MPv1;
 import org.snmp4j.mp.MPv2c;
 import org.snmp4j.mp.MPv3;
 import org.snmp4j.mp.MessageProcessingModel;
+import org.snmp4j.security.AuthHMAC192SHA256;
 import org.snmp4j.security.AuthMD5;
 import org.snmp4j.security.AuthSHA;
 import org.snmp4j.security.PrivAES128;
@@ -82,9 +83,7 @@ import java.io.IOException;
  * features (MIB implementations) provided by the SNMP4J-Agent framework.
  *
  * Note, for snmp4s, this code is mostly a copy from snmp4j.
- *
- * snmp users, 'user001' & 'agent5' used for test.
- * And don't remove other snmp users
+ * And don't remove snmp users
  *
  */
 public class Agent extends BaseAgent {
@@ -201,6 +200,11 @@ public class Agent extends BaseAgent {
                 new OctetString("v3group"),
                 StorageType.nonVolatile);
         //===========================================//
+        // agent002
+        vacm.addGroup(SecurityModel.SECURITY_MODEL_USM,
+                new OctetString("agent002"),
+                new OctetString("v3group"),
+                StorageType.nonVolatile);
         //===========================================//
         // user001-auth-no-priv
         vacm.addGroup(SecurityModel.SECURITY_MODEL_USM,
@@ -373,11 +377,12 @@ public class Agent extends BaseAgent {
                 new OctetString("MD5AES128PrivPassword"));
         usm.addUser(user.getSecurityName(), usm.getLocalEngineID(), user);
         user = new UsmUser(new OctetString("MD5AES192"),
-                AuthMD5.ID,
+                AuthHMAC192SHA256.ID,
                 new OctetString("MD5AES192AuthPassword"),
                 PrivAES192.ID,
                 new OctetString("MD5AES192PrivPassword"));
         usm.addUser(user.getSecurityName(), usm.getLocalEngineID(), user);
+        //==============================================================
         user = new UsmUser(new OctetString("MD5AES256"),
                 AuthMD5.ID,
                 new OctetString("MD5AES256AuthPassword"),
@@ -403,6 +408,13 @@ public class Agent extends BaseAgent {
         user = new UsmUser(new OctetString("user001"),
                 AuthSHA.ID,
                 new OctetString("authpass"),
+                null, null);
+        usm.addUser(user.getSecurityName(), usm.getLocalEngineID(), user);
+        //===============================================================//
+        // user002
+        user = new UsmUser(new OctetString("user001"),
+                null,
+                null,
                 null, null);
         usm.addUser(user.getSecurityName(), usm.getLocalEngineID(), user);
         //===============================================================//

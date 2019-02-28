@@ -23,7 +23,7 @@ import java.util.LinkedList;
 import java.util.Map;
 
 /**
- * This class is use to hold last 10 snmp events
+ * This class is use to hold last limited number of snmp events
  * by list of key-value map
  *
  * */

@@ -76,7 +76,7 @@ public class AdvancedCommandProcessor extends CommandProcessor {
             eventHolder.addEvent(map);
             log.debug("vb -> " + response.getVariableBindings().toString());
         }
-        //
+        // end event holder
 
         try {
             if (response.getBERLength() > requestEvent.getMaxSizeResponsePDU()) {
