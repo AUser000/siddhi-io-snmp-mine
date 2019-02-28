@@ -76,7 +76,7 @@ public class SNMPManager {
         }
         snmp = new Snmp(transportMapping);
 
-        if (managerConfig.getVersion() == SnmpConstants.version3) {
+        if (managerConfig.getVersion() == SNMPConstants.V3) {
             USM usm = new USM(SecurityProtocols.getInstance().addDefaultProtocols(),
                     getEngineId(),
                     managerConfig.getEngineBoot());
@@ -96,8 +96,9 @@ public class SNMPManager {
         } else {
             event = snmp.get(managerConfig.getPdu(), managerConfig.getCommunityTarget());
         }
-        // validate
+        // validation
         if (event != null && event.getResponse() != null) {
+            //log.info(event.getResponse().toString());
             Map<String, String> map = new HashMap<>();
             for (VariableBinding vb : event.getResponse().getVariableBindings()) {
                 map.put(vb.getOid().toString(), vb.getVariable().toString());
@@ -105,9 +106,9 @@ public class SNMPManager {
             return map;
         }
         if (event != null && event.getResponse() == null) {
-            throw new NullPointerException("response event is null");
+            throw new SNMPRuntimeException("response event is null");
         }
-        throw new NullPointerException("response event is null");
+        throw new SNMPRuntimeException("response event is null");
     }
 
     // get map object, make set request and validate
@@ -117,14 +118,14 @@ public class SNMPManager {
             this.managerConfig.getPdu().add(new VariableBinding(new OID(entry.getKey()),
                     new OctetString(entry.getValue())));
         }
-
+        // make get request
         ResponseEvent event;
         if (managerConfig.getVersion() == SnmpConstants.version3) {
             event = snmp.set(managerConfig.getPdu(), managerConfig.getUserTarget());
         } else {
             event = snmp.set(managerConfig.getPdu(), managerConfig.getCommunityTarget());
         }
-
+        // validation
         if (event == null) {
             throw new SNMPRuntimeException(" No such target / Invalid authentication / Timeout error ",
                     new Throwable("event is null"));

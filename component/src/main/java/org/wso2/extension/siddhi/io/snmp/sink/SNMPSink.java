@@ -57,7 +57,7 @@ import java.util.Map;
                         type = DataType.STRING),
                 @Parameter(name = SNMPConstants.COMMUNITY,
                         description = "Community string of the target SNMP agent. Default value is 'public'." +
-                                " This property only use SNMP V1, V2C only do not need to provide while using V3",
+                                " This property only uses SNMP V1, V2C and do not need to provide this when using V3",
                         optional = true,
                         type = DataType.STRING,
                         defaultValue = SNMPConstants.DEFAULT_COMMUNITY),
@@ -67,7 +67,7 @@ import java.util.Map;
                         type = DataType.STRING,
                         defaultValue = SNMPConstants.DEFAULT_AGENT_PORT),
                 @Parameter(name = SNMPConstants.TRANSPORT_PROTOCOL,
-                        description = "Underline connection protocol. Acceptance parameters TCP, UDP",
+                        description = "Transport protocol. Acceptance parameters TCP, UDP",
                         optional = true,
                         type = DataType.STRING,
                         defaultValue = SNMPConstants.DEFAULT_TRANSPORT_PROTOCOL),
@@ -77,69 +77,69 @@ import java.util.Map;
                         type = DataType.INT,
                         defaultValue = SNMPConstants.DEFAULT_TIMEOUT),
                 @Parameter(name = SNMPConstants.RETRIES,
-                        description = "Number of retries of when a request fails.",
+                        description = "Number of retries when a request fails.",
                         optional = true,
                         type = DataType.INT,
                         defaultValue = SNMPConstants.DEFAULT_RETRIES),
                 // v3 parameters
                 @Parameter(name = SNMPConstants.USER_NAME,
                         description = "User Name of the user that configured on target agent. " +
-                                "This property only use for SNMP version 3, Do not need to provide this " +
-                                "if use other versions(v2c, v1).",
+                                "This property only uses for SNMP version 3 and do not need to provide" +
+                                " this when using other versions v2c, v1.",
                         optional = true,
                         type = DataType.STRING,
                         defaultValue = SNMPConstants.DEFAULT_USERNAME),
                 @Parameter(name = SNMPConstants.SECURITY_LVL,
                         description = "Security level. Acceptance parameters AUTH_PRIV, AUTH_NO_PRIVE, " +
-                                "NO_AUTH_NO_PRIVE. This property only use for SNMP version 3, " +
-                                "Do not need to provide this if use other versions(v2c, v1).",
+                                "NO_AUTH_NO_PRIVE. This property only uses for SNMP version 3 and do not need" +
+                                " to provide this when using other versions v2c, v1.",
                         optional = true,
                         type = DataType.INT,
                         defaultValue = SNMPConstants.DEFAULT_SECURITY_LVL),
                 @Parameter(name = SNMPConstants.PRIV_PROTOCOL,
                         description = "Privacy protocol of the target SNMP agent. Acceptance parameters NO_PRIV," +
-                                " PRIVDES, PRIVDES128, PRIVAES192, PRIVAES256, PRIV3DES. This property only use for " +
-                                "SNMP version 3, Do not need to provide this if use other versions(v2c, v1).",
+                                " PRIVDES, PRIVDES128, PRIVAES192, PRIVAES256, PRIV3DES. This property only uses for" +
+                                " SNMP version 3 and do not need to provide this when using other versions v2c, v1.",
                         optional = true,
                         type = DataType.STRING,
                         defaultValue = SNMPConstants.DEFAULT_PRIV_PROTOCOL),
 
                 @Parameter(name = SNMPConstants.PRIV_PASSWORD,
                         description = "Privacy protocol passphrase of the target SNMP agent." +
-                                " Passphrase should have more than 8 characters. This property only use for SNMP" +
-                                " version 3, Do not need to provide this if use other versions(v2c, v1). ",
+                                " Passphrase should have more than 8 characters. This property only uses for SNMP " +
+                                "version 3 and do not need to provide this when using other versions v2c, v1.",
                         optional = true,
                         type = DataType.STRING,
                         defaultValue = SNMPConstants.DEFAULT_PRIV_PASSWORD),
 
                 @Parameter(name = SNMPConstants.AUTH_PROTOCOL,
                         description = "Authentication protocol of the target SNMP agent. Can use NO_AUTH, AUTHMD5," +
-                                " AUTHSHA, AUTHHMAC192SHA256, AUTHHMAC192SHA512. This property only use for SNMP" +
-                                " version 3, Do not need to provide this if use other versions(v2c, v1).",
+                                " AUTHSHA, AUTHHMAC192SHA256, AUTHHMAC192SHA512. This property only uses for SNMP " +
+                                "version 3 and do not need to provide this when using other versions v2c, v1.",
                         optional = true,
                         type = DataType.STRING,
                         defaultValue = SNMPConstants.DEFAULT_AUTH_PROTOCOL),
 
                 @Parameter(name = SNMPConstants.AUTH_PASSWORD,
                         description = "Authentication protocol passphrase of the target SNMP agent." +
-                                "Passphrase should have more than 8 characters. This property only use for SNMP" +
-                                " version 3, Do not need to provide this if use other versions(v2c, v1). ",
+                                "Passphrase should have more than 8 characters. This property only uses for SNMP " +
+                                "version 3 and do not need to provide this when using other versions v2c, v1.",
                         optional = true,
                         type = DataType.STRING,
                         defaultValue = SNMPConstants.DEFAULT_AUT_PASSWORD),
 
                 @Parameter(name = SNMPConstants.LOCAL_ENGINE_ID,
                         description = "Local engine ID of the target SNMP agent. Default value is " +
-                                "device-generated ID, based on the local IP address and additional four " +
-                                "random bytes. This property only use for SNMP version 3, Do not need to provide " +
-                                "this if use other versions(v2c, v1).",
+                                "device-generated ID based on the local IP address and additional four " +
+                                "random bytes. This property only uses for SNMP version 3 and do not need to " +
+                                "provide this when using other versions v2c, v1.",
                         optional = true,
                         type = DataType.STRING,
                         defaultValue = SNMPConstants.DEFAULT_LOCAL_ENGINE_ID),
                 @Parameter(name = SNMPConstants.ENGINE_BOOT,
                         description = "Engine boot of the snmp engine of the target SNMP agent. " +
-                                "Default value is 0. This property only use for SNMP version 3, Do not need to " +
-                                "provide this if use other versions(v2c, v1).",
+                                "Default value is 0. This property only uses for SNMP version 3 and do not need to " +
+                                "provide this when using other versions v2c, v1.",
                         optional = true,
                         type = DataType.INT,
                         defaultValue = SNMPConstants.DEFAULT_ENGINE_BOOT)
