@@ -31,6 +31,7 @@ import org.wso2.extension.siddhi.io.snmp.utils.EventHolder;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.core.util.SiddhiTestHelper;
@@ -41,7 +42,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class TestCaseOfSNMPSourceV3 {
-    private static final Logger LOG  = Logger.getLogger(TestCaseOfSNMPSourceV3.class);
+
+    private Logger log = Logger.getLogger(TestCaseOfSNMPSourceV3.class);
     private AtomicInteger eventCount = new AtomicInteger(0);
     private AtomicBoolean eventArrived = new AtomicBoolean(false);
     private String port = "2019";
@@ -54,7 +56,8 @@ public class TestCaseOfSNMPSourceV3 {
 
     @BeforeClass
     public void startAgent() throws IOException, InterruptedException {
-        LOG.info("agent starting.. ");
+
+        log.info("agent starting.. ");
         Thread.sleep(1500);
         eventHolder = new EventHolder(1);
         advancedCommandProcessor = new AdvancedCommandProcessor();
@@ -65,21 +68,24 @@ public class TestCaseOfSNMPSourceV3 {
 
     @AfterClass
     public void stopAgent() {
+
         agent.stop();
-        LOG.info("agent stopped ");
+        log.info("agent stopped ");
     }
 
     @BeforeMethod
     public void init() {
+
         eventCount.set(0);
         eventArrived.set(false);
     }
 
     @Test
     public void snmpVersion3TestBasic() throws InterruptedException {
-        LOG.info("-----------------------------------------------");
-        LOG.info("     SNMP Version 3 Basic Source Test Case     ");
-        LOG.info("-----------------------------------------------");
+
+        log.info("-------------------------------------------------------------------------------------");
+        log.info("                    SNMP Version 3 Basic Source Test Case                            ");
+        log.info("-------------------------------------------------------------------------------------");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -105,6 +111,7 @@ public class TestCaseOfSNMPSourceV3 {
         executionPlanRuntime.addCallback("inputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
+
                 EventPrinter.print(events);
                 for (Event event : events) {
                     eventCount.getAndIncrement();
@@ -117,16 +124,17 @@ public class TestCaseOfSNMPSourceV3 {
         SiddhiTestHelper.waitForEvents(sleepTime, 5, eventCount, timeout);
         Assert.assertTrue(eventArrived.get());
 
-        LOG.info("Siddhi manager shutting down");
+        log.info("Siddhi manager shutting down");
         siddhiManager.shutdown();
-        LOG.info("Siddhi manager down");
+        log.info("Siddhi manager down");
     }
 
     @Test
     public void snmpVersion3SecLevel() throws InterruptedException {
-        LOG.info("-----------------------------------------------");
-        LOG.info("SNMP Version 3 Source Test Case Sec Lvl AUTH_NOPRIV");
-        LOG.info("-----------------------------------------------");
+
+        log.info("-------------------------------------------------------------------------------------");
+        log.info("                SNMP Version 3 Source Test Case Sec Lvl AUTH_NOPRIV                  ");
+        log.info("-------------------------------------------------------------------------------------");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -150,6 +158,7 @@ public class TestCaseOfSNMPSourceV3 {
         executionPlanRuntime.addCallback("inputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
+
                 EventPrinter.print(events);
                 for (Event event : events) {
                     eventCount.getAndIncrement();
@@ -162,333 +171,16 @@ public class TestCaseOfSNMPSourceV3 {
         SiddhiTestHelper.waitForEvents(sleepTime, 5, eventCount, timeout);
         Assert.assertTrue(eventArrived.get());
 
-        LOG.info("[TestCaseOfSNMPSource.class] Siddhi manager shutting down");
+        log.info("[TestCaseOfSNMPSource.class] Siddhi manager shutting down");
         siddhiManager.shutdown();
     }
 
     @Test
-    public void snmpVersion3UDP() throws InterruptedException {
-        LOG.info("-----------------------------------------------");
-        LOG.info("    SNMP Version 3 Source Test Case for UDP    ");
-        LOG.info("-----------------------------------------------");
+    public void snmpVersionVersion3UserTest() throws InterruptedException {
 
-        SiddhiManager siddhiManager = new SiddhiManager();
-        String siddhiApp = "@App:name('test') \n" +
-                "@source(type='snmp', \n" +
-                "@map(type='keyvalue', " +
-                "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
-                "host ='" + ip + "',\n" +
-                "version = 'v3',\n" +
-                "timeout = '100',\n" +
-                "transport.protocol = 'udp',\n" +
-                "request.interval = '500',\n" +
-                "agent.port = '" + port + "',\n" +
-                "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
-                "auth.protocol = 'AUTHSHA',\n" +
-                "priv.protocol = 'PRIVDES',\n" +
-                "priv.password = 'privpass',\n" +
-                "auth.password = 'authpass',\n" +
-                "security.lvl = 'AUTH_PRIV',\n" +
-                "user.name = 'agent5') \n" +
-                " define stream inputStream(value1 string, value2 string);\n";
-
-        SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
-        executionPlanRuntime.addCallback("inputStream", new StreamCallback() {
-            @Override
-            public void receive(Event[] events) {
-                EventPrinter.print(events);
-                for (Event event : events) {
-                    eventCount.getAndIncrement();
-                    eventArrived.set(true);
-                }
-            }
-        });
-
-        executionPlanRuntime.start();
-        SiddhiTestHelper.waitForEvents(sleepTime, 5, eventCount, timeout);
-        Assert.assertTrue(eventArrived.get());
-
-        LOG.info("Siddhi manager shutting down");
-        siddhiManager.shutdown();
-    }
-
-    @Test
-    public void snmpVersion3EngineID() throws InterruptedException {
-        LOG.info("------------------------------------------------");
-        LOG.info("SNMP Version 3 Source Test Case Sec Lvl 3 Agent5");
-        LOG.info("------------------------------------------------");
-
-        SiddhiManager siddhiManager = new SiddhiManager();
-        String engineId = new OctetString(MPv3.createLocalEngineID()).substring(0, 9).toString();
-
-        String siddhiApp = "@App:name('test') \n" +
-                "@source(type='snmp', \n" +
-                "@map(type='keyvalue', " +
-                "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
-                "host ='" + ip + "',\n" +
-                "version = 'v3',\n" +
-                "timeout = '100',\n" +
-                "request.interval = '500',\n" +
-                "agent.port = '" + port + "',\n" +
-                "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
-                "auth.protocol = 'AUTHSHA',\n" +
-                "priv.protocol = 'PRIVDES',\n" +
-                "priv.password = 'privpass',\n" +
-                "auth.password = 'authpass',\n" +
-                "security.lvl = 'AUTH_PRIV',\n" +
-                "engine.id = '" + engineId + "',\n" +
-                "user.name = 'agent5') \n" +
-                " define stream inputStream(value1 string, value2 string);\n";
-
-        SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
-        executionPlanRuntime.addCallback("inputStream", new StreamCallback() {
-            @Override
-            public void receive(Event[] events) {
-                EventPrinter.print(events);
-                for (Event event : events) {
-                    eventCount.getAndIncrement();
-                    eventArrived.set(true);
-                }
-            }
-        });
-
-        executionPlanRuntime.start();
-        SiddhiTestHelper.waitForEvents(sleepTime, 5, eventCount, timeout);
-        LOG.info("Siddhi manager shutting down");
-        siddhiManager.shutdown();
-    }
-
-    @Test
-    public void snmpVersion3EngineBoot() throws InterruptedException {
-        LOG.info("------------------------------------------------");
-        LOG.info("SNMP Version 3 Source Test Case Sec Lvl 3 Agent5");
-        LOG.info("------------------------------------------------");
-
-        SiddhiManager siddhiManager = new SiddhiManager();
-        String engineId = new OctetString(MPv3.createLocalEngineID()).substring(0, 9).toString();
-
-        String siddhiApp = "@App:name('test') \n" +
-                "@source(type='snmp', \n" +
-                "@map(type='keyvalue', " +
-                "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
-                "host ='" + ip + "',\n" +
-                "version = 'v3',\n" +
-                "timeout = '100',\n" +
-                "request.interval = '500',\n" +
-                "agent.port = '" + port + "',\n" +
-                "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
-                "auth.protocol = 'AUTHSHA',\n" +
-                "priv.protocol = 'PRIVDES',\n" +
-                "priv.password = 'privpass',\n" +
-                "auth.password = 'authpass',\n" +
-                "security.lvl = 'AUTH_PRIV',\n" +
-                "engine.id = '" + engineId + "',\n" +
-                "engine.id = '0',\n" +
-                "user.name = 'agent5') \n" +
-                " define stream inputStream(value1 string, value2 string);\n";
-
-        SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
-        executionPlanRuntime.addCallback("inputStream", new StreamCallback() {
-            @Override
-            public void receive(Event[] events) {
-                EventPrinter.print(events);
-                for (Event event : events) {
-                    eventCount.getAndIncrement();
-                    eventArrived.set(true);
-                }
-            }
-        });
-
-        executionPlanRuntime.start();
-        SiddhiTestHelper.waitForEvents(sleepTime, 5, eventCount, timeout);
-        LOG.info("Siddhi manager shutting down");
-        siddhiManager.shutdown();
-    }
-
-    @Test
-    public void snmpVersion3AuthPriv() throws InterruptedException {
-        LOG.info("-----------------------------------------------");
-        LOG.info("SNMP Version 3 Source Test Case Sec Lvl 3 Agent5");
-        LOG.info("-----------------------------------------------");
-
-        SiddhiManager siddhiManager = new SiddhiManager();
-
-        String siddhiApp = "@App:name('test') \n" +
-                "@source(type='snmp', \n" +
-                "@map(type='keyvalue', " +
-                "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
-                "host ='" + ip + "',\n" +
-                "version = 'v3',\n" +
-                "timeout = '100',\n" +
-                "request.interval = '500',\n" +
-                "agent.port = '" + port + "',\n" +
-                "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
-                "auth.protocol = 'AUTHSHA',\n" +
-                "priv.protocol = 'PRIVDES',\n" +
-                "priv.password = 'privpass',\n" +
-                "auth.password = 'authpass',\n" +
-                "security.lvl = 'AUTH_PRIV',\n" +
-                "user.name = 'agent5') \n" +
-                " define stream inputStream(value1 string, value2 string);\n";
-
-        SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
-        executionPlanRuntime.addCallback("inputStream", new StreamCallback() {
-            @Override
-            public void receive(Event[] events) {
-                EventPrinter.print(events);
-                for (Event event : events) {
-                    eventCount.getAndIncrement();
-                    eventArrived.set(true);
-                }
-            }
-        });
-
-        executionPlanRuntime.start();
-        SiddhiTestHelper.waitForEvents(sleepTime, 5, eventCount, timeout);
-        Assert.assertTrue(eventArrived.get());
-
-        LOG.info("Siddhi manager shutting down");
-        siddhiManager.shutdown();
-    }
-
-    @Test
-    public void snmpVersion3AuthPriv2() throws InterruptedException {
-        LOG.info("-----------------------------------------------");
-        LOG.info("SNMP Version 3 Source Test Case Sec Lvl 3 Agent5");
-        LOG.info("-----------------------------------------------");
-
-        SiddhiManager siddhiManager = new SiddhiManager();
-
-        String siddhiApp = "@App:name('test') \n" +
-                "@source(type='snmp', \n" +
-                "@map(type='keyvalue', " +
-                "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
-                "host ='" + ip + "',\n" +
-                "version = 'v3',\n" +
-                "timeout = '100',\n" +
-                "request.interval = '500',\n" +
-                "agent.port = '" + port + "',\n" +
-                "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
-                "auth.protocol = 'AUTHMD5',\n" +
-                "priv.protocol = 'PRIVAES256',\n" +
-                "priv.password = 'MD5AES256PrivPassword',\n" +
-                "auth.password = 'MD5AES256AuthPassword',\n" +
-                "security.lvl = 'AUTH_PRIV',\n" +
-                "user.name = 'MD5AES256') \n" +
-                " define stream inputStream(value1 string, value2 string);\n";
-
-        SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
-        executionPlanRuntime.addCallback("inputStream", new StreamCallback() {
-            @Override
-            public void receive(Event[] events) {
-                EventPrinter.print(events);
-                for (Event event : events) {
-                    eventCount.getAndIncrement();
-                    eventArrived.set(true);
-                }
-            }
-        });
-
-        executionPlanRuntime.start();
-        SiddhiTestHelper.waitForEvents(sleepTime, 5, eventCount, timeout);
-        Assert.assertTrue(eventArrived.get());
-
-        LOG.info("[TestCaseOfSNMPSource.class] Siddhi manager shutting down");
-        siddhiManager.shutdown();
-    }
-
-    @Test(expectedExceptions = SiddhiAppValidationException.class)
-    public void snmpValidationTest() { // sec lvl
-        LOG.info("------------------------------------------------");
-        LOG.info("SNMP Version 3 Source Test Case Sec Lvl 3 Agent5");
-        LOG.info("------------------------------------------------");
-
-        SiddhiManager siddhiManager = new SiddhiManager();
-
-        String siddhiApp = "@App:name('test') \n" +
-                "@source(type='snmp', \n" +
-                "@map(type='keyvalue', " +
-                "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
-                "host ='" + ip + "',\n" +
-                "version = 'v3',\n" +
-                "timeout = '100',\n" +
-                "request.interval = '500',\n" +
-                "agent.port = '" + port + "',\n" +
-                "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
-                "auth.protocol = 'AUTHSHA',\n" +
-                "priv.protocol = 'PRIVDES',\n" +
-                "priv.password = 'privpass',\n" +
-                "auth.password = 'authpass',\n" +
-                "security.lvl = 'AUTH_PRI',\n" +
-                "user.name = 'agent5') \n" +
-                " define stream inputStream(value1 string, value2 string);\n";
-
-        SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
-        executionPlanRuntime.addCallback("inputStream", new StreamCallback() {
-            @Override
-            public void receive(Event[] events) {
-                EventPrinter.print(events);
-                for (Event event : events) {
-                    //log.info(event.toString());
-                    eventCount.getAndIncrement();
-                    eventArrived.set(true);
-                }
-            }
-        });
-
-        executionPlanRuntime.start();
-        LOG.info("[TestCaseOfSNMPSource.class] Siddhi manager shutting down");
-        siddhiManager.shutdown();
-    }
-
-    @Test(expectedExceptions = SiddhiAppValidationException.class)
-    public void snmpRuntimeTest() { // for priv protocol
-        LOG.info("------------------------------------------------");
-        LOG.info("SNMP Version 3 Source Test Case Sec Lvl 3 Agent5");
-        LOG.info("------------------------------------------------");
-
-        SiddhiManager siddhiManager = new SiddhiManager();
-
-        String siddhiApp = "@App:name('test') \n" +
-                "@source(type='snmp', \n" +
-                "@map(type='keyvalue', " +
-                "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
-                "host ='" + ip + "',\n" +
-                "version = 'v3',\n" +
-                "timeout = '100',\n" +
-                "request.interval = '500',\n" +
-                "agent.port = '" + 200 + "',\n" +
-                "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
-                "auth.protocol = 'AUTHSHA',\n" +
-                "priv.protocol = 'PRIVDE',\n" +
-                "priv.password = 'privpass',\n" +
-                "auth.password = 'authpass',\n" +
-                "security.lvl = 'AUTH_PRIV',\n" +
-                "user.name = 'agent5') \n" +
-                " define stream inputStream(value1 string, value2 string);\n";
-
-        SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
-        executionPlanRuntime.addCallback("inputStream", new StreamCallback() {
-            @Override
-            public void receive(Event[] events) {
-                EventPrinter.print(events);
-                for (Event event : events) {
-                    eventCount.getAndIncrement();
-                    eventArrived.set(true);
-                }
-            }
-        });
-
-        executionPlanRuntime.start();
-        LOG.info("[TestCaseOfSNMPSource.class] Siddhi manager shutting down");
-        siddhiManager.shutdown();
-    }
-
-    @Test
-    public void snmpVersionVersion3Validation() throws InterruptedException { // for priv protocol
-        LOG.info("------------------------------------------------");
-        LOG.info("SNMP Version 3 Source Test Case Sec Lvl 3 Agent5");
-        LOG.info("------------------------------------------------");
+        log.info("-------------------------------------------------------------------------------------");
+        log.info("                SNMP Version 3 Source Test Case Sec Lvl 3 Agent5                     ");
+        log.info("-------------------------------------------------------------------------------------");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String engineId = new OctetString(MPv3.createLocalEngineID()).substring(0, 9).toString();
@@ -517,6 +209,7 @@ public class TestCaseOfSNMPSourceV3 {
         executionPlanRuntime.addCallback("inputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
+
                 EventPrinter.print(events);
                 for (Event event : events) {
                     eventCount.getAndIncrement();
@@ -527,7 +220,404 @@ public class TestCaseOfSNMPSourceV3 {
 
         executionPlanRuntime.start();
         SiddhiTestHelper.waitForEvents(sleepTime, 5, eventCount, timeout);
-        LOG.info("Siddhi manager shutting down");
+        log.info("Siddhi manager shutting down");
+        siddhiManager.shutdown();
+    }
+
+    @Test
+    public void snmpVersion3EngineID() throws InterruptedException {
+
+        log.info("-------------------------------------------------------------------------------------");
+        log.info("                        SNMP Version 3 Source Engine Id Test                         ");
+        log.info("-------------------------------------------------------------------------------------");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String engineId = new OctetString(MPv3.createLocalEngineID()).substring(0, 9).toString();
+
+        String siddhiApp = "@App:name('test') \n" +
+                "@source(type='snmp', \n" +
+                "@map(type='keyvalue', " +
+                "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
+                "host ='" + ip + "',\n" +
+                "version = 'v3',\n" +
+                "timeout = '100',\n" +
+                "request.interval = '500',\n" +
+                "agent.port = '" + port + "',\n" +
+                "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
+                "auth.protocol = 'AUTHSHA',\n" +
+                "priv.protocol = 'PRIVDES',\n" +
+                "priv.password = 'privpass',\n" +
+                "auth.password = 'authpass',\n" +
+                "security.lvl = 'AUTH_PRIV',\n" +
+                "engine.id = '" + engineId + "',\n" +
+                "user.name = 'agent5') \n" +
+                " define stream inputStream(value1 string, value2 string);\n";
+
+        SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        executionPlanRuntime.addCallback("inputStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+
+                EventPrinter.print(events);
+                for (Event event : events) {
+                    eventCount.getAndIncrement();
+                    eventArrived.set(true);
+                }
+            }
+        });
+
+        executionPlanRuntime.start();
+        SiddhiTestHelper.waitForEvents(sleepTime, 5, eventCount, timeout);
+        log.info("Siddhi manager shutting down");
+        siddhiManager.shutdown();
+    }
+
+    @Test
+    public void snmpVersion3EngineBoot() throws InterruptedException {
+
+        log.info("-------------------------------------------------------------------------------------");
+        log.info("                         SNMP Version 3 Engine Boot Test                             ");
+        log.info("-------------------------------------------------------------------------------------");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String engineId = new OctetString(MPv3.createLocalEngineID()).substring(0, 9).toString();
+
+        String siddhiApp = "@App:name('test') \n" +
+                "@source(type='snmp', \n" +
+                "@map(type='keyvalue', " +
+                "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
+                "host ='" + ip + "',\n" +
+                "version = 'v3',\n" +
+                "timeout = '100',\n" +
+                "request.interval = '500',\n" +
+                "agent.port = '" + port + "',\n" +
+                "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
+                "auth.protocol = 'AUTHSHA',\n" +
+                "priv.protocol = 'PRIVDES',\n" +
+                "priv.password = 'privpass',\n" +
+                "auth.password = 'authpass',\n" +
+                "security.lvl = 'AUTH_PRIV',\n" +
+                "engine.id = '" + engineId + "',\n" +
+                "engine.id = '0',\n" +
+                "user.name = 'agent5') \n" +
+                " define stream inputStream(value1 string, value2 string);\n";
+
+        SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        executionPlanRuntime.addCallback("inputStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+
+                EventPrinter.print(events);
+                for (Event event : events) {
+                    eventCount.getAndIncrement();
+                    eventArrived.set(true);
+                }
+            }
+        });
+
+        executionPlanRuntime.start();
+        SiddhiTestHelper.waitForEvents(sleepTime, 5, eventCount, timeout);
+        log.info("Siddhi manager shutting down");
+        siddhiManager.shutdown();
+    }
+
+    @Test
+    public void snmpVersion3AuthPriv() throws InterruptedException {
+
+        log.info("-------------------------------------------------------------------------------------");
+        log.info("                        SNMP Version 3 Security Protocol Test                        ");
+        log.info("-------------------------------------------------------------------------------------");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String siddhiApp = "@App:name('test') \n" +
+                "@source(type='snmp', \n" +
+                "@map(type='keyvalue', " +
+                "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
+                "host ='" + ip + "',\n" +
+                "version = 'v3',\n" +
+                "timeout = '100',\n" +
+                "request.interval = '500',\n" +
+                "agent.port = '" + port + "',\n" +
+                "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
+                "auth.protocol = 'AUTHSHA',\n" +
+                "priv.protocol = 'PRIVDES',\n" +
+                "priv.password = 'privpass',\n" +
+                "auth.password = 'authpass',\n" +
+                "security.lvl = 'AUTH_PRIV',\n" +
+                "user.name = 'agent5') \n" +
+                " define stream inputStream(value1 string, value2 string);\n";
+
+        SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        executionPlanRuntime.addCallback("inputStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+
+                EventPrinter.print(events);
+                for (Event event : events) {
+                    eventCount.getAndIncrement();
+                    eventArrived.set(true);
+                }
+            }
+        });
+
+        executionPlanRuntime.start();
+        SiddhiTestHelper.waitForEvents(sleepTime, 5, eventCount, timeout);
+        Assert.assertTrue(eventArrived.get());
+
+        log.info("Siddhi manager shutting down");
+        siddhiManager.shutdown();
+    }
+
+    @Test
+    public void snmpVersion3AuthPriv2() throws InterruptedException {
+
+        log.info("-------------------------------------------------------------------------------------");
+        log.info("                        SNMP Version 3 Security Protocol Test                        ");
+        log.info("-------------------------------------------------------------------------------------");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String siddhiApp = "@App:name('test') \n" +
+                "@source(type='snmp', \n" +
+                "@map(type='keyvalue', " +
+                "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
+                "host ='" + ip + "',\n" +
+                "version = 'v3',\n" +
+                "timeout = '100',\n" +
+                "request.interval = '500',\n" +
+                "agent.port = '" + port + "',\n" +
+                "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
+                "auth.protocol = 'AUTHMD5',\n" +
+                "priv.protocol = 'PRIVAES256',\n" +
+                "priv.password = 'MD5AES256PrivPassword',\n" +
+                "auth.password = 'MD5AES256AuthPassword',\n" +
+                "security.lvl = 'AUTH_PRIV',\n" +
+                "user.name = 'MD5AES256') \n" +
+                " define stream inputStream(value1 string, value2 string);\n";
+
+        SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        executionPlanRuntime.addCallback("inputStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+
+                EventPrinter.print(events);
+                for (Event event : events) {
+                    eventCount.getAndIncrement();
+                    eventArrived.set(true);
+                }
+            }
+        });
+
+        executionPlanRuntime.start();
+        SiddhiTestHelper.waitForEvents(sleepTime, 5, eventCount, timeout);
+        Assert.assertTrue(eventArrived.get());
+
+        log.info("Siddhi manager shutting down");
+        siddhiManager.shutdown();
+    }
+
+    // giving invalid `security.lvl`
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    public void snmpValidationTest1() {
+
+        log.info("-------------------------------------------------------------------------------------");
+        log.info("                 SNMP Version 3 Siddhi app validation for `security.lvl`             ");
+        log.info("-------------------------------------------------------------------------------------");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String siddhiApp = "@App:name('test') \n" +
+                "@source(type='snmp', \n" +
+                "@map(type='keyvalue', " +
+                "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
+                "host ='" + ip + "',\n" +
+                "version = 'v3',\n" +
+                "timeout = '100',\n" +
+                "request.interval = '500',\n" +
+                "agent.port = '" + port + "',\n" +
+                "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
+                "auth.protocol = 'AUTHSHA',\n" +
+                "priv.protocol = 'PRIVDES',\n" +
+                "priv.password = 'privpass',\n" +
+                "auth.password = 'authpass',\n" +
+                "security.lvl = 'AUTH_PRI',\n" +
+                "user.name = 'agent5') \n" +
+                " define stream inputStream(value1 string, value2 string);\n";
+
+        SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        executionPlanRuntime.start();
+        log.info("Siddhi manager shutting down");
+        siddhiManager.shutdown();
+    }
+
+    // for invalid `priv.protocol`
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    public void snmpValidationTest2() {
+
+        log.info("-------------------------------------------------------------------------------------");
+        log.info("                SNMP Version 3 Siddhi app validation for `priv.protocol`             ");
+        log.info("-------------------------------------------------------------------------------------");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String siddhiApp = "@App:name('test') \n" +
+                "@source(type='snmp', \n" +
+                "@map(type='keyvalue', " +
+                "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
+                "host ='" + ip + "',\n" +
+                "version = 'v3',\n" +
+                "timeout = '100',\n" +
+                "request.interval = '500',\n" +
+                "agent.port = '" + 200 + "',\n" +
+                "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
+                "auth.protocol = 'AUTHSHA',\n" +
+                "priv.protocol = 'PRIVDE',\n" +
+                "priv.password = 'privpass',\n" +
+                "auth.password = 'authpass',\n" +
+                "security.lvl = 'AUTH_PRIV',\n" +
+                "user.name = 'agent5') \n" +
+                " define stream inputStream(value1 string, value2 string);\n";
+
+        SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        executionPlanRuntime.start();
+        log.info("Siddhi manager shutting down");
+        siddhiManager.shutdown();
+    }
+
+    // for invalid `auth.protocol`
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    public void snmpValidationTest3() {
+
+        log.info("-------------------------------------------------------------------------------------");
+        log.info("                SNMP Version 3 Siddhi app validation for `auth.protocol`             ");
+        log.info("-------------------------------------------------------------------------------------");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String siddhiApp = "@App:name('test') \n" +
+                "@source(type='snmp', \n" +
+                "@map(type='keyvalue', " +
+                "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
+                "host ='" + ip + "',\n" +
+                "version = 'v3',\n" +
+                "timeout = '100',\n" +
+                "request.interval = '500',\n" +
+                "agent.port = '" + 200 + "',\n" +
+                "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
+                "auth.protocol = 'AUTHSHAE',\n" +
+                "priv.protocol = 'PRIVDES',\n" +
+                "priv.password = 'privpass',\n" +
+                "auth.password = 'authpass',\n" +
+                "security.lvl = 'AUTH_PRIV',\n" +
+                "user.name = 'agent5') \n" +
+                " define stream inputStream(value1 string, value2 string);\n";
+
+        SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        executionPlanRuntime.start();
+        log.info("Siddhi manager shutting down");
+        siddhiManager.shutdown();
+    }
+
+    // for invalid `transport.protocol`
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    public void snmpValidationTest4() {
+        log.info("-------------------------------------------------------------------------------------");
+        log.info("            SNMP Version 3 Siddhi app validation for `transport.protocol`            ");
+        log.info("-------------------------------------------------------------------------------------");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String siddhiApp = "@App:name('test') \n" +
+                "@source(type='snmp', \n" +
+                "@map(type='keyvalue', " +
+                "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
+                "host ='" + ip + "',\n" +
+                "version = 'v3',\n" +
+                "transport.protocol = ';-)',\n" +
+                "timeout = '100',\n" +
+                "request.interval = '500',\n" +
+                "agent.port = '" + 200 + "',\n" +
+                "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
+                "auth.protocol = 'AUTHSHAE',\n" +
+                "priv.protocol = 'PRIVDES',\n" +
+                "priv.password = 'privpass',\n" +
+                "auth.password = 'authpass',\n" +
+                "security.lvl = 'AUTH_PRIV',\n" +
+                "user.name = 'agent5') \n" +
+                " define stream inputStream(value1 string, value2 string);\n";
+
+        SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        executionPlanRuntime.start();
+        log.info("[TestCaseOfSNMPSource.class] Siddhi manager shutting down");
+        siddhiManager.shutdown();
+    }
+
+    // for invalid `version`
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    public void snmpValidationTest5() {
+
+        log.info("-------------------------------------------------------------------------------------");
+        log.info("                SNMP Version 3 Siddhi app validation for `priv.protocol`             ");
+        log.info("-------------------------------------------------------------------------------------");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String siddhiApp = "@App:name('test') \n" +
+                "@source(type='snmp', \n" +
+                "@map(type='keyvalue', " +
+                "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
+                "host ='" + ip + "',\n" +
+                "version = 'v2u',\n" +
+                "transport.protocol = 'tcp',\n" +
+                "timeout = '100',\n" +
+                "request.interval = '500',\n" +
+                "agent.port = '" + port + "',\n" +
+                "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
+                "auth.protocol = 'AUTHSHAE',\n" +
+                "priv.protocol = 'PRIVDES',\n" +
+                "priv.password = 'privpass',\n" +
+                "auth.password = 'authpass',\n" +
+                "security.lvl = 'AUTH_PRIV',\n" +
+                "user.name = 'agent5') \n" +
+                " define stream inputStream(value1 string, value2 string);\n";
+
+        SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        executionPlanRuntime.start();
+        log.info("Siddhi manager shutting down");
+        siddhiManager.shutdown();
+    }
+
+    // if the map annotation is not include in the siddhi app
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
+    public void snmpCreationExceptionTest6() {
+
+        log.info("-------------------------------------------------------------------------------------");
+        log.info("                              Siddhi App Creation Exception                          ");
+        log.info("-------------------------------------------------------------------------------------");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String siddhiApp = "@App:name('test') \n" +
+                "@source(type='snmp', \n" +
+                "host ='" + ip + "',\n" +
+                "version = 'v2u',\n" +
+                "transport.protocol = 'tcp',\n" +
+                "timeout = '100',\n" +
+                "request.interval = '500',\n" +
+                "agent.port = '" + port + "',\n" +
+                "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
+                "auth.protocol = 'AUTHSHAE',\n" +
+                "priv.protocol = 'PRIVDES',\n" +
+                "priv.password = 'privpass',\n" +
+                "auth.password = 'authpass',\n" +
+                "security.lvl = 'AUTH_PRIV',\n" +
+                "user.name = 'agent5') \n" +
+                " define stream inputStream(value1 string, value2 string);\n";
+
+        SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        executionPlanRuntime.start();
+        log.info("[TestCaseOfSNMPSource.class] Siddhi manager shutting down");
         siddhiManager.shutdown();
     }
 

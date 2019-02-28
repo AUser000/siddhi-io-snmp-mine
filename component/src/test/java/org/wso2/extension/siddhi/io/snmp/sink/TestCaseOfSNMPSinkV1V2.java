@@ -69,9 +69,9 @@ public class TestCaseOfSNMPSinkV1V2 {
     @Test
     public void snmpVersion1BasicSink() throws InterruptedException {
 
-        log.info("-----------------------------------------------");
-        log.info("        SNMP Version 1 Basic Sink Test Case          ");
-        log.info("-----------------------------------------------");
+        log.info("-------------------------------------------------------------------------------------");
+        log.info("                    SNMP Version 1 Basic Sink Test Case");
+        log.info("-------------------------------------------------------------------------------------");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String siddhiApp = "@App:name('snmpSink') \n" +
@@ -86,7 +86,7 @@ public class TestCaseOfSNMPSinkV1V2 {
                 "define stream outputStream(value string);";
 
         SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
-        InputHandler inputStream = executionPlanRuntime.getInputHandler("outputStream");
+        InputHandler outputStream = executionPlanRuntime.getInputHandler("outputStream");
         executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
@@ -100,11 +100,11 @@ public class TestCaseOfSNMPSinkV1V2 {
         log.info("Siddhi manager started ");
         executionPlanRuntime.start();
 
-        inputStream.send(new Object[]{"mail@wso2.com"});
+        outputStream.send(new Object[]{"mail@wso2.com"});
         Thread.sleep(200);
         Assert.assertTrue(eventHolder.assertDataContent("mail@wso2.com", 0));
-        log.info("Siddhi manager shutting down ");
 
+        log.info("Siddhi manager shutting down ");
         siddhiManager.shutdown();
 
     }
@@ -112,9 +112,9 @@ public class TestCaseOfSNMPSinkV1V2 {
     @Test
     public void snmpVersion2BasicSink() throws InterruptedException {
 
-        log.info("-----------------------------------------------");
-        log.info("      SNMP Version 2 Basic Sink Test Case       ");
-        log.info("-----------------------------------------------");
+        log.info("-------------------------------------------------------------------------------------");
+        log.info("                  SNMP Version 2 Basic Sink Test Case                                ");
+        log.info("-------------------------------------------------------------------------------------");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String siddhiApp = "@App:name('snmpSink') \n" +
@@ -129,7 +129,7 @@ public class TestCaseOfSNMPSinkV1V2 {
                 "define stream outputStream(value string);";
 
         SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
-        InputHandler inputStream = executionPlanRuntime.getInputHandler("outputStream");
+        InputHandler outputStream = executionPlanRuntime.getInputHandler("outputStream");
         executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
@@ -143,8 +143,7 @@ public class TestCaseOfSNMPSinkV1V2 {
         log.info("Siddhi manager started ");
         executionPlanRuntime.start();
 
-        inputStream.send(new Object[]{"mail@wso2.com"});
-        //inputStream.send(new Object[]{"mail@wso2.com"});
+        outputStream.send(new Object[]{"mail@wso2.com"});
         Thread.sleep(200);
 
         Assert.assertTrue(eventHolder.assertDataContent("mail@wso2.com", 0));
@@ -157,9 +156,9 @@ public class TestCaseOfSNMPSinkV1V2 {
     @Test
     public void snmpVersion1TCPSink() throws InterruptedException {
 
-        log.info("-----------------------------------------------");
-        log.info("      SNMP Version 1 TCP Sink Test Case       ");
-        log.info("-----------------------------------------------");
+        log.info("-------------------------------------------------------------------------------------");
+        log.info("                      SNMP Version 1 TCP Sink Test Case                              ");
+        log.info("-------------------------------------------------------------------------------------");
         log = Logger.getLogger(SNMPSink.class);
         SiddhiManager siddhiManager = new SiddhiManager();
         String siddhiApp = "@App:name('snmpSink') \n" +
@@ -175,7 +174,7 @@ public class TestCaseOfSNMPSinkV1V2 {
                 "define stream outputStream(value string);";
 
         SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
-        InputHandler inputStream = executionPlanRuntime.getInputHandler("outputStream");
+        InputHandler outputStream = executionPlanRuntime.getInputHandler("outputStream");
         executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
@@ -189,68 +188,13 @@ public class TestCaseOfSNMPSinkV1V2 {
         log.info("Siddhi manager started ");
         executionPlanRuntime.start();
 
-        try {
-            inputStream.send(new Object[]{"mail@wso2.com"});
-        } catch (InterruptedException e) {
-            log.info(" IO Error", e);
-        }
+        outputStream.send(new Object[]{"mail@wso2.com"});
         Thread.sleep(1000);
 
         Assert.assertTrue(eventHolder.assertDataContent("mail@wso2.com", 0));
 
         log.info("Siddhi manager shutting down ");
         siddhiManager.shutdown();
-    }
-
-
-
-    @Test(enabled = false)
-    public void snmpVersion2SinkSNMPSinkRuntimeException() throws InterruptedException {
-
-        log.info("-----------------------------------------------");
-        log.info("        SNMP Version 2 Sink Test Case          ");
-        log.info("-----------------------------------------------");
-
-        SiddhiManager siddhiManager = new SiddhiManager();
-        String siddhiApp = "@App:name('snmpSink') \n" +
-                "\n" +
-                "@Sink(type='snmp',\n" +
-                "@map(type='keyvalue', @payload('1.3.6.1.2.1.1.4.0' = 'value')),\n" +
-                "host = '" + ip + "',\n" +
-                "version = 'v2c',\n" +
-                "community = 'publi',\n" +
-                "agent.port = '" + port + "',\n" +
-                "retries = '1')\n" +
-                "define stream outputStream(value string);";
-
-        SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
-
-        InputHandler inputStream = executionPlanRuntime.getInputHandler("outputStream");
-        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
-            @Override
-            public void receive(Event[] events) {
-
-                for (Event event : events) {
-                }
-            }
-        });
-
-        log.info("Siddhi manager started ");
-        executionPlanRuntime.start();
-
-        try {
-            inputStream.send(new Object[]{"mail@wso2.com"});
-            log.info("try block");
-        } catch (InterruptedException e) {
-            log.info("catch block");
-            Assert.fail();
-        }
-
-        Thread.sleep(200);
-
-        log.info("Siddhi manager shutting down ");
-        siddhiManager.shutdown();
-
     }
 
 }

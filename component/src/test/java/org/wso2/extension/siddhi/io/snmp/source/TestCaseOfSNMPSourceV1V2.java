@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class TestCaseOfSNMPSourceV1V2 {
 
-    private static final Logger LOG = Logger.getLogger(TestCaseOfSNMPSourceV1V2.class);
+    private  Logger log = Logger.getLogger(TestCaseOfSNMPSourceV1V2.class);
     private AtomicInteger eventCount = new AtomicInteger(0);
     private AtomicBoolean eventArrived = new AtomicBoolean(false);
     private String port = "2019";
@@ -53,7 +53,7 @@ public class TestCaseOfSNMPSourceV1V2 {
     @BeforeClass
     public void startAgent() throws IOException {
 
-        LOG.info("agent starting.. ");
+        log.info("agent starting.. ");
         eventHolder = new EventHolder(1);
         advancedCommandProcessor = new AdvancedCommandProcessor();
         advancedCommandProcessor.setEventListener(eventHolder);
@@ -65,7 +65,7 @@ public class TestCaseOfSNMPSourceV1V2 {
     public void stopAgent() {
 
         agent.stop();
-        LOG.info("agent stopped1");
+        log.info("agent stopped.");
     }
 
     @BeforeMethod
@@ -78,9 +78,10 @@ public class TestCaseOfSNMPSourceV1V2 {
     @Test
     public void snmpVersion1Source() throws InterruptedException {
 
-        LOG.info("-----------------------------------------------");
-        LOG.info("    SNMP Version 1 Basic Source Test Case      ");
-        LOG.info("-----------------------------------------------");
+        log.info("-------------------------------------------------------------------------------------");
+        log.info("                           SNMP Version 1 Basic Source                               ");
+        log.info("-------------------------------------------------------------------------------------");
+
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -104,7 +105,6 @@ public class TestCaseOfSNMPSourceV1V2 {
 
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    //log.info(event);
                     eventCount.getAndIncrement();
                     eventArrived.set(true);
                 }
@@ -115,16 +115,17 @@ public class TestCaseOfSNMPSourceV1V2 {
         SiddhiTestHelper.waitForEvents(sleepTime, 5, eventCount, timeout);
         Assert.assertTrue(eventArrived.get());
 
-        LOG.info("Siddhi shutting down");
+        log.info("Siddhi shutting down");
         siddhiManager.shutdown();
     }
 
     @Test
     public void snmpVersion1UDPSource() throws InterruptedException {
 
-        LOG.info("-----------------------------------------------");
-        LOG.info("    SNMP Version 1 UDP Source Test Case      ");
-        LOG.info("-----------------------------------------------");
+        log.info("-------------------------------------------------------------------------------------");
+        log.info("                         SNMP Version 1 UDP Test                                     ");
+        log.info("-------------------------------------------------------------------------------------");
+
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -149,7 +150,6 @@ public class TestCaseOfSNMPSourceV1V2 {
 
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    //log.info(event);
                     eventCount.getAndIncrement();
                     eventArrived.set(true);
                 }
@@ -160,16 +160,16 @@ public class TestCaseOfSNMPSourceV1V2 {
         SiddhiTestHelper.waitForEvents(sleepTime, 5, eventCount, timeout);
         Assert.assertTrue(eventArrived.get());
 
-        LOG.info("Siddhi shutting down");
+        log.info("Siddhi shutting down");
         siddhiManager.shutdown();
     }
 
     @Test
     public void snmpVersion2Source() throws InterruptedException {
 
-        LOG.info("-----------------------------------------------");
-        LOG.info("     SNMP Version 2 Basic Source Test Case     ");
-        LOG.info("-----------------------------------------------");
+        log.info("-------------------------------------------------------------------------------------");
+        log.info("                         SNMP Version 2 Basic Source Test                            ");
+        log.info("-------------------------------------------------------------------------------------");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -192,7 +192,6 @@ public class TestCaseOfSNMPSourceV1V2 {
 
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    //log.info(event);
                     eventCount.getAndIncrement();
                     eventArrived.set(true);
                 }
@@ -203,16 +202,17 @@ public class TestCaseOfSNMPSourceV1V2 {
         SiddhiTestHelper.waitForEvents(sleepTime, 5, eventCount, timeout);
         Assert.assertTrue(eventArrived.get());
 
-        LOG.info(" Siddhi shutting down");
+        log.info(" Siddhi shutting down");
         siddhiManager.shutdown();
     }
 
     @Test
     public void snmpVersion2TCPSource() throws InterruptedException {
 
-        LOG.info("-----------------------------------------------");
-        LOG.info("     SNMP Version 2 TCP Source Test Case     ");
-        LOG.info("-----------------------------------------------");
+        log.info("-------------------------------------------------------------------------------------");
+        log.info("                            SNMP Version 2 TCP Test                                  ");
+        log.info("-------------------------------------------------------------------------------------");
+
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -236,7 +236,6 @@ public class TestCaseOfSNMPSourceV1V2 {
 
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    //log.info(event);
                     eventCount.getAndIncrement();
                     eventArrived.set(true);
                 }
@@ -247,7 +246,7 @@ public class TestCaseOfSNMPSourceV1V2 {
         SiddhiTestHelper.waitForEvents(sleepTime, 5, eventCount, timeout);
         Assert.assertTrue(eventArrived.get());
 
-        LOG.info(" Siddhi shutting down");
+        log.info(" Siddhi shutting down");
         siddhiManager.shutdown();
     }
 
