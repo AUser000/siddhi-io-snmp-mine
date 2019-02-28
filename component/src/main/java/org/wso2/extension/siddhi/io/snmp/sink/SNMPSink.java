@@ -46,10 +46,10 @@ import java.util.Map;
 @Extension(
         name = "snmp",
         namespace = "sink",
-        description = " SNMP Sink allows user to make set request as a manager and make changes on agent",
+        description = " SNMP Sink allows user to make set requests as a manager and make changes on agent.",
         parameters = {
                 @Parameter(name = SNMPConstants.HOST,
-                        description = "Address or ip of the target SNMP agent.",
+                        description = "Host name or ip of the target which is SNMP agent.",
                         type = DataType.STRING),
                 @Parameter(name = SNMPConstants.VERSION,
                         description = "Version of the snmp protocol. Acceptance parameters are V1 for version1, " +

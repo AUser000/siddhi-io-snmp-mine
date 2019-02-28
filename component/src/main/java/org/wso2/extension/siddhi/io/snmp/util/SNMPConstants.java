@@ -53,7 +53,6 @@ public class SNMPConstants {
 
     // default values
     public static final String DEFAULT_AGENT_PORT = "161";
-    public static final String DEFAULT_IS_TCP = "false";
     public static final String DEFAULT_RETRIES = "5";
     public static final String DEFAULT_TIMEOUT = "1500";
 
