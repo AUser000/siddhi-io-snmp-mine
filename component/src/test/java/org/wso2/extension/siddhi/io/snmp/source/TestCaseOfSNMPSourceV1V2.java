@@ -114,8 +114,6 @@ public class TestCaseOfSNMPSourceV1V2 {
         executionPlanRuntime.start();
         SiddhiTestHelper.waitForEvents(sleepTime, 5, eventCount, timeout);
         Assert.assertTrue(eventArrived.get());
-
-        log.info("Siddhi shutting down");
         siddhiManager.shutdown();
     }
 
@@ -159,8 +157,6 @@ public class TestCaseOfSNMPSourceV1V2 {
         executionPlanRuntime.start();
         SiddhiTestHelper.waitForEvents(sleepTime, 5, eventCount, timeout);
         Assert.assertTrue(eventArrived.get());
-
-        log.info("Siddhi shutting down");
         siddhiManager.shutdown();
     }
 
@@ -201,8 +197,6 @@ public class TestCaseOfSNMPSourceV1V2 {
         executionPlanRuntime.start();
         SiddhiTestHelper.waitForEvents(sleepTime, 5, eventCount, timeout);
         Assert.assertTrue(eventArrived.get());
-
-        log.info(" Siddhi shutting down");
         siddhiManager.shutdown();
     }
 
@@ -245,8 +239,6 @@ public class TestCaseOfSNMPSourceV1V2 {
         executionPlanRuntime.start();
         SiddhiTestHelper.waitForEvents(sleepTime, 5, eventCount, timeout);
         Assert.assertTrue(eventArrived.get());
-
-        log.info(" Siddhi shutting down");
         siddhiManager.shutdown();
     }
 
