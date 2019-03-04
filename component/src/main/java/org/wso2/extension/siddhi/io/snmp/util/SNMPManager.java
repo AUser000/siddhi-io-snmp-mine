@@ -31,6 +31,7 @@ import org.snmp4j.smi.OctetString;
 import org.snmp4j.smi.VariableBinding;
 import org.snmp4j.transport.DefaultTcpTransportMapping;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
+import org.wso2.extension.siddhi.io.snmp.util.exceptions.AgentNotFoundException;
 import org.wso2.extension.siddhi.io.snmp.util.exceptions.SNMPRuntimeException;
 
 import java.io.IOException;
@@ -46,8 +47,8 @@ public class SNMPManager {
     private Snmp snmp;
     private SNMPManagerConfig managerConfig;
 
-    public SNMPManager() {
-
+    public SNMPManager(SNMPManagerConfig managerConfig) {
+        this.managerConfig = managerConfig;
     }
 
     private OctetString getEngineId() {
@@ -59,11 +60,6 @@ public class SNMPManager {
             engineId = managerConfig.getLocalEngineID();
         }
         return engineId;
-    }
-
-    public void setManagerConfig(SNMPManagerConfig managerConfig) {
-
-        this.managerConfig = managerConfig;
     }
 
     public void listen() throws IOException {
@@ -105,10 +101,8 @@ public class SNMPManager {
             }
             return map;
         }
-        if (event != null && event.getResponse() == null) {
-            throw new SNMPRuntimeException("response event is null");
-        }
-        throw new SNMPRuntimeException("response event is null");
+        //log.info(event.getResponse().toString());
+        throw new AgentNotFoundException("response event is null");
     }
 
     // get map object, make set request and validate
@@ -135,7 +129,7 @@ public class SNMPManager {
                     new Throwable("event response is null"));
         }
         if (event.getResponse().getErrorIndex() != 0) { // Error = 0 is no error
-            throw new SNMPRuntimeException(" Error" + event.getResponse().getErrorStatusText());
+            throw new SNMPRuntimeException(" Error " + event.getResponse().getErrorStatusText());
         }
     }
 

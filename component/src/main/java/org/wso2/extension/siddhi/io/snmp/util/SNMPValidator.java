@@ -36,17 +36,22 @@ import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 /**
  * SNMP validations for sink and source
  */
 public class SNMPValidator {
 
-    private SNMPValidator() {}
+    private String streamName;
 
-    private static final Logger log = Logger.getLogger(SNMPValidator.class);
+    private SNMPValidator(String streamName) {
+        this.streamName = streamName;
+    }
 
-    private static int validateVersion(String versionString, String streamName) {
+    private final Logger log = Logger.getLogger(SNMPValidator.class);
+
+    private int validateVersion(String versionString) {
 
         versionString = versionString.toLowerCase(Locale.ENGLISH);
         switch (versionString) {
@@ -62,7 +67,7 @@ public class SNMPValidator {
         }
     }
 
-    private static List<VariableBinding> validateAndGetOidList(String oidListString, String streamName) {
+    private List<VariableBinding> validateAndGetOidList(String oidListString) {
 
         oidListString = oidListString.replace(" ", "");
         if (oidListString.equals("")) {
@@ -71,12 +76,15 @@ public class SNMPValidator {
         List<VariableBinding> list = new LinkedList<>();
         String[] oids = oidListString.split(",");
         for (String oid : oids) {
+            if (!Pattern.matches("^\\d+(\\.\\d+)*$", oid)) {
+                throw new SiddhiAppValidationException("OID pattern error");
+            }
             list.add(new VariableBinding(new OID(oid)));
         }
         return list;
     }
 
-    private static OID validateAndGetPriv(String priv, String streamName) {
+    private OID validateAndGetPriv(String priv) {
 
         priv = priv.toUpperCase(Locale.ENGLISH);
         switch (priv) {
@@ -100,7 +108,7 @@ public class SNMPValidator {
 
     }
 
-    private static OID validateAndGetAuth(String auth, String streamName) {
+    private OID validateAndGetAuth(String auth) {
 
         auth = auth.toUpperCase(Locale.ENGLISH);
         switch (auth) {
@@ -121,7 +129,7 @@ public class SNMPValidator {
         }
     }
 
-    private static int validateSecLvl(String seclvl, String streamName) {
+    private int validateSecLvl(String seclvl) {
 
         seclvl = seclvl.toUpperCase(Locale.ENGLISH);
         switch (seclvl) {
@@ -137,7 +145,7 @@ public class SNMPValidator {
         }
     }
 
-    private static OctetString validateEngineId(String engineId, String streamName) {
+    private OctetString validateEngineId(String engineId) {
 
         if (engineId.equals("Empty")) {
             return null;
@@ -145,7 +153,7 @@ public class SNMPValidator {
         return new OctetString(engineId);
     }
 
-    private static boolean validateTransportProtocol(String transportProtocol, String streamName) {
+    private boolean validateTransportProtocol(String transportProtocol) {
         transportProtocol = transportProtocol.toUpperCase(Locale.ENGLISH);
         switch (transportProtocol) {
             case "TCP" : return true;
@@ -156,11 +164,13 @@ public class SNMPValidator {
     }
 
     //for validation
-    public static SNMPManagerConfig validateSnmpProperties(OptionHolder optionHolder,
+    public static SNMPManagerConfig validateAndGetManagerConfig(OptionHolder optionHolder,
                                                 String streamName,
                                                 boolean includeOids) {
 
+        SNMPValidator validator = new SNMPValidator(streamName);
         SNMPManagerConfig managerConfig = new SNMPManagerConfig();
+
         String host = optionHolder.validateAndGetStaticValue(SNMPConstants.HOST);
         String port = optionHolder.validateAndGetStaticValue(SNMPConstants.AGENT_PORT);
         int timeout = Integer.parseInt(optionHolder.validateAndGetStaticValue(SNMPConstants.TIMEOUT,
@@ -168,15 +178,14 @@ public class SNMPValidator {
         int retries = Integer.parseInt(optionHolder.validateAndGetStaticValue(SNMPConstants.RETRIES,
                 SNMPConstants.DEFAULT_RETRIES));
 
-        boolean isTcp = validateTransportProtocol(optionHolder.validateAndGetStaticValue(
-                SNMPConstants.TRANSPORT_PROTOCOL, SNMPConstants.DEFAULT_TRANSPORT_PROTOCOL), streamName);
+        boolean isTcp = validator.validateTransportProtocol(optionHolder.validateAndGetStaticValue(
+                SNMPConstants.TRANSPORT_PROTOCOL, SNMPConstants.DEFAULT_TRANSPORT_PROTOCOL));
         managerConfig.isTcp(isTcp);
-        managerConfig.setVersion(validateVersion(optionHolder.validateAndGetStaticValue(SNMPConstants.VERSION),
-                streamName));
+        managerConfig.setVersion(validator.validateVersion(optionHolder
+                        .validateAndGetStaticValue(SNMPConstants.VERSION)));
         if (includeOids) {
-            managerConfig.setVariableBindings(validateAndGetOidList(
-                    optionHolder.validateAndGetStaticValue(SNMPConstants.OIDS),
-                    streamName));
+            managerConfig.setVariableBindings(validator.validateAndGetOidList(
+                    optionHolder.validateAndGetStaticValue(SNMPConstants.OIDS)));
         }
         if (managerConfig.getVersion() == SNMPConstants.V3) {
             String userName = optionHolder.validateAndGetStaticValue(SNMPConstants.USER_NAME,
@@ -185,21 +194,18 @@ public class SNMPValidator {
                     SNMPConstants.DEFAULT_AUT_PASSWORD);
             String privpass = optionHolder.validateAndGetStaticValue(SNMPConstants.PRIV_PASSWORD,
                     SNMPConstants.DEFAULT_PRIV_PASSWORD);
-            OID priv = validateAndGetPriv(optionHolder.validateAndGetStaticValue(SNMPConstants.PRIV_PROTOCOL,
-                    SNMPConstants.DEFAULT_PRIV_PROTOCOL),
-                    streamName);
-            OID auth = validateAndGetAuth(optionHolder.validateAndGetStaticValue(SNMPConstants.AUTH_PROTOCOL,
-                    SNMPConstants.DEFAULT_AUTH_PROTOCOL),
-                    streamName);
-            int secLvl = validateSecLvl(optionHolder.validateAndGetStaticValue(SNMPConstants.SECURITY_LVL,
-                    SNMPConstants.DEFAULT_SECURITY_LVL),
-                    streamName);
+            OID priv = validator.validateAndGetPriv(optionHolder.validateAndGetStaticValue(SNMPConstants.PRIV_PROTOCOL,
+                    SNMPConstants.DEFAULT_PRIV_PROTOCOL));
+            OID auth = validator.validateAndGetAuth(optionHolder.validateAndGetStaticValue(SNMPConstants.AUTH_PROTOCOL,
+                    SNMPConstants.DEFAULT_AUTH_PROTOCOL));
+            int secLvl = validator.validateSecLvl(optionHolder.validateAndGetStaticValue(SNMPConstants.SECURITY_LVL,
+                    SNMPConstants.DEFAULT_SECURITY_LVL));
             managerConfig.setUserMatrix(new OctetString(userName), auth, new OctetString(authpass),
                     priv, new OctetString(privpass), secLvl);
 
             managerConfig.setUserTarget(host, port, retries, timeout, managerConfig.getSecLvl());
-            managerConfig.setLocalEngineID(validateEngineId(optionHolder.validateAndGetStaticValue(
-                    SNMPConstants.LOCAL_ENGINE_ID, SNMPConstants.DEFAULT_LOCAL_ENGINE_ID), streamName));
+            managerConfig.setLocalEngineID(validator.validateEngineId(optionHolder.validateAndGetStaticValue(
+                    SNMPConstants.LOCAL_ENGINE_ID, SNMPConstants.DEFAULT_LOCAL_ENGINE_ID)));
             managerConfig.setEngineBoot(Integer.parseInt(optionHolder.validateAndGetStaticValue(
                     SNMPConstants.ENGINE_BOOT,
                     SNMPConstants.DEFAULT_ENGINE_BOOT)));

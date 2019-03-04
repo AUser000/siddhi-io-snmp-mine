@@ -43,6 +43,7 @@ public class SNMPManagerConfig {
     private boolean isTCP = false;
     private PDU pdu;
     private CommunityTarget communityTarget;
+
     private int version;
 
     // version 3 properties
@@ -80,6 +81,11 @@ public class SNMPManagerConfig {
             pdu = new PDU();
             pdu.addAll(vbs);
         }
+    }
+
+    public void setLocalEngineID(OctetString localEngineID) {
+
+        this.localEngineID = localEngineID;
     }
 
     public void setEngineBoot(int engineBoot) {
@@ -163,11 +169,6 @@ public class SNMPManagerConfig {
     public OctetString getLocalEngineID() {
 
         return this.localEngineID;
-    }
-
-    public void setLocalEngineID(OctetString localEngineID) {
-
-        this.localEngineID = localEngineID;
     }
 
     public int getEngineBoot() {

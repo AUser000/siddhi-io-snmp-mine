@@ -219,10 +219,11 @@ public class SNMPSink extends Sink {
                         SiddhiAppContext siddhiAppContext) {
 
         this.streamDefinition = streamDefinition;
-        managerConfig = SNMPValidator.validateSnmpProperties(optionHolder, this.streamDefinition.getId(), false);
-        manager = new SNMPManager();
-        manager.setManagerConfig(managerConfig);
+        managerConfig = SNMPValidator.validateAndGetManagerConfig(optionHolder,
+                this.streamDefinition.getId(), false);
+        manager = new SNMPManager(managerConfig);
     }
+
 
     @Override
     public void publish(Object payload, DynamicOptions dynamicOptions) {
@@ -236,8 +237,9 @@ public class SNMPSink extends Sink {
         } catch (SNMPRuntimeException ex) {
             throw new SNMPSinkRuntimeException("Stream Name : " + this.streamDefinition.getId()
                     + " : Error in setting on agent ", ex);
+        } finally {
+            managerConfig.clear();
         }
-        managerConfig.clear();
     }
 
     @Override
@@ -247,7 +249,7 @@ public class SNMPSink extends Sink {
             manager.listen();
         } catch (IOException e) {
             throw new ConnectionUnavailableException(this.streamDefinition.getId()
-                    + " Error in Setting up Connection : " , e);
+                    + " Error in Setting up Connection : ", e);
         }
     }
 

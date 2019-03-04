@@ -33,6 +33,7 @@ import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.io.IOException;
 import java.util.Map;
@@ -46,7 +47,7 @@ import java.util.concurrent.TimeUnit;
 @Extension(
         name = "snmp",
         namespace = "source",
-        description = " SNMP Source allows user to make get request as manager and get agent status.",
+        description = " SNMP Source allows user to make get request as manager and get agent status in periodically",
         parameters = {
                 @Parameter(name = SNMPConstants.HOST,
                         description = "Address or ip of the target SNMP agent.",
@@ -229,16 +230,23 @@ public class SNMPSource extends Source {
                      String[] requestedTransportPropertyNames, ConfigReader configReader,
                      SiddhiAppContext siddhiAppContext) {
 
-        SNMPManagerConfig managerConfig = SNMPValidator.validateSnmpProperties(optionHolder,
+        SNMPManagerConfig managerConfig = SNMPValidator.validateAndGetManagerConfig(optionHolder,
                 sourceEventListener.getStreamDefinition().getId(),
                 true);
         this.sourceEventListener = sourceEventListener;
-        this.manager = new SNMPManager();
-        manager.setManagerConfig(managerConfig);
-        this.requestInterval = Integer.parseInt(optionHolder.validateAndGetStaticValue(SNMPConstants.REQUEST_INTERVAL,
-                SNMPConstants.DEFAULT_REQUEST_INTERVAL));
+        this.manager = new SNMPManager(managerConfig);
+        this.requestInterval = validateRequestInterval(optionHolder, sourceEventListener.getStreamDefinition().getId());
         this.streamDefinition = sourceEventListener.getStreamDefinition();
         scheduledExecutorService = siddhiAppContext.getScheduledExecutorService();
+    }
+
+    private int validateRequestInterval(OptionHolder optionHolder, String streamName) {
+        try {
+            return Integer.parseInt(optionHolder.validateAndGetStaticValue(SNMPConstants.REQUEST_INTERVAL,
+                    SNMPConstants.DEFAULT_REQUEST_INTERVAL));
+        } catch (Exception e) {
+            throw new SiddhiAppValidationException(streamName + " Request interval accept only positive integers");
+        }
     }
 
     @Override
@@ -267,9 +275,6 @@ public class SNMPSource extends Source {
 
     @Override
     public void destroy() {
-        if (listener != null) {
-            listener.kill();
-        }
         if (future != null) {
             future.cancel(true);
         }
@@ -279,12 +284,12 @@ public class SNMPSource extends Source {
 
     @Override
     public void pause() {
-
+        listener.pause();
     }
 
     @Override
     public void resume() {
-
+        listener.resume();
     }
 
     @Override
