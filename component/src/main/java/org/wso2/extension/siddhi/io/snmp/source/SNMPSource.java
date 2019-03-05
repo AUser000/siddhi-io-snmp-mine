@@ -74,7 +74,7 @@ import java.util.concurrent.TimeUnit;
                 @Parameter(name = SNMPConstants.AGENT_PORT,
                         description = "Port number of the target SNMP agent.",
                         optional = true,
-                        type = DataType.STRING,
+                        type = DataType.INT,
                         defaultValue = SNMPConstants.DEFAULT_AGENT_PORT),
                 @Parameter(name = SNMPConstants.TRANSPORT_PROTOCOL,
                         description = "Transport protocol. Acceptance parameters TCP, UDP",

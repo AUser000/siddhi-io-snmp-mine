@@ -8,7 +8,7 @@
 
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 ```
-@sink(type="snmp", host="<STRING>", version="<STRING>", community="<STRING>", agent.port="<STRING>", transport.protocol="<STRING>", timeout="<INT>", retries="<INT>", user.name="<STRING>", security.lvl="<INT>", priv.protocol="<STRING>", priv.password="<STRING>", auth.protocol="<STRING>", auth.password="<STRING>", engine.id="<STRING>", engine.boot="<INT>", @map(...)))
+@sink(type="snmp", host="<STRING>", version="<STRING>", community="<STRING>", agent.port="<INT>", transport.protocol="<STRING>", timeout="<INT>", retries="<INT>", user.name="<STRING>", security.lvl="<INT>", priv.protocol="<STRING>", priv.password="<STRING>", auth.protocol="<STRING>", auth.password="<STRING>", engine.id="<STRING>", engine.boot="<INT>", @map(...)))
 ```
 
 <span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
@@ -49,7 +49,7 @@
         <td style="vertical-align: top">agent.port</td>
         <td style="vertical-align: top; word-wrap: break-word">Port of the target SNMP agent.</td>
         <td style="vertical-align: top">161</td>
-        <td style="vertical-align: top">STRING</td>
+        <td style="vertical-align: top">INT</td>
         <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>
     </tr>
@@ -199,7 +199,7 @@ define stream outputStream(sysLocation string, sysDscr string);
 
 <span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
 ```
-@source(type="snmp", host="<STRING>", version="<STRING>", oids="<STRING>", request.interval="<INT>", community="<STRING>", agent.port="<STRING>", transport.protocol="<STRING>", timeout="<INT>", retries="<INT>", user.name="<STRING>", security.lvl="<INT>", priv.protocol="<STRING>", priv.password="<STRING>", auth.protocol="<STRING>", auth.password="<STRING>", engine.id="<STRING>", engine.boot="<INT>", @map(...)))
+@source(type="snmp", host="<STRING>", version="<STRING>", oids="<STRING>", request.interval="<INT>", community="<STRING>", agent.port="<INT>", transport.protocol="<STRING>", timeout="<INT>", retries="<INT>", user.name="<STRING>", security.lvl="<INT>", priv.protocol="<STRING>", priv.password="<STRING>", auth.protocol="<STRING>", auth.password="<STRING>", engine.id="<STRING>", engine.boot="<INT>", @map(...)))
 ```
 
 <span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
@@ -256,7 +256,7 @@ define stream outputStream(sysLocation string, sysDscr string);
         <td style="vertical-align: top">agent.port</td>
         <td style="vertical-align: top; word-wrap: break-word">Port number of the target SNMP agent.</td>
         <td style="vertical-align: top">161</td>
-        <td style="vertical-align: top">STRING</td>
+        <td style="vertical-align: top">INT</td>
         <td style="vertical-align: top">Yes</td>
         <td style="vertical-align: top">No</td>
     </tr>
