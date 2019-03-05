@@ -49,7 +49,7 @@ public class TestCaseOfSNMPSourceV3 {
     private Logger log = Logger.getLogger(TestCaseOfSNMPSourceV3.class);
     private AtomicInteger eventCount = new AtomicInteger(0);
     private AtomicBoolean eventArrived = new AtomicBoolean(false);
-    private String port = "2020";
+    private String port = "2022";
     private String ip = "127.0.0.1";
     private Agent agent;
     private EventHolder eventHolder;
@@ -59,9 +59,7 @@ public class TestCaseOfSNMPSourceV3 {
 
     @BeforeClass
     public void startAgent() throws IOException, InterruptedException {
-
         log.info("agent starting.. ");
-        Thread.sleep(5500);
         eventHolder = new EventHolder(1);
         advancedCommandProcessor = new AdvancedCommandProcessor();
         advancedCommandProcessor.setEventListener(eventHolder);
@@ -98,7 +96,7 @@ public class TestCaseOfSNMPSourceV3 {
                 "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
                 "host ='" + ip + "',\n" +
                 "version = 'v3',\n" +
-                "timeout = '100',\n" +
+                "timeout = '1000',\n" +
                 "request.interval = '500',\n" +
                 "agent.port = '" + port + "',\n" +
                 "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
@@ -145,7 +143,7 @@ public class TestCaseOfSNMPSourceV3 {
                 "host ='" + ip + "',\n" +
                 "version = 'v3',\n" +
                 "timeout = '100',\n" +
-                "request.interval = '500',\n" +
+                "request.interval = '1000',\n" +
                 "agent.port = '" + port + "',\n" +
                 "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
                 "auth.protocol = 'AUTHSHA',\n" +
@@ -190,7 +188,7 @@ public class TestCaseOfSNMPSourceV3 {
                 "host ='" + ip + "',\n" +
                 "version = 'v3',\n" +
                 "timeout = '100',\n" +
-                "request.interval = '500',\n" +
+                "request.interval = '1000',\n" +
                 "agent.port = '" + port + "',\n" +
                 "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
                 "auth.protocol = 'AuthHMAC192SHA256',\n" +
@@ -238,7 +236,7 @@ public class TestCaseOfSNMPSourceV3 {
                 "host ='" + ip + "',\n" +
                 "version = 'v3',\n" +
                 "timeout = '100',\n" +
-                "request.interval = '500',\n" +
+                "request.interval = '1000',\n" +
                 "agent.port = '" + port + "',\n" +
                 "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
                 "auth.protocol = 'AUTHSHA',\n" +
@@ -285,7 +283,7 @@ public class TestCaseOfSNMPSourceV3 {
                 "host ='" + ip + "',\n" +
                 "version = 'v3',\n" +
                 "timeout = '100',\n" +
-                "request.interval = '500',\n" +
+                "request.interval = '1000',\n" +
                 "agent.port = '" + port + "',\n" +
                 "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
                 "auth.protocol = 'AUTHSHA',\n" +
@@ -332,7 +330,7 @@ public class TestCaseOfSNMPSourceV3 {
                 "host ='" + ip + "',\n" +
                 "version = 'v3',\n" +
                 "timeout = '100',\n" +
-                "request.interval = '500',\n" +
+                "request.interval = '1000',\n" +
                 "agent.port = '" + port + "',\n" +
                 "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
                 "auth.protocol = 'AUTHSHA',\n" +
@@ -378,7 +376,7 @@ public class TestCaseOfSNMPSourceV3 {
                 "host ='" + ip + "',\n" +
                 "version = 'v3',\n" +
                 "timeout = '100',\n" +
-                "request.interval = '500',\n" +
+                "request.interval = '1000',\n" +
                 "agent.port = '" + port + "',\n" +
                 "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
                 "auth.protocol = 'AUTHMD5',\n" +
@@ -425,7 +423,7 @@ public class TestCaseOfSNMPSourceV3 {
                 "host ='" + ip + "',\n" +
                 "version = 'v3',\n" +
                 "timeout = '100',\n" +
-                "request.interval = '500',\n" +
+                "request.interval = '1000',\n" +
                 "agent.port = '" + port + "',\n" +
                 "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
                 "auth.protocol = 'AUTHSHA',\n" +
@@ -595,6 +593,40 @@ public class TestCaseOfSNMPSourceV3 {
                 "timeout = '100',\n" +
                 "request.interval = '500',\n" +
                 "agent.port = '" + port + "',\n" +
+                "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.u.0',\n" +
+                "auth.protocol = 'AUTHSHAE',\n" +
+                "priv.protocol = 'PRIVDES',\n" +
+                "priv.password = 'privpass',\n" +
+                "auth.password = 'authpass',\n" +
+                "security.lvl = 'AUTH_PRIV',\n" +
+                "user.name = 'agent5') \n" +
+                " define stream inputStream(value1 string, value2 string);\n";
+
+        SiddhiAppRuntime executionPlanRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        executionPlanRuntime.start();
+        siddhiManager.shutdown();
+    }
+
+    // for invalid `port`
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    public void snmpValidationTest7() {
+
+        log.info("-------------------------------------------------------------------------------------");
+        log.info("                SNMP Version 3 Siddhi app validation for `agent.port`             ");
+        log.info("-------------------------------------------------------------------------------------");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String siddhiApp = "@App:name('test') \n" +
+                "@source(type='snmp', \n" +
+                "@map(type='keyvalue', " +
+                "   @attributes('value1' = '1.3.6.1.2.1.1.3.0', 'value2' = '1.3.6.1.2.1.1.1.0') ),\n" +
+                "host ='" + ip + "',\n" +
+                "version = 'v2c',\n" +
+                "transport.protocol = 'tcp',\n" +
+                "timeout = '100',\n" +
+                "request.interval = '500',\n" +
+                "agent.port = '999865',\n" +
                 "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.u.0',\n" +
                 "auth.protocol = 'AUTHSHAE',\n" +
                 "priv.protocol = 'PRIVDES',\n" +

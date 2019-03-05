@@ -37,7 +37,7 @@ import java.io.IOException;
 public class TestCaseOfSNMPSinkV3 {
 
     private static final Logger log = Logger.getLogger(TestCaseOfSNMPSinkV3.class);
-    private String port = "2019";
+    private String port = "2020";
     private String ip = "127.0.0.1";
     private Agent agent;
     private EventHolder eventHolder;
@@ -102,7 +102,6 @@ public class TestCaseOfSNMPSinkV3 {
             }
         });
 
-        log.info(" Siddhi manager started ");
         executionPlanRuntime.start();
 
         outputStream.send(new Object[]{"mail@wso2.com"});
@@ -111,8 +110,6 @@ public class TestCaseOfSNMPSinkV3 {
         Thread.sleep(1000);
 
         Assert.assertTrue(eventHolder.assertDataContent("mail@wso2.com", 0));
-
-        log.info(" siddhi manager shutting down ");
         siddhiManager.shutdown();
     }
 
@@ -155,7 +152,6 @@ public class TestCaseOfSNMPSinkV3 {
             }
         });
 
-        log.info(" Siddhi manager started ");
         executionPlanRuntime.start();
 
         outputStream.send(new Object[]{"mail@wso2.com"});
@@ -163,8 +159,6 @@ public class TestCaseOfSNMPSinkV3 {
         Thread.sleep(1000);
 
         Assert.assertTrue(eventHolder.assertDataContent("mail@wso2.com", 0));
-
-        log.info(" siddhi manager shutting down ");
         siddhiManager.shutdown();
     }
 

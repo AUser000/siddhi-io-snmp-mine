@@ -97,14 +97,11 @@ public class TestCaseOfSNMPSinkV1V2 {
             }
         });
 
-        log.info("Siddhi manager started ");
         executionPlanRuntime.start();
 
         outputStream.send(new Object[]{"mail@wso2.com"});
         Thread.sleep(200);
         Assert.assertTrue(eventHolder.assertDataContent("mail@wso2.com", 0));
-
-        log.info("Siddhi manager shutting down ");
         siddhiManager.shutdown();
 
     }
@@ -140,7 +137,6 @@ public class TestCaseOfSNMPSinkV1V2 {
             }
         });
 
-        log.info("Siddhi manager started ");
         executionPlanRuntime.start();
 
         outputStream.send(new Object[]{"mail@wso2.com"});
@@ -148,7 +144,6 @@ public class TestCaseOfSNMPSinkV1V2 {
 
         Assert.assertTrue(eventHolder.assertDataContent("mail@wso2.com", 0));
 
-        log.info("Siddhi manager shutting down ");
         siddhiManager.shutdown();
 
     }
@@ -185,15 +180,12 @@ public class TestCaseOfSNMPSinkV1V2 {
             }
         });
 
-        log.info("Siddhi manager started ");
         executionPlanRuntime.start();
 
         outputStream.send(new Object[]{"mail@wso2.com"});
         Thread.sleep(1000);
 
         Assert.assertTrue(eventHolder.assertDataContent("mail@wso2.com", 0));
-
-        log.info("Siddhi manager shutting down ");
         siddhiManager.shutdown();
     }
 

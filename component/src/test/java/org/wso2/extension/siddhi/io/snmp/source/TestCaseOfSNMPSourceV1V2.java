@@ -42,7 +42,7 @@ public class TestCaseOfSNMPSourceV1V2 {
     private  Logger log = Logger.getLogger(TestCaseOfSNMPSourceV1V2.class);
     private AtomicInteger eventCount = new AtomicInteger(0);
     private AtomicBoolean eventArrived = new AtomicBoolean(false);
-    private String port = "2019";
+    private String port = "2021";
     private String ip = "127.0.0.1";
     private Agent agent;
     private EventHolder eventHolder;
@@ -93,7 +93,7 @@ public class TestCaseOfSNMPSourceV1V2 {
                 "host ='" + ip + "',\n" +
                 "version = 'v1',\n" +
                 "agent.port = '" + port + "',\n" +
-                "request.interval = '500',\n" +
+                "request.interval = '1000',\n" +
                 "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
                 "community = 'public') \n" +
                 " define stream inputStream(value1 string, value2 string);\n";
@@ -135,7 +135,7 @@ public class TestCaseOfSNMPSourceV1V2 {
                 "host ='" + ip + "',\n" +
                 "version = 'v1',\n" +
                 "agent.port = '" + port + "',\n" +
-                "request.interval = '500',\n" +
+                "request.interval = '1000',\n" +
                 "transport.protocol = 'udp',\n" +
                 "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
                 "community = 'public') \n" +
@@ -176,7 +176,7 @@ public class TestCaseOfSNMPSourceV1V2 {
                 "host ='" + ip + "',\n" +
                 "version = 'v2c',\n" +
                 "agent.port = '" + port + "',\n" +
-                "request.interval = '500',\n" +
+                "request.interval = '1000',\n" +
                 "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
                 "community = 'public') \n" +
                 " define stream inputStream(value1 string, value2 string);\n";
@@ -217,7 +217,7 @@ public class TestCaseOfSNMPSourceV1V2 {
                 "host ='" + ip + "',\n" +
                 "version = 'v2c',\n" +
                 "agent.port = '" + port + "',\n" +
-                "request.interval = '500',\n" +
+                "request.interval = '1000',\n" +
                 "oids='1.3.6.1.2.1.1.3.0, 1.3.6.1.2.1.1.1.0',\n" +
                 "istcp ='true',\n" +
                 "community = 'public') \n" +

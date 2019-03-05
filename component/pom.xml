@@ -116,8 +116,7 @@ under the License. <version>1.0.17</version>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
-                            org.wso2.extension.siddhi.io.snmp,
-                            org.wso2.extension.siddhi.io.snmp.*
+                            org.wso2.extension.siddhi.io.snmp.*;version="${project.version}"
                         </Export-Package>
                         <Import-Package>
                             *;resolution:=optional

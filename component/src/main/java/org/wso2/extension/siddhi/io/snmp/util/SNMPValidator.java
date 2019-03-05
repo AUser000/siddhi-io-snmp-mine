@@ -163,6 +163,13 @@ public class SNMPValidator {
         }
     }
 
+    private String validatePort(int port) {
+        if (port >= 0 && port <=  65535) {
+            return String.valueOf(port);
+        }
+        throw new SiddhiAppValidationException("port validation error in " + streamName);
+    }
+
     //for validation
     public static SNMPManagerConfig validateAndGetManagerConfig(OptionHolder optionHolder,
                                                 String streamName,
@@ -172,7 +179,8 @@ public class SNMPValidator {
         SNMPManagerConfig managerConfig = new SNMPManagerConfig();
 
         String host = optionHolder.validateAndGetStaticValue(SNMPConstants.HOST);
-        String port = optionHolder.validateAndGetStaticValue(SNMPConstants.AGENT_PORT);
+        String port = validator.validatePort(Integer.parseInt(optionHolder
+                .validateAndGetStaticValue(SNMPConstants.AGENT_PORT)));
         int timeout = Integer.parseInt(optionHolder.validateAndGetStaticValue(SNMPConstants.TIMEOUT,
                 SNMPConstants.DEFAULT_TIMEOUT));
         int retries = Integer.parseInt(optionHolder.validateAndGetStaticValue(SNMPConstants.RETRIES,

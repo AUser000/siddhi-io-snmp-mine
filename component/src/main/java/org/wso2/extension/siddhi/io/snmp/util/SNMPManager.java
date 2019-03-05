@@ -62,6 +62,7 @@ public class SNMPManager {
         return engineId;
     }
 
+    // granting permission from os
     public void listen() throws IOException {
 
         TransportMapping transportMapping;
@@ -101,7 +102,6 @@ public class SNMPManager {
             }
             return map;
         }
-        //log.info(event.getResponse().toString());
         throw new AgentNotFoundException("response event is null");
     }
 
@@ -133,6 +133,7 @@ public class SNMPManager {
         }
     }
 
+    // clearing variable bindings and close snmp
     public void close() {
 
         try {
